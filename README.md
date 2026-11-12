@@ -24,6 +24,16 @@ Requires Node.js 20.19 or newer and a PostgreSQL 16 database.
    cp .env.example .env.local
    ```
 
+   To see the WhatsApp buttons and the floating chat button, set the shop's
+   number in `.env.local` (digits only, with country code) before the next step:
+
+   ```bash
+   SEED_WHATSAPP_NUMBER=18139907900
+   ```
+
+   Without a number the site hides them. Run step 4 again after every
+   `git pull` so database changes are applied.
+
 4. Create the tables and load sample products (this replaces any existing products):
 
    ```bash
