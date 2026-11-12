@@ -214,9 +214,12 @@ for about a minute.
   out of the instantly shown page frame. The server still refreshes them every
   minute, but a visitor who keeps browsing without reloading may see an old
   setting for up to 5 minutes.
-- Consequence: a product address that does not exist shows the not-found page
-  but, because the page frame is sent first, the response code is 200 with a
-  "noindex" tag rather than 404. Addresses outside `/shop/` return a true 404.
+- Consequence: a product address that does not exist shows the not-found
+  message but, because the page frame is sent first, the response code is 200
+  with a "noindex" tag rather than 404. Addresses outside `/shop/` return a
+  true 404. The product page renders `NotFoundMessage` directly instead of
+  calling `notFound()`: throwing after the frame was sent made the browser log
+  an error (React 419) when the visitor clicked away from such a page.
 
 ## D15 — Catalog filters live in the URL
 

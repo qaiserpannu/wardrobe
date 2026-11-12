@@ -55,7 +55,11 @@ design must reflect that.
 - Site copy updated (tagline, hero, descriptions).
 - Stored image names now include a content fingerprint (D19); this fixed
   stale pictures appearing after artwork changed.
-- All tests updated and passing: 40 logic/database tests, 71 browser runs.
+- Fixed: clicking a link on a missing-product page logged a browser error
+  (the next page still loaded). Found as an intermittent test failure; the
+  missing-product message is now rendered without throwing (D14).
+- All tests updated and passing: 40 logic/database tests, 71 browser runs;
+  the previously intermittent test was repeated 36 times without failure.
 
 ### Milestone 1 (2026-11-12) — approved
 

@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ProductGallery } from "@/components/catalog/ProductGallery";
 import { ProductGrid } from "@/components/catalog/ProductGrid";
 import { AvailableBadge, SoldBadge } from "@/components/catalog/StatusBadge";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { Container } from "@/components/ui/Container";
+import { NotFoundMessage } from "@/components/ui/NotFoundMessage";
 import { WhatsAppIcon } from "@/components/ui/icons";
 import { buildProductInquiryLink } from "@/integrations/whatsapp";
 import { CONDITION_DESCRIPTIONS, CONDITION_LABELS } from "@/lib/conditions";
@@ -51,7 +51,11 @@ function Detail({ label, value }: { label: string; value: string | null }) {
 async function ProductDetails({ params }: { params: Props["params"] }) {
   const { slug } = await params;
   const product = await getProductBySlug(slug);
-  if (!product) notFound();
+  // Shown in place rather than via notFound(): by this point the page frame has
+  // already been sent, and throwing here makes the browser log an error when the
+  // visitor then clicks away. Search engines are told not to index it (see
+  // generateMetadata).
+  if (!product) return <NotFoundMessage />;
 
   const [settings, related] = await Promise.all([getCachedSettings(), getRelatedProducts(product, 4)]);
   const { shop, whatsapp } = settings;
