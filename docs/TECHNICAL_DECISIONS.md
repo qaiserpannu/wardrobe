@@ -207,8 +207,11 @@ for about a minute.
 - Update (2026-11-12): two development-mode errors on the homepage were fixed.
   (1) Product sections call `await io()` before their first query, so opening a
   database connection (the password handshake generates a random value) never
-  happens while Next.js prerenders the page frame. Any new component that reads
-  uncached data without first awaiting `params`/`searchParams` needs the same.
+  happens while Next.js prerenders the page frame. The shop and product
+  pages got the same call later the same day: awaiting `params` or
+  `searchParams` turned out not to be enough, because Next.js also prefetches
+  pages with those values filled in. Every component that reads uncached data
+  needs `await io()`.
   (2) The cached settings and categories now use a browser-side lifetime
   (`stale`) of 5 minutes instead of 30 seconds; Next.js leaves anything shorter
   out of the instantly shown page frame. The server still refreshes them every

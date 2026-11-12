@@ -41,6 +41,9 @@ Do not start Milestone 3 until the owner approves.
 - Homepage showed a "Blocking Route" error (random value while prerendering)
   and a "URL data" warning when run with `npm run dev`. Both fixed (D14
   update); all checks and browser tests re-run and passing.
+- The same "Blocking Route" error then appeared on `/shop`. The shop page and
+  product page now use the same fix; checks and browser tests re-run and
+  passing.
 
 ### Milestone 2 revision 1 (2026-11-12) — Indian and Pakistani clothing theme
 

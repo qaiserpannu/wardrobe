@@ -113,9 +113,9 @@ creating again (see `docker-compose.yml` for names), then `npm run db:seed`.
 
 - Product data is never cached. Product components fetch at request time
   inside `<Suspense>`, so availability is always current.
-- A component that reads uncached data without first awaiting `params` or
-  `searchParams` must call `await io()` (from `next/cache`) before its first
-  query, as the homepage product sections do. Keep `stale` at 300 or more in
+- Every component or `generateMetadata` that reads uncached data must call
+  `await io()` (from `next/cache`) before its first query, even if it already
+  awaits `params` or `searchParams`. Keep `stale` at 300 or more in
   `cached.ts` (see D14).
 - Settings and the category list are cached for about a minute via
   `src/server/services/cached.ts` (tags `settings`, `categories`). Admin saves

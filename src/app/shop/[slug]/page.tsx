@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { io } from "next/cache";
 import Link from "next/link";
 import { Suspense } from "react";
 import { ProductGallery } from "@/components/catalog/ProductGallery";
@@ -20,6 +21,8 @@ type Props = PageProps<"/shop/[slug]">;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
+  // Keep database work out of every prerender and prefetch (see D14).
+  await io();
   const product = await getProductBySlug(slug);
   if (!product) return { title: "Item not found", robots: { index: false } };
   const { shop } = await getCachedSettings();
@@ -51,6 +54,8 @@ function Detail({ label, value }: { label: string; value: string | null }) {
 
 async function ProductDetails({ params }: { params: Props["params"] }) {
   const { slug } = await params;
+  // Keep database work out of every prerender and prefetch (see D14).
+  await io();
   const product = await getProductBySlug(slug);
   // Shown in place rather than via notFound(): by this point the page frame has
   // already been sent, and throwing here makes the browser log an error when the

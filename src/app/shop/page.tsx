@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { io } from "next/cache";
 import Link from "next/link";
 import { Suspense } from "react";
 import { ActiveFilters } from "@/components/catalog/ActiveFilters";
@@ -19,6 +20,8 @@ export const metadata: Metadata = {
 
 async function Catalog({ searchParams }: { searchParams: PageProps<"/shop">["searchParams"] }) {
   const filters = parseCatalogParams(await searchParams);
+  // Keep database work out of every prerender and prefetch (see D14).
+  await io();
   const [settings, categories, facets, result] = await Promise.all([
     getCachedSettings(),
     listCategoryTree(),
