@@ -26,31 +26,31 @@ describe("public visibility", () => {
     expect(total).toBe(25); // 28 seeded minus 2 drafts and 1 archived
     expect(new Set(items.map((p) => p.status))).toEqual(new Set(["available", "sold"]));
     const names = items.map((p) => p.name);
-    expect(names).not.toContain("Olive Cargo Pants"); // draft
-    expect(names).not.toContain("Burgundy Knit Dress"); // draft
-    expect(names).not.toContain("Suede Biker Jacket"); // archived
+    expect(names).not.toContain("Navy Mirror Work Lehenga"); // draft
+    expect(names).not.toContain("Maroon Khussa Shoes"); // draft
+    expect(names).not.toContain("Gold Tissue Anarkali Gown"); // archived
   });
 
   it("does not return a draft or archived product by its address", async () => {
-    expect(await getProductBySlug("olive-cargo-pants-plw-0014")).toBeNull();
-    expect(await getProductBySlug("suede-biker-jacket-plw-0021")).toBeNull();
+    expect(await getProductBySlug("navy-mirror-work-lehenga-plw-0013")).toBeNull();
+    expect(await getProductBySlug("gold-tissue-anarkali-gown-plw-0020")).toBeNull();
     expect(await getProductBySlug("does-not-exist")).toBeNull();
     expect(await getProductBySlug("'; drop table products; --")).toBeNull();
   });
 
   it("cannot find drafts through search", async () => {
-    expect((await all({ q: "cargo" })).total).toBe(0);
-    expect((await all({ q: "PLW-0014" })).total).toBe(0);
+    expect((await all({ q: "mirror" })).total).toBe(0);
+    expect((await all({ q: "PLW-0013" })).total).toBe(0);
   });
 
   it("hides products whose category is switched off", async () => {
     const db = getDb();
-    await db.update(categories).set({ isActive: false }).where(eq(categories.slug, "shoes"));
+    await db.update(categories).set({ isActive: false }).where(eq(categories.slug, "sarees"));
     try {
-      expect((await all({ q: "sneakers" })).total).toBe(0);
-      expect((await listCategories()).map((c) => c.slug)).not.toContain("shoes");
+      expect((await all({ q: "banarasi" })).total).toBe(0);
+      expect((await listCategories()).map((c) => c.slug)).not.toContain("sarees");
     } finally {
-      await db.update(categories).set({ isActive: true }).where(eq(categories.slug, "shoes"));
+      await db.update(categories).set({ isActive: true }).where(eq(categories.slug, "sarees"));
     }
   });
 });
@@ -76,17 +76,17 @@ describe("availability", () => {
     expect(featured.every((p) => p.status === "available" && p.isFeatured)).toBe(true);
     expect(recent.length).toBe(22);
     expect(recent.every((p) => p.status === "available")).toBe(true);
-    expect(recent[0].name).toBe("Little Black Dress"); // newest
+    expect(recent[0].name).toBe("Black Chiffon Formal Suit"); // newest
 
-    const sold = (await getProductBySlug("linen-shirt-dress-plw-0004"))!;
+    const sold = (await getProductBySlug("mustard-cotton-printed-suit-plw-0004"))!;
     const related = await getRelatedProducts(sold, 10);
     expect(related.length).toBe(4);
-    expect(related.every((p) => p.status === "available" && p.category.slug === "dresses")).toBe(true);
+    expect(related.every((p) => p.status === "available" && p.category.slug === "shalwar-kameez")).toBe(true);
   });
 
   it("reflects a status change immediately", async () => {
     const db = getDb();
-    const slug = "canvas-shopper-plw-0025";
+    const slug = "embroidered-potli-bag-plw-0024";
     expect((await getProductBySlug(slug))!.status).toBe("available");
     await db.update(products).set({ status: "sold" }).where(eq(products.slug, slug));
     try {
@@ -100,17 +100,18 @@ describe("availability", () => {
 
 describe("search", () => {
   it("finds by name keyword, including plural forms and partial words", async () => {
-    expect((await all({ q: "dress" })).total).toBe(5);
-    expect((await all({ q: "dresses" })).total).toBe(5);
-    expect((await all({ q: "sneak" })).items.map((p) => p.name)).toEqual(["White Leather Sneakers"]);
+    expect((await all({ q: "kurta" })).total).toBe(6);
+    expect((await all({ q: "kurtas" })).total).toBe(6);
+    expect((await all({ q: "saree" })).total).toBe(3);
+    expect((await all({ q: "jhum" })).items.map((p) => p.name)).toEqual(["Gold Kundan Jhumka Earrings"]);
   });
 
   it("finds by brand, colour, description and product ID", async () => {
-    expect((await all({ q: "zara" })).total).toBe(4);
-    expect((await all({ q: "terracotta" })).items.map((p) => p.code)).toEqual(["PLW-0027"]);
-    expect((await all({ q: "utility pockets" })).total).toBe(0); // only in a draft
+    expect((await all({ q: "maria b" })).total).toBe(3);
+    expect((await all({ q: "orange" })).items.map((p) => p.code)).toEqual(["PLW-0026"]);
+    expect((await all({ q: "mirror work panels" })).total).toBe(0); // only in a draft
     expect((await all({ q: "tags still attached" })).items.map((p) => p.code)).toEqual(["PLW-0003"]);
-    expect((await all({ q: "plw-0001" })).items.map((p) => p.name)).toEqual(["Black Midi Wrap Dress"]);
+    expect((await all({ q: "plw-0001" })).items.map((p) => p.name)).toEqual(["Teal Embroidered Lawn Suit"]);
   });
 
   it("returns nothing for unknown terms and treats special characters as plain text", async () => {
@@ -123,22 +124,22 @@ describe("search", () => {
 
 describe("filters", () => {
   it("filters by category", async () => {
-    const { items, total } = await all({ category: "jeans" });
+    const { items, total } = await all({ category: "sarees" });
     expect(total).toBe(3);
-    expect(items.every((p) => p.category.slug === "jeans")).toBe(true);
+    expect(items.every((p) => p.category.slug === "sarees")).toBe(true);
   });
 
   it("filters by one or several sizes", async () => {
     expect((await all({ size: "M" })).items.every((p) => p.size === "M")).toBe(true);
-    const multi = await all({ size: ["S", "30"] });
+    const multi = await all({ size: ["S", "Free size"] });
     expect(multi.total).toBeGreaterThan(0);
-    expect(multi.items.every((p) => p.size === "S" || p.size === "30")).toBe(true);
+    expect(multi.items.every((p) => p.size === "S" || p.size === "Free size")).toBe(true);
   });
 
   it("filters by brand", async () => {
-    const { items, total } = await all({ brand: "Levi's" });
-    expect(total).toBe(4);
-    expect(items.every((p) => p.brand === "Levi's")).toBe(true);
+    const { items, total } = await all({ brand: "Fabindia" });
+    expect(total).toBe(3);
+    expect(items.every((p) => p.brand === "Fabindia")).toBe(true);
   });
 
   it("filters by condition", async () => {
@@ -148,16 +149,18 @@ describe("filters", () => {
   });
 
   it("filters by price range, inclusive at both ends", async () => {
-    const { items } = await all({ min: "20", max: "30" });
+    const { items } = await all({ min: "16", max: "30" });
     expect(items.length).toBeGreaterThan(0);
-    expect(items.every((p) => p.priceCents >= 2000 && p.priceCents <= 3000)).toBe(true);
-    expect(items.some((p) => p.priceCents === 2000)).toBe(true);
+    expect(items.every((p) => p.priceCents >= 1600 && p.priceCents <= 3000)).toBe(true);
+    expect(items.some((p) => p.priceCents === 1600)).toBe(true);
     expect(items.some((p) => p.priceCents === 3000)).toBe(true);
   });
 
-  it("combines filters: a black dress under $30", async () => {
-    const { items } = await all({ q: "black", category: "dresses", max: "30", hideSold: "1" });
-    expect(items.map((p) => p.name).sort()).toEqual(["Black Midi Wrap Dress", "Little Black Dress"]);
+  it("combines filters: something black under $70 that is still available", async () => {
+    const { items } = await all({ q: "black", max: "70", hideSold: "1" });
+    expect(items.map((p) => p.name).sort()).toEqual(["Black Chiffon Formal Suit", "Black Embroidered Kurti"]);
+    const narrowed = await all({ q: "black", category: "kurtas", max: "70", hideSold: "1" });
+    expect(narrowed.items.map((p) => p.name)).toEqual(["Black Embroidered Kurti"]);
   });
 });
 
@@ -189,28 +192,27 @@ describe("sorting and paging", () => {
 
 describe("product details and supporting data", () => {
   it("returns full details with ordered photos and a product ID", async () => {
-    const p = (await getProductBySlug("black-midi-wrap-dress-plw-0001"))!;
+    const p = (await getProductBySlug("teal-embroidered-lawn-suit-plw-0001"))!;
     expect(p).toMatchObject({
       code: "PLW-0001",
-      name: "Black Midi Wrap Dress",
-      brand: "Zara",
+      name: "Teal Embroidered Lawn Suit",
+      brand: "Khaadi",
       size: "M",
-      color: "Black",
+      color: "Teal",
       condition: "like_new",
-      priceCents: 2800,
+      priceCents: 4500,
       status: "available",
-      category: { name: "Dresses", slug: "dresses" },
+      category: { name: "Shalwar Kameez", slug: "shalwar-kameez" },
     });
-    expect(p.images.map((i) => i.url)).toEqual([
-      "/media/seed/plw-0001-1.webp",
-      "/media/seed/plw-0001-2.webp",
-      "/media/seed/plw-0001-3.webp",
-    ]);
+    expect(p.images).toHaveLength(3);
+    p.images.forEach((img, i) =>
+      expect(img.url).toMatch(new RegExp(`^/media/seed/plw-0001-${i + 1}-[0-9a-f]{8}\\.webp$`)),
+    );
     expect(p).not.toHaveProperty("id");
   });
 
   it("keeps missing information as missing rather than inventing it", async () => {
-    const p = (await getProductBySlug("canvas-shopper-plw-0025"))!;
+    const p = (await getProductBySlug("embroidered-potli-bag-plw-0024"))!;
     expect([p.brand, p.size, p.color]).toEqual([null, null, null]);
   });
 
@@ -222,11 +224,12 @@ describe("product details and supporting data", () => {
 
   it("builds filter options from public products only", async () => {
     const facets = await getCatalogFacets();
-    expect(facets.brands).not.toContain("AllSaints"); // only on an archived item
-    expect(facets.brands).toContain("Zara");
-    expect(facets.sizes.slice(0, 3)).toEqual(["S", "M", "L"]);
-    expect(facets.minPriceCents).toBe(800);
-    expect(facets.maxPriceCents).toBe(7800); // the $95 jacket is archived
+    expect(facets.brands).not.toContain("Elan"); // only on an archived item
+    expect(facets.brands).not.toContain("W"); // only on a draft
+    expect(facets.brands).toContain("Khaadi");
+    expect(facets.sizes).toEqual(["S", "M", "L", "Free size"]); // size 38 is only on a draft
+    expect(facets.minPriceCents).toBe(900);
+    expect(facets.maxPriceCents).toBe(32000);
   });
 
   it("sorts sizes naturally", () => {
@@ -235,15 +238,15 @@ describe("product details and supporting data", () => {
 
   it("lists categories with available counts", async () => {
     const cats = await listCategories();
-    expect(cats.map((c) => c.name)).toEqual(["Dresses", "Shirts", "Tops", "Pants", "Jeans", "Jackets", "Shoes", "Accessories"]);
-    expect(cats.find((c) => c.slug === "dresses")!.availableCount).toBe(4);
-    expect(cats.find((c) => c.slug === "pants")!.availableCount).toBe(2);
+    expect(cats.map((c) => c.name)).toEqual(["Shalwar Kameez", "Kurtas", "Lehengas", "Sarees", "Anarkalis", "Menswear", "Dupattas", "Accessories"]);
+    expect(cats.find((c) => c.slug === "shalwar-kameez")!.availableCount).toBe(4);
+    expect(cats.find((c) => c.slug === "lehengas")!.availableCount).toBe(2);
   });
 
   it("loads settings with defaults", async () => {
     const s = await getSettings();
     expect(s.branding.siteName).toBe("Pre-Loved Wardrobe");
     expect(s.whatsapp.number).toBe("15555550100");
-    expect(s.homepage.heroImageKey).toBe("seed/hero.webp");
+    expect(s.homepage.heroImageKey).toMatch(/^seed\/hero-[0-9a-f]{8}\.webp$/);
   });
 });

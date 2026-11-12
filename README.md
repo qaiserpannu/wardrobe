@@ -1,6 +1,6 @@
 # Pre-Loved Wardrobe
 
-A boutique-style website for selling pre-owned clothing.
+A boutique-style website for selling pre-owned Indian and Pakistani clothing.
 
 ## Run locally
 

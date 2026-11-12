@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { SearchIcon } from "@/components/ui/icons";
+import { ArchMark } from "@/components/ui/Ornament";
 import { getCachedCategories, getCachedSettings } from "@/server/services/cached";
 import { MobileMenu } from "./MobileMenu";
 
@@ -18,11 +19,21 @@ export async function Header() {
   ];
 
   return (
-    <header className="sticky top-0 z-30 border-b border-line bg-canvas/95 backdrop-blur">
+    <>
+      {settings.branding.announcement && (
+        <p className="bg-accent-dark px-4 py-2 text-center text-xs tracking-[0.14em] text-gold-light uppercase">
+          {settings.branding.announcement}
+        </p>
+      )}
+      <header className="sticky top-0 z-30 border-b border-gold/40 bg-canvas/95 backdrop-blur">
       <Container className="relative flex h-16 items-center justify-between gap-4 lg:h-20">
         <MobileMenu links={mobileLinks} />
 
-        <Link href="/" className="font-display text-2xl leading-none font-semibold tracking-tight lg:text-[1.7rem]">
+        <Link
+          href="/"
+          className="flex items-center gap-2 font-display text-2xl leading-none font-semibold tracking-tight text-accent lg:text-[1.7rem]"
+        >
+          <ArchMark className="hidden h-7 w-6 text-gold sm:block" />
           {settings.branding.siteName}
         </Link>
 
@@ -67,6 +78,7 @@ export async function Header() {
           <SearchIcon />
         </Link>
       </Container>
-    </header>
+      </header>
+    </>
   );
 }

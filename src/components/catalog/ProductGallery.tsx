@@ -41,7 +41,7 @@ export function ProductGallery({ images, sold }: { images: PublicImage[]; sold: 
                 onClick={() => setIndex(i)}
                 aria-label={`Show photo ${i + 1} of ${images.length}`}
                 aria-current={i === index}
-                className={`relative block aspect-[4/5] w-full overflow-hidden rounded-sm bg-sand ring-offset-2 ring-offset-canvas ${i === index ? "ring-2 ring-ink" : "opacity-70 hover:opacity-100"}`}
+                className={`relative block aspect-[4/5] w-full overflow-hidden rounded-sm bg-sand ring-offset-2 ring-offset-canvas ${i === index ? "ring-2 ring-accent" : "opacity-70 hover:opacity-100"}`}
               >
                 <Image src={img.url} alt="" fill sizes="80px" className="object-cover" />
               </button>

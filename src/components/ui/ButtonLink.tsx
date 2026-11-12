@@ -2,8 +2,8 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 const VARIANTS = {
-  primary: "bg-ink text-white hover:bg-accent-dark",
-  outline: "border border-ink text-ink hover:bg-ink hover:text-white",
+  primary: "bg-accent text-white hover:bg-accent-dark",
+  outline: "border border-accent text-accent hover:bg-accent hover:text-white",
   whatsapp: "bg-whatsapp text-white hover:bg-whatsapp-dark",
 } as const;
 

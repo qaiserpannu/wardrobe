@@ -25,24 +25,25 @@ export async function Footer() {
   ].filter((s) => s.url);
 
   return (
-    <footer id="contact" className="mt-24 border-t border-line bg-sand">
+    <footer id="contact" className="mt-24 bg-accent-dark text-[#f6ead6]">
+      <div className="edge-scallop" aria-hidden />
       <Container className="grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-4">
         <div className="lg:col-span-1">
-          <p className="font-display text-2xl font-semibold">{branding.siteName}</p>
-          <p className="mt-3 max-w-xs text-sm leading-relaxed text-muted">{branding.tagline}</p>
+          <p className="font-display text-2xl font-semibold text-gold-light">{branding.siteName}</p>
+          <p className="mt-3 max-w-xs text-sm leading-relaxed text-[#f6ead6]/70">{branding.tagline}</p>
         </div>
 
         <nav aria-label="Shop categories">
-          <h2 className="text-xs font-semibold tracking-[0.18em] uppercase">Shop</h2>
+          <h2 className="text-xs font-semibold tracking-[0.18em] text-gold-light uppercase">Shop</h2>
           <ul className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2.5 text-sm">
             <li>
-              <Link href="/shop" className="hover:text-accent">
+              <Link href="/shop" className="hover:text-gold-light">
                 All items
               </Link>
             </li>
             {categories.map((c) => (
               <li key={c.slug}>
-                <Link href={`/shop?category=${c.slug}`} className="hover:text-accent">
+                <Link href={`/shop?category=${c.slug}`} className="hover:text-gold-light">
                   {c.name}
                 </Link>
               </li>
@@ -51,7 +52,7 @@ export async function Footer() {
         </nav>
 
         <div>
-          <h2 className="text-xs font-semibold tracking-[0.18em] uppercase">Contact</h2>
+          <h2 className="text-xs font-semibold tracking-[0.18em] text-gold-light uppercase">Contact</h2>
           <ul className="mt-4 space-y-2.5 text-sm">
             {whatsappLink && (
               <li>
@@ -59,7 +60,7 @@ export async function Footer() {
                   href={whatsappLink}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 hover:text-accent"
+                  className="inline-flex items-center gap-2 hover:text-gold-light"
                 >
                   <WhatsAppIcon className="size-4" /> Chat on WhatsApp
                 </a>
@@ -67,28 +68,28 @@ export async function Footer() {
             )}
             {contact.email && (
               <li>
-                <a href={`mailto:${contact.email}`} className="hover:text-accent">
+                <a href={`mailto:${contact.email}`} className="hover:text-gold-light">
                   {contact.email}
                 </a>
               </li>
             )}
             {contact.phone && (
               <li>
-                <a href={`tel:${contact.phone.replace(/[^\d+]/g, "")}`} className="hover:text-accent">
+                <a href={`tel:${contact.phone.replace(/[^\d+]/g, "")}`} className="hover:text-gold-light">
                   {contact.phone}
                 </a>
               </li>
             )}
-            {contact.location && <li className="text-muted">{contact.location}</li>}
+            {contact.location && <li className="text-[#f6ead6]/70">{contact.location}</li>}
             {!whatsappLink && !contact.email && !contact.phone && (
-              <li className="text-muted">Contact details coming soon.</li>
+              <li className="text-[#f6ead6]/70">Contact details coming soon.</li>
             )}
           </ul>
         </div>
 
         {socials.length > 0 && (
           <div>
-            <h2 className="text-xs font-semibold tracking-[0.18em] uppercase">Follow</h2>
+            <h2 className="text-xs font-semibold tracking-[0.18em] text-gold-light uppercase">Follow</h2>
             <ul className="mt-4 flex gap-3">
               {socials.map(({ label, url, Icon }) => (
                 <li key={label}>
@@ -97,7 +98,7 @@ export async function Footer() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={label}
-                    className="flex size-11 items-center justify-center rounded-full border border-line bg-surface hover:border-ink"
+                    className="flex size-11 items-center justify-center rounded-full border border-gold/50 hover:border-gold-light hover:text-gold-light"
                   >
                     <Icon />
                   </a>
@@ -107,8 +108,8 @@ export async function Footer() {
           </div>
         )}
       </Container>
-      <div className="border-t border-line">
-        <Container className="py-5 text-xs text-muted">
+      <div className="border-t border-gold/25">
+        <Container className="py-5 text-xs text-[#f6ead6]/70">
           © <CopyrightYear /> {branding.siteName}. All rights reserved.
         </Container>
       </div>

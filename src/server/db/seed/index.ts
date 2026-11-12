@@ -4,15 +4,25 @@
  *
  *   npm run db:seed
  */
+import { createHash } from "node:crypto";
 import { sql } from "drizzle-orm";
 import { normalizeWhatsAppNumber } from "@/integrations/whatsapp";
 import { slugify } from "@/lib/slug";
 import { closeDb, getDb } from "../client";
 import { runMigrations } from "../migrate";
 import { categories, productImages, products, siteSettings } from "../schema";
-import { localStorageDriver } from "../../storage/local";
+import { clearLocalFolder, localStorageDriver } from "../../storage/local";
 import { renderHeroImage, renderProductImage } from "./artwork";
 import { seedCategories, seedProducts } from "./data";
+
+/**
+ * Stored images are served as "never changes", so every file name includes a
+ * fingerprint of its contents. New artwork gets a new name and is never
+ * confused with a cached older picture.
+ */
+function fingerprint(data: Buffer): string {
+  return createHash("sha256").update(data).digest("hex").slice(0, 8);
+}
 
 export async function seed() {
   if (process.env.NODE_ENV === "production" && process.env.ALLOW_SEED !== "1") {
@@ -23,6 +33,8 @@ export async function seed() {
 
   await db.execute(sql`truncate table product_images, products, categories, site_settings restart identity cascade`);
   await db.execute(sql`alter sequence product_code_seq restart with 1`);
+
+  await clearLocalFolder("seed");
 
   const insertedCategories = await db
     .insert(categories)
@@ -59,7 +71,7 @@ export async function seed() {
 
     for (let v = 0; v < (p.images ?? 2); v++) {
       const img = await renderProductImage(p.art, p.hex, v);
-      const key = `seed/${row.code.toLowerCase()}-${v + 1}.webp`;
+      const key = `seed/${row.code.toLowerCase()}-${v + 1}-${fingerprint(img.data)}.webp`;
       await localStorageDriver.put(key, img.data, "image/webp");
       await db.insert(productImages).values({
         productId: row.id,
@@ -73,10 +85,11 @@ export async function seed() {
   }
 
   const hero = await renderHeroImage();
-  await localStorageDriver.put("seed/hero.webp", hero.data, "image/webp");
+  const heroKey = `seed/hero-${fingerprint(hero.data)}.webp`;
+  await localStorageDriver.put(heroKey, hero.data, "image/webp");
 
   await db.insert(siteSettings).values([
-    { key: "homepage", value: { heroImageKey: "seed/hero.webp" } },
+    { key: "homepage", value: { heroImageKey: heroKey } },
     { key: "whatsapp", value: { number: normalizeWhatsAppNumber(process.env.SEED_WHATSAPP_NUMBER ?? "") } },
     { key: "contact", value: { email: "hello@example.com", location: "" } },
     { key: "social", value: { instagram: "https://instagram.com/", facebook: "https://facebook.com/" } },

@@ -8,8 +8,10 @@ import { z } from "zod";
 export const settingsSchemas = {
   branding: z.object({
     siteName: z.string().default("Pre-Loved Wardrobe"),
-    tagline: z.string().default("Pre-owned fashion, chosen with care."),
+    tagline: z.string().default("Pre-loved Indian & Pakistani fashion, chosen with care."),
     logoKey: z.string().nullable().default(null),
+    /** Short line shown in the strip above the header. Empty hides the strip. */
+    announcement: z.string().default("Every piece is one of a kind · New arrivals weekly"),
   }),
   shop: z.object({
     currency: z.string().length(3).default("USD"),
@@ -37,24 +39,24 @@ export const settingsSchemas = {
     description: z
       .string()
       .default(
-        "Shop carefully selected pre-owned clothing. Browse dresses, shirts, jeans, jackets and more.",
+        "Pre-loved Indian and Pakistani clothing: shalwar kameez, kurtas, lehengas, sarees, anarkalis, menswear and accessories.",
       ),
   }),
   homepage: z.object({
-    heroEyebrow: z.string().default("New arrivals weekly"),
+    heroEyebrow: z.string().default("Pre-loved Indian & Pakistani wear"),
     heroTitle: z.string().default("Loved once. Ready to be loved again."),
     heroText: z
       .string()
       .default(
-        "A small, hand-picked collection of pre-owned pieces. Every item is checked, photographed and described honestly.",
+        "From everyday kurtas to wedding lehengas — a hand-picked collection of pre-owned outfits, each one checked, photographed and described honestly.",
       ),
     heroImageKey: z.string().nullable().default(null),
     aboutTitle: z.string().default("How it works"),
     steps: z
       .array(z.object({ title: z.string(), text: z.string() }))
       .default([
-        { title: "Browse", text: "Every piece is one of a kind. When it's gone, it's gone." },
-        { title: "Ask", text: "Message us on WhatsApp about the item you like." },
+        { title: "Browse", text: "Every outfit is one of a kind. When it's gone, it's gone." },
+        { title: "Ask", text: "Message us on WhatsApp about the piece you like." },
         { title: "Wear", text: "We arrange payment and handover with you directly." },
       ]),
   }),

@@ -67,12 +67,12 @@ export function FilterForm({ children, activeCount, urlKey }: Props) {
         aria-expanded={open}
         aria-controls="catalog-filters"
         onClick={() => setOpen((v) => !v)}
-        className="flex min-h-12 w-full items-center justify-center gap-2 rounded-full border border-ink text-sm font-medium lg:hidden"
+        className="flex min-h-12 w-full items-center justify-center gap-2 rounded-full border border-accent text-sm font-medium lg:hidden"
       >
         <FilterIcon />
         {open ? "Hide filters" : "Search & filter"}
         {activeCount > 0 && (
-          <span className="rounded-full bg-ink px-2 py-0.5 text-xs text-white">{activeCount}</span>
+          <span className="rounded-full bg-accent px-2 py-0.5 text-xs text-white">{activeCount}</span>
         )}
       </button>
       <form

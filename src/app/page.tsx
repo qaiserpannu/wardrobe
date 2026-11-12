@@ -7,6 +7,7 @@ import { SectionHeading } from "@/components/home/SectionHeading";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { Container } from "@/components/ui/Container";
 import { ArrowRightIcon, WhatsAppIcon } from "@/components/ui/icons";
+import { Ornament } from "@/components/ui/Ornament";
 import { buildWhatsAppLink } from "@/integrations/whatsapp";
 import type { SiteSettings } from "@/lib/settings";
 import { getCachedCategories, getCachedSettings } from "@/server/services/cached";
@@ -25,9 +26,9 @@ async function FeaturedSection({ shop }: { shop: SiteSettings["shop"] }) {
   const products = await getFeaturedProducts(4);
   if (products.length === 0) return null;
   return (
-    <section aria-label="Featured pieces" className="mt-20 sm:mt-28" data-testid="featured">
+    <section aria-label="Featured outfits" className="mt-20 sm:mt-28" data-testid="featured">
       <Container>
-        <SectionHeading eyebrow="Hand-picked" title="Featured pieces" href="/shop" linkLabel="Shop all" />
+        <SectionHeading eyebrow="Hand-picked" title="Featured outfits" href="/shop" linkLabel="Shop all" />
         <ProductGrid products={products} shop={shop} />
       </Container>
     </section>
@@ -78,60 +79,63 @@ export default async function Home() {
 
   return (
     <>
-      <section className="bg-sand">
-        <Container className="grid items-center gap-8 py-10 sm:py-14 lg:grid-cols-2 lg:gap-14 lg:py-20">
+      <section className="pattern-jali border-b border-gold/30 bg-sand">
+        <Container className="grid items-center gap-10 py-10 sm:py-14 lg:grid-cols-[1.15fr_1fr] lg:gap-14 lg:py-16">
           <div className="max-w-xl">
             <p className="text-xs font-semibold tracking-[0.2em] text-accent uppercase">{homepage.heroEyebrow}</p>
             <h1 className="mt-4 font-display text-[2.6rem] leading-[1.05] font-medium text-balance sm:text-6xl lg:text-[4.2rem]">
               {homepage.heroTitle}
             </h1>
+            <Ornament className="mt-5" />
             <p className="mt-5 max-w-md text-base leading-relaxed text-muted sm:text-lg">{homepage.heroText}</p>
             <div className="mt-8 flex flex-wrap gap-3">
               <ButtonLink href="/shop">
                 Shop the collection <ArrowRightIcon />
               </ButtonLink>
-              <ButtonLink href="/#how-it-works" variant="outline">
+              <ButtonLink href="/#how-it-works" variant="outline" className="bg-canvas">
                 How it works
               </ButtonLink>
             </div>
           </div>
           {heroImage && (
-            <div className="relative aspect-[4/3] overflow-hidden rounded-sm lg:aspect-[5/4]">
-              <Image
-                src={heroImage}
-                alt=""
-                fill
-                loading="eager"
-                fetchPriority="high"
-                sizes="(min-width: 1024px) 50vw, 100vw"
-                className="object-cover"
-              />
+            <div className="mx-auto w-full max-w-xs rounded-t-full border border-gold p-2 sm:max-w-sm lg:max-w-md">
+              <div className="relative aspect-[4/5] overflow-hidden rounded-t-full">
+                <Image
+                  src={heroImage}
+                  alt=""
+                  fill
+                  loading="eager"
+                  fetchPriority="high"
+                  sizes="(min-width: 1024px) 28rem, (min-width: 640px) 24rem, 20rem"
+                  className="object-cover"
+                />
+              </div>
             </div>
           )}
         </Container>
       </section>
 
-      <Suspense fallback={<SectionFallback title="Featured pieces" count={4} />}>
+      <Suspense fallback={<SectionFallback title="Featured outfits" count={4} />}>
         <FeaturedSection shop={shop} />
       </Suspense>
 
       <section aria-labelledby="categories-heading" className="mt-20 sm:mt-28">
         <Container>
-          <div className="mb-8 sm:mb-10">
-            <p className="mb-2 text-xs font-semibold tracking-[0.2em] text-accent uppercase">Find your fit</p>
-            <h2 id="categories-heading" className="font-display text-3xl leading-tight font-medium sm:text-4xl">
-              Browse by category
-            </h2>
-          </div>
-          <ul className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4" data-testid="category-list">
+          <SectionHeading eyebrow="Find your style" title="Browse by category" id="categories-heading" />
+          <ul className="grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-4 sm:gap-x-6 sm:gap-y-8" data-testid="category-list">
             {categories.map((c) => (
               <li key={c.slug}>
                 <Link
                   href={`/shop?category=${c.slug}`}
-                  className="group flex min-h-24 items-center justify-between rounded-sm border border-line bg-surface px-5 transition-colors hover:border-ink sm:min-h-28"
+                  className="group block rounded-t-full border border-gold/60 p-1.5 transition-colors hover:border-accent"
                 >
-                  <span className="font-display text-xl font-medium sm:text-2xl">{c.name}</span>
-                  <ArrowRightIcon className="size-4 text-muted transition-transform group-hover:translate-x-1 group-hover:text-ink" />
+                  <span className="pattern-jali flex aspect-[4/5] flex-col items-center justify-end gap-3 rounded-t-full bg-sand px-3 pb-7 lg:aspect-[10/11] text-center transition-colors group-hover:bg-accent group-hover:text-white sm:pb-9">
+                    <Ornament className="group-hover:text-gold-light" />
+                    <span className="font-display text-xl leading-tight font-medium sm:text-2xl">{c.name}</span>
+                    <span className="inline-flex items-center gap-1.5 text-xs tracking-[0.14em] uppercase opacity-70">
+                      Shop <ArrowRightIcon className="size-3.5 transition-transform group-hover:translate-x-1" />
+                    </span>
+                  </span>
                 </Link>
               </li>
             ))}
@@ -145,10 +149,11 @@ export default async function Home() {
 
       <section id="how-it-works" aria-labelledby="how-heading" className="mt-20 scroll-mt-24 sm:mt-28">
         <Container>
-          <div className="rounded-sm bg-sand px-6 py-12 sm:px-12 sm:py-16">
+          <div className="pattern-jali rounded-sm border border-gold/40 bg-sand px-6 py-12 sm:px-12 sm:py-16">
             <h2 id="how-heading" className="text-center font-display text-3xl font-medium sm:text-4xl">
               {homepage.aboutTitle}
             </h2>
+            <Ornament className="mt-4 justify-center" />
             <ol className="mt-10 grid gap-8 sm:grid-cols-3">
               {homepage.steps.map((step, i) => (
                 <li key={step.title} className="text-center">

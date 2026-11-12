@@ -51,8 +51,8 @@ test.describe("homepage", () => {
     await expect(page.getByRole("heading", { level: 1, name: "Shop" })).toBeVisible();
 
     await page.goto("/");
-    await page.getByTestId("category-list").getByRole("link", { name: "Jeans" }).click();
-    await expect(page).toHaveURL(/category=jeans/);
+    await page.getByTestId("category-list").getByRole("link", { name: "Sarees" }).click();
+    await expect(page).toHaveURL(/category=sarees/);
     await expect(count(page)).toHaveText("3 items");
   });
 
@@ -72,14 +72,14 @@ test.describe("navigation", () => {
       await page.getByRole("button", { name: "Open menu" }).click();
       const menu = page.getByRole("navigation", { name: "Mobile" });
       await expect(menu).toBeVisible();
-      await menu.getByRole("link", { name: "Dresses" }).click();
-      await expect(page).toHaveURL(/category=dresses/);
+      await menu.getByRole("link", { name: "Kurtas" }).click();
+      await expect(page).toHaveURL(/category=kurtas/);
       await expect(menu).toBeHidden(); // closes after choosing
     } else {
-      await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Dresses" }).click();
-      await expect(page).toHaveURL(/category=dresses/);
+      await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Kurtas" }).click();
+      await expect(page).toHaveURL(/category=kurtas/);
     }
-    await expect(count(page)).toHaveText("5 items");
+    await expect(count(page)).toHaveText("6 items");
     await page.getByRole("banner").getByRole("link", { name: "Pre-Loved Wardrobe" }).click();
     await expect(page).toHaveURL(/\/$/);
   });
@@ -109,7 +109,7 @@ test.describe("navigation", () => {
   });
 
   test("drafts and archived items cannot be opened", async ({ page }) => {
-    for (const slug of ["olive-cargo-pants-plw-0014", "suede-biker-jacket-plw-0021"]) {
+    for (const slug of ["navy-mirror-work-lehenga-plw-0013", "gold-tissue-anarkali-gown-plw-0020"]) {
       await page.goto(`/shop/${slug}`);
       await expect(page.getByRole("heading", { name: /couldn't find that page/i })).toBeVisible();
       await expect(page.getByTestId("product-detail")).toHaveCount(0);
@@ -156,16 +156,16 @@ test.describe("catalog", () => {
     await page.getByRole("navigation", { name: "Pages" }).getByRole("link", { name: "Page 3" }).click();
     await expect(page).toHaveURL(/page=3/);
     await expect(cards(page)).toHaveCount(1);
-    await expect(page.getByText("Olive Cargo Pants")).toHaveCount(0);
+    await expect(page.getByText("Navy Mirror Work Lehenga")).toHaveCount(0);
   });
 
   test("sold items are marked SOLD and listed after available ones", async ({ page }) => {
-    await page.goto("/shop?category=dresses");
+    await page.goto("/shop?category=shalwar-kameez");
     await expect(cards(page)).toHaveCount(5);
     const statuses = await cards(page).evaluateAll((els) => els.map((e) => e.getAttribute("data-status")));
     expect(statuses).toEqual(["available", "available", "available", "available", "sold"]);
     const sold = cards(page).last();
-    await expect(sold).toContainText("Linen Shirt Dress");
+    await expect(sold).toContainText("Mustard Cotton Printed Suit");
     await expect(sold.getByText("Sold", { exact: true })).toBeVisible();
     await expect(cards(page).first().getByText("Sold", { exact: true })).toHaveCount(0);
   });
@@ -173,11 +173,11 @@ test.describe("catalog", () => {
   test("search by keyword", async ({ page }) => {
     await page.goto("/shop");
     await openFilters(page);
-    await page.getByRole("searchbox", { name: /search by name or keyword/i }).fill("jacket");
+    await page.getByRole("searchbox", { name: /search by name or keyword/i }).fill("anarkali");
     await page.keyboard.press("Enter");
-    await expect(page).toHaveURL(/q=jacket/);
+    await expect(page).toHaveURL(/q=anarkali/);
     await expect(count(page)).toHaveText("3 items");
-    for (const name of await cards(page).getByRole("heading").allTextContents()) expect(name).toMatch(/jacket|blazer/i);
+    for (const name of await cards(page).getByRole("heading").allTextContents()) expect(name).toMatch(/anarkali/i);
   });
 
   test("search with no matches explains and offers a way back", async ({ page }) => {
@@ -191,31 +191,31 @@ test.describe("catalog", () => {
   test("header search works", async ({ page }, testInfo) => {
     test.skip(testInfo.project.name === "mobile", "header search box is shown from tablet width up");
     await page.goto("/");
-    await page.getByRole("searchbox", { name: "Search the shop" }).fill("levi");
+    await page.getByRole("searchbox", { name: "Search the shop" }).fill("khaadi");
     await page.keyboard.press("Enter");
-    await expect(page).toHaveURL(/\/shop\?q=levi/);
-    await expect(count(page)).toHaveText("4 items");
+    await expect(page).toHaveURL(/\/shop\?q=khaadi/);
+    await expect(count(page)).toHaveText("2 items");
   });
 
   test("filter by category, size, brand, condition and price", async ({ page }) => {
     await page.goto("/shop");
     await openFilters(page);
 
-    await page.getByRole("radio", { name: /^Tops/ }).check();
-    await expect(page).toHaveURL(/category=tops/);
-    await expect(count(page)).toHaveText("5 items");
+    await page.getByRole("radio", { name: /^Kurtas/ }).check();
+    await expect(page).toHaveURL(/category=kurtas/);
+    await expect(count(page)).toHaveText("6 items");
 
     await page.getByText("M", { exact: true }).click();
     await expect(page).toHaveURL(/size=M/);
     await expect(count(page)).toHaveText("3 items");
 
-    await page.getByRole("checkbox", { name: "Mango" }).check();
-    await expect(page).toHaveURL(/brand=Mango/);
+    await page.getByRole("checkbox", { name: "Sapphire" }).check();
+    await expect(page).toHaveURL(/brand=Sapphire/);
     await expect(count(page)).toHaveText("1 item");
-    await expect(cards(page)).toContainText(["Striped Breton Top"]);
+    await expect(cards(page)).toContainText(["Maroon Velvet Kurta"]);
 
     // Remove filters using the chips above the results.
-    await page.getByRole("link", { name: /Mango.*remove filter/ }).click();
+    await page.getByRole("link", { name: /Sapphire.*remove filter/ }).click();
     await expect(count(page)).toHaveText("3 items");
     await page.getByRole("link", { name: "Clear all" }).click();
     await expect(count(page)).toHaveText("25 items");
@@ -230,13 +230,13 @@ test.describe("catalog", () => {
     await page.getByRole("spinbutton", { name: "Maximum price" }).fill("15");
     await page.getByRole("button", { name: "Apply" }).click();
     await expect(page).toHaveURL(/max=15/);
-    await expect(count(page)).toHaveText("5 items");
+    await expect(count(page)).toHaveText("3 items");
     const prices = await cards(page).locator("p", { hasText: "$" }).allTextContents();
     for (const p of prices) expect(Number(p.replace("$", ""))).toBeLessThanOrEqual(15);
   });
 
   test("hide sold items", async ({ page }) => {
-    await page.goto("/shop?category=dresses");
+    await page.goto("/shop?category=shalwar-kameez");
     await openFilters(page);
     await page.getByRole("checkbox", { name: "Hide sold items" }).check();
     await expect(page).toHaveURL(/hideSold=1/);
@@ -249,52 +249,52 @@ test.describe("catalog", () => {
       (await cards(page).locator("p", { hasText: "$" }).allTextContents()).map((p) => Number(p.replace("$", "")));
 
     await page.goto("/shop?hideSold=1");
-    await expect(cards(page).first()).toContainText("Little Black Dress"); // newest first
+    await expect(cards(page).first()).toContainText("Black Chiffon Formal Suit"); // newest first
 
     await openFilters(page);
     await page.getByRole("combobox", { name: "Sort by" }).selectOption("price_asc");
     await expect(page).toHaveURL(/sort=price_asc/);
-    await expect(cards(page).first()).toContainText("Graphic Cotton Tee");
+    await expect(cards(page).first()).toContainText("Embroidered Potli Bag");
     let prices = await priceList();
     expect(prices).toEqual([...prices].sort((a, b) => a - b));
 
     await page.getByRole("combobox", { name: "Sort by" }).selectOption("price_desc");
     await expect(page).toHaveURL(/sort=price_desc/);
-    await expect(cards(page).first()).toContainText("Leather Tote Bag");
+    await expect(cards(page).first()).toContainText("Red Bridal Lehenga Choli");
     prices = await priceList();
     expect(prices).toEqual([...prices].sort((a, b) => b - a));
   });
 
   test("a filtered address can be shared and survives the back button", async ({ page }) => {
-    await page.goto("/shop?category=jeans&brand=Levi%27s&sort=price_asc");
-    await expect(count(page)).toHaveText("2 items");
+    await page.goto("/shop?category=kurtas&brand=Khaadi&sort=price_asc");
+    await expect(count(page)).toHaveText("1 item");
     await openFilters(page);
-    await expect(page.getByRole("radio", { name: /^Jeans/ })).toBeChecked();
-    await expect(page.getByRole("checkbox", { name: "Levi's" })).toBeChecked();
+    await expect(page.getByRole("radio", { name: /^Kurtas/ })).toBeChecked();
+    await expect(page.getByRole("checkbox", { name: "Khaadi" })).toBeChecked();
     await expect(page.getByRole("combobox", { name: "Sort by" })).toHaveValue("price_asc");
 
-    await page.getByRole("checkbox", { name: "Levi's" }).uncheck();
-    await expect(count(page)).toHaveText("3 items");
+    await page.getByRole("checkbox", { name: "Khaadi" }).uncheck();
+    await expect(count(page)).toHaveText("6 items");
     await page.goBack();
-    await expect(count(page)).toHaveText("2 items");
-    await expect(page.getByRole("checkbox", { name: "Levi's" })).toBeChecked();
+    await expect(count(page)).toHaveText("1 item");
+    await expect(page.getByRole("checkbox", { name: "Khaadi" })).toBeChecked();
   });
 });
 
 test.describe("product page", () => {
   test("shows full details, photos and a WhatsApp inquiry naming the product", async ({ page }) => {
     await page.goto("/shop");
-    await page.goto("/shop?q=black+midi");
+    await page.goto("/shop?q=teal+lawn");
     await cards(page).first().getByRole("link").click();
-    await expect(page).toHaveURL(/\/shop\/black-midi-wrap-dress-plw-0001$/);
-    await expect(page).toHaveTitle(/Black Midi Wrap Dress \| Pre-Loved Wardrobe/);
+    await expect(page).toHaveURL(/\/shop\/teal-embroidered-lawn-suit-plw-0001$/);
+    await expect(page).toHaveTitle(/Teal Embroidered Lawn Suit \| Pre-Loved Wardrobe/);
 
     const detail = page.getByTestId("product-detail");
-    await expect(detail.getByRole("heading", { level: 1 })).toHaveText("Black Midi Wrap Dress");
-    await expect(detail.getByTestId("product-price")).toHaveText("$28");
+    await expect(detail.getByRole("heading", { level: 1 })).toHaveText("Teal Embroidered Lawn Suit");
+    await expect(detail.getByTestId("product-price")).toHaveText("$45");
     await expect(detail.getByText("Available", { exact: true })).toBeVisible();
-    await expect(detail).toContainText("Classic wrap silhouette");
-    for (const [label, value] of [["Brand", "Zara"], ["Size", "M"], ["Colour", "Black"], ["Condition", "Like new"], ["Product ID", "PLW-0001"]]) {
+    await expect(detail).toContainText("Three-piece lawn suit");
+    for (const [label, value] of [["Brand", "Khaadi"], ["Size", "M"], ["Colour", "Teal"], ["Condition", "Like new"], ["Product ID", "PLW-0001"]]) {
       await expect(detail.locator("dl > div", { hasText: label }).locator("dd")).toHaveText(value);
     }
 
@@ -311,15 +311,15 @@ test.describe("product page", () => {
     const href = (await wa.getAttribute("href"))!;
     expect(href.startsWith("https://wa.me/15555550100?text=")).toBe(true);
     const message = new URL(href).searchParams.get("text")!;
-    expect(message).toContain("Black Midi Wrap Dress");
+    expect(message).toContain("Teal Embroidered Lawn Suit");
     expect(message).toContain("PLW-0001");
-    expect(message).toContain("/shop/black-midi-wrap-dress-plw-0001");
+    expect(message).toContain("/shop/teal-embroidered-lawn-suit-plw-0001");
 
-    await expect(page.getByRole("heading", { name: "More dresses" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "More shalwar kameez" })).toBeVisible();
   });
 
   test("a sold product is clearly sold and cannot be inquired about", async ({ page }) => {
-    await page.goto("/shop/linen-shirt-dress-plw-0004");
+    await page.goto("/shop/mustard-cotton-printed-suit-plw-0004");
     const detail = page.getByTestId("product-detail");
     await expect(detail).toHaveAttribute("data-status", "sold");
     await expect(detail.getByText("Sold", { exact: true })).toBeVisible();
@@ -327,12 +327,12 @@ test.describe("product page", () => {
     await expect(detail.getByText("Available", { exact: true })).toHaveCount(0);
     await expect(detail.getByRole("link", { name: /whatsapp/i })).toHaveCount(0);
     await expect(detail.locator('a[href*="wa.me"]')).toHaveCount(0);
-    await detail.getByRole("link", { name: /browse available dresses/i }).click();
+    await detail.getByRole("link", { name: /browse available shalwar kameez/i }).click();
     await expect(count(page)).toHaveText("4 items");
   });
 
   test("missing details are shown as not specified, never made up", async ({ page }) => {
-    await page.goto("/shop/canvas-shopper-plw-0025");
+    await page.goto("/shop/embroidered-potli-bag-plw-0024");
     const detail = page.getByTestId("product-detail");
     for (const label of ["Brand", "Size", "Colour"]) {
       await expect(detail.locator("dl > div", { hasText: label }).locator("dd")).toHaveText("Not specified");
@@ -342,12 +342,12 @@ test.describe("product page", () => {
   test("marking a product sold shows up immediately everywhere", async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== "desktop", "changes shared data; run once");
     const sql = postgres(process.env.TEST_DATABASE_URL!);
-    const slug = "tan-leather-loafers-plw-0023";
+    const slug = "black-prince-coat-plw-0022";
     try {
       await page.goto(`/shop/${slug}`);
       await expect(page.getByTestId("product-detail")).toHaveAttribute("data-status", "available");
       await page.goto("/");
-      await expect(page.getByTestId("recent")).toContainText("Tan Leather Loafers");
+      await expect(page.getByTestId("recent")).toContainText("Black Prince Coat");
 
       await sql`update products set status = 'sold', sold_at = now() where slug = ${slug}`;
 
@@ -355,10 +355,10 @@ test.describe("product page", () => {
       await expect(page.getByTestId("product-detail")).toHaveAttribute("data-status", "sold");
       await expect(page.locator('main a[href*="wa.me"]')).toHaveCount(0);
       await page.goto("/");
-      await expect(page.getByTestId("recent")).not.toContainText("Tan Leather Loafers");
-      await page.goto("/shop?category=shoes");
+      await expect(page.getByTestId("recent")).not.toContainText("Black Prince Coat");
+      await page.goto("/shop?category=menswear");
       await expect(cards(page).last()).toHaveAttribute("data-status", "sold");
-      await expect(cards(page).last()).toContainText("Tan Leather Loafers");
+      await expect(cards(page).last()).toContainText("Black Prince Coat");
     } finally {
       await sql`update products set status = 'available', sold_at = null where slug = ${slug}`;
       await sql.end();
@@ -367,7 +367,7 @@ test.describe("product page", () => {
 });
 
 test.describe("responsive layout", () => {
-  for (const path of ["/", "/shop", "/shop/black-midi-wrap-dress-plw-0001", "/shop/linen-shirt-dress-plw-0004"]) {
+  for (const path of ["/", "/shop", "/shop/red-bridal-lehenga-choli-plw-0011", "/shop/mustard-cotton-printed-suit-plw-0004"]) {
     test(`no sideways scrolling on ${path}`, async ({ page }) => {
       await page.goto(path);
       await expect(page.getByRole("contentinfo")).toBeVisible();

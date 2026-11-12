@@ -11,7 +11,7 @@ export default function ErrorPage({ retry }: { error: unknown; retry: () => void
       <button
         type="button"
         onClick={() => retry()}
-        className="mt-8 inline-flex min-h-12 items-center rounded-full bg-ink px-7 text-sm font-medium text-white hover:bg-accent-dark"
+        className="mt-8 inline-flex min-h-12 items-center rounded-full bg-accent px-7 text-sm font-medium text-white hover:bg-accent-dark"
       >
         Try again
       </button>

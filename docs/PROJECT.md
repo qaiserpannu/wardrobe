@@ -2,7 +2,8 @@
 
 ## What this is
 
-A website for selling pre-owned clothing. Visitors browse a catalog, view item
+A website for selling pre-owned Indian and Pakistani clothing (shalwar kameez,
+kurtas, lehengas, sarees, anarkalis, menswear, dupattas, accessories). Visitors browse a catalog, view item
 details and photos, and contact the owner on WhatsApp to buy. It should feel
 like a modern fashion boutique, not a classifieds site.
 
@@ -23,9 +24,11 @@ conversation.
 
 ## Design direction
 
-Clean, elegant, minimal. Neutral colours with a restrained accent colour, modern
-typography, photography-led layouts, fast pages, and a layout that works on
-phone, tablet and desktop.
+A South Asian fashion boutique: ivory, deep maroon and antique gold; pointed
+arches, a gold lattice texture and small ornamental dividers; elegant serif
+headings; photography-led layouts; fast pages; works on phone, tablet and
+desktop. Rich but restrained — ornament supports the clothes, never competes
+with them. Details in `TECHNICAL_DECISIONS.md` D17.
 
 ## Scope
 

@@ -38,7 +38,7 @@ function Check({
 }) {
   return (
     <label className="flex min-h-9 cursor-pointer items-center gap-2.5 text-sm">
-      <input type={type} name={name} value={value} defaultChecked={checked} className="size-4 accent-ink" />
+      <input type={type} name={name} value={value} defaultChecked={checked} className="size-4 accent-accent" />
       <span>{label}</span>
       {hint && <span className="text-xs text-muted">{hint}</span>}
     </label>
@@ -111,7 +111,7 @@ export function FilterPanel({ filters, categories, facets, currency }: Props) {
                   defaultChecked={filters.sizes.includes(size)}
                   className="peer sr-only"
                 />
-                <span className="flex h-10 min-w-11 items-center justify-center rounded-md border border-line bg-surface px-2.5 text-sm peer-checked:border-ink peer-checked:bg-ink peer-checked:text-white peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-accent">
+                <span className="flex h-10 min-w-11 items-center justify-center rounded-md border border-line bg-surface px-2.5 text-sm peer-checked:border-accent peer-checked:bg-accent peer-checked:text-white peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-accent">
                   {size}
                 </span>
               </label>
@@ -182,7 +182,7 @@ export function FilterPanel({ filters, categories, facets, currency }: Props) {
 
       <button
         type="submit"
-        className="mt-1 min-h-12 w-full rounded-full bg-ink text-sm font-medium tracking-wide text-white hover:bg-accent-dark"
+        className="mt-1 min-h-12 w-full rounded-full bg-accent text-sm font-medium tracking-wide text-white hover:bg-accent-dark"
       >
         Apply
       </button>

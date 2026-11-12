@@ -2,18 +2,36 @@
 
 /* Design tokens. Change colours and fonts here and the whole site follows. */
 @theme inline {
-  --color-canvas: #faf8f5;
-  --color-surface: #ffffff;
-  --color-sand: #f1ebe2;
-  --color-line: #e5dfd5;
-  --color-ink: #1c1917;
-  --color-muted: #6b645c;
-  --color-accent: #9c5a40;
-  --color-accent-dark: #7f4732;
+  --color-canvas: #fbf7f0;
+  --color-surface: #fffdf9;
+  --color-sand: #f4ead9;
+  --color-line: #e4d6bf;
+  --color-ink: #2b1a16;
+  --color-muted: #6f5f57;
+  /* Deep maroon: buttons, links and highlights. */
+  --color-accent: #7a1e2c;
+  --color-accent-dark: #5a121d;
+  /* Antique gold: decorative lines and ornaments only (too light for body text). */
+  --color-gold: #b58a2e;
+  --color-gold-light: #e6cf97;
   --color-whatsapp: #1a8f4c;
   --color-whatsapp-dark: #15753e;
   --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-display-face), ui-serif, Georgia, serif;
+}
+
+/* Gold lattice (jali) pattern, used as a quiet background texture. */
+.pattern-jali {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48'%3E%3Cpath d='M24 3 45 24 24 45 3 24Z M24 17l7 7-7 7-7-7Z' fill='none' stroke='%23b58a2e' stroke-width='1' opacity='.22'/%3E%3C/svg%3E");
+  background-size: 48px 48px;
+}
+
+/* Scalloped gold edge, like the border of a dupatta. */
+.edge-scallop {
+  height: 10px;
+  background-image: radial-gradient(circle at 10px 0, var(--color-gold) 8px, transparent 8.5px);
+  background-size: 20px 10px;
+  background-repeat: repeat-x;
 }
 
 html {

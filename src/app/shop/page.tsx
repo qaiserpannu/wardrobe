@@ -6,6 +6,7 @@ import { FilterPanel } from "@/components/catalog/FilterPanel";
 import { Pagination } from "@/components/catalog/Pagination";
 import { ProductGrid, ProductGridSkeleton } from "@/components/catalog/ProductGrid";
 import { Container } from "@/components/ui/Container";
+import { Ornament } from "@/components/ui/Ornament";
 import { catalogHref, countActiveFilters, parseCatalogParams } from "@/lib/catalog-params";
 import { getCachedSettings } from "@/server/services/cached";
 import { listCategories } from "@/server/services/categories";
@@ -13,7 +14,7 @@ import { getCatalogFacets, listProducts } from "@/server/services/products";
 
 export const metadata: Metadata = {
   title: "Shop all",
-  description: "Browse every pre-owned piece currently in the shop. Search and filter by category, size, brand, price and condition.",
+  description: "Browse every pre-loved Indian and Pakistani outfit currently in the shop. Search and filter by category, size, brand, price and condition.",
 };
 
 async function Catalog({ searchParams }: { searchParams: PageProps<"/shop">["searchParams"] }) {
@@ -60,7 +61,7 @@ async function Catalog({ searchParams }: { searchParams: PageProps<"/shop">["sea
             {filtered && (
               <Link
                 href={catalogHref({})}
-                className="mt-6 inline-flex min-h-11 items-center rounded-full border border-ink px-6 text-sm font-medium hover:bg-ink hover:text-white"
+                className="mt-6 inline-flex min-h-11 items-center rounded-full border border-accent px-6 text-sm font-medium hover:bg-accent hover:text-white"
               >
                 Clear all filters
               </Link>
@@ -87,6 +88,7 @@ export default function ShopPage({ searchParams }: PageProps<"/shop">) {
       <header className="mb-8 sm:mb-12">
         <p className="text-xs font-semibold tracking-[0.2em] text-accent uppercase">The collection</p>
         <h1 className="mt-2 font-display text-4xl font-medium sm:text-5xl">Shop</h1>
+        <Ornament className="mt-4" />
       </header>
       <Suspense fallback={<CatalogFallback />}>
         <Catalog searchParams={searchParams} />

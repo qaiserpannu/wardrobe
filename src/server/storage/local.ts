@@ -37,6 +37,12 @@ export async function readLocalFile(key: string): Promise<{ data: Buffer; conten
   }
 }
 
+/** Removes one top-level folder of stored files. Used when reloading sample data. */
+export async function clearLocalFolder(folder: string): Promise<void> {
+  if (!/^[a-z0-9_-]+$/.test(folder)) throw new Error(`Invalid folder: ${folder}`);
+  await rm(path.join(rootDir(), folder), { recursive: true, force: true });
+}
+
 /** Stores files in a local folder. For development and tests only. */
 export const localStorageDriver: StorageDriver = {
   async put(key, data) {

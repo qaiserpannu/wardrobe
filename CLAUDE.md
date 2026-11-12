@@ -1,6 +1,6 @@
 # Pre-Loved Wardrobe — instructions for Claude
 
-A boutique-style website for selling pre-owned clothing. Buyers inquire via
+A boutique-style website for selling pre-owned Indian and Pakistani clothing. Buyers inquire via
 WhatsApp; there is no online checkout.
 
 @AGENTS.md
@@ -66,6 +66,10 @@ WhatsApp; there is no online checkout.
 - Prices are integers in the smallest currency unit; format only at display.
 - Keep components small and reusable; shared pieces go in `src/components/ui`.
 - Accessible markup: semantic elements, labels, alt text, keyboard support.
+- Design: use the theme tokens in `src/app/globals.css` (maroon `accent`,
+  `gold` for decoration only, never for text on light backgrounds) and the
+  shared `Ornament`, `.pattern-jali` and `.edge-scallop` pieces. See D17.
+- Stored image names must include a content fingerprint (D19).
 
 ## Commands
 

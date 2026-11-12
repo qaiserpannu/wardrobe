@@ -242,20 +242,43 @@ the values in use. Sizes are sorted naturally (S, M, L, then numbers).
   filter options. The admin product form will offer existing values as
   suggestions to prevent this.
 
-## D17 — Defaults chosen without owner input
+## D17 — Look, categories and other defaults
 
-**Status:** Proposed — owner to confirm or change
+**Status:** Theme decided by owner (2026-11-12); currency and remaining
+defaults still to confirm
 
-Currency USD (`en-US` formatting); the eight example categories from the brief;
-warm neutral palette with a terracotta accent, Cormorant Garamond headings and
-Geist body text; sold items stay visible indefinitely, listed after available
-items, with a "Hide sold items" filter. Currency is a setting; colours and
-fonts are in `src/app/globals.css` and `src/app/layout.tsx`.
+The shop sells Indian and Pakistani clothing, so the design follows that:
+
+- Colours: ivory background, deep maroon for buttons and highlights, antique
+  gold for decorative lines only (it is too light for text), deep maroon
+  footer. Tokens are in `src/app/globals.css`.
+- Motifs: pointed (Mughal-style) arches for the hero image, category tiles and
+  product picture backdrops; a quiet gold lattice (jali) background texture; a
+  small gold diamond divider under headings; a scalloped gold edge on the
+  footer. Reusable pieces: `src/components/ui/Ornament.tsx` and the
+  `.pattern-jali` / `.edge-scallop` classes.
+- Fonts: Cormorant Garamond headings, Geist body text.
+- Categories: Shalwar Kameez, Kurtas, Lehengas, Sarees, Anarkalis, Menswear,
+  Dupattas, Accessories (data, editable later in admin).
+- An announcement strip above the header (`branding.announcement` setting).
+- Still assumed, owner to confirm: currency USD; sold items stay visible
+  indefinitely, listed after available items.
 
 ## D18 — Placeholder artwork for sample products
 
 **Status:** Decided (2026-11-12)
 
-Sample products use generated garment illustrations
+Sample products use generated illustrations of South Asian garments (suit,
+kurta, lehenga, saree, anarkali, sherwani, dupatta, jewellery, shoes, bag)
 (`src/server/db/seed/artwork.ts`) because no real photographs exist yet. They
 go through the same storage and image pipeline that real photos will.
+
+## D19 — Stored image names include a content fingerprint
+
+**Status:** Decided (2026-11-12)
+
+Images are served with "never changes" caching so repeat visits are fast. To
+keep that safe, every stored file name contains a short fingerprint of its
+contents (`plw-0001-1-3fa9c2d1.webp`). A replaced photo gets a new name, so
+browsers and the image optimiser can never show an outdated picture. Admin
+uploads in Milestone 5 must follow the same rule.

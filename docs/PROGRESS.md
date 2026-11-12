@@ -41,17 +41,37 @@ Do not start Milestone 3 until the owner approves.
   and a "URL data" warning when run with `npm run dev`. Both fixed (D14
   update); all checks and browser tests re-run and passing.
 
+### Milestone 2 revision 1 (2026-11-12) — Indian and Pakistani clothing theme
+
+Owner feedback: the shop is for Indian and Pakistani clothes, so the theme and
+design must reflect that.
+
+- New look: ivory, deep maroon and antique gold; arch-shaped hero image and
+  category tiles; gold lattice texture; ornamental dividers; maroon footer
+  with scalloped gold edge; announcement strip above the header.
+- Categories and sample inventory replaced (shalwar kameez, kurtas, lehengas,
+  sarees, anarkalis, menswear, dupattas, accessories) with matching placeholder
+  illustrations and South Asian brands.
+- Site copy updated (tagline, hero, descriptions).
+- Stored image names now include a content fingerprint (D19); this fixed
+  stale pictures appearing after artwork changed.
+- All tests updated and passing: 40 logic/database tests, 71 browser runs.
+
 ### Milestone 1 (2026-11-12) — approved
 
 Stack selection, Next.js scaffold, folder structure, project memory documents.
 
 ## Outstanding — waiting on the owner
 
-1. Review the website and approve Milestone 2.
-2. Confirm or change the defaults in TECHNICAL_DECISIONS D17: currency (USD),
-   categories, colours and fonts, sold items staying visible.
-3. For Milestone 3: WhatsApp number in international format.
-4. Still open from Milestone 1: hosting choice (D9); proposed services (D4,
+1. Review the redesigned website; list any further changes, or approve
+   Milestone 2.
+2. Confirm currency (USD assumed) and whether the category list is right.
+3. Decide whether products need extra details common for this clothing:
+   fabric, number of pieces (2-piece / 3-piece), stitched or unstitched,
+   occasion (casual, party, bridal). Not built; would be new columns/filters.
+4. WhatsApp number: stays configurable (site settings). The owner will supply
+   it after the other Milestone 2 issues are resolved.
+5. Still open from Milestone 1: hosting choice (D9); proposed services (D4,
    D6, D7, D8).
 
 ## Known issues and limitations

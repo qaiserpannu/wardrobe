@@ -8,7 +8,7 @@ export function Pagination({ filters, page, pageCount }: { filters: CatalogFilte
   return (
     <nav aria-label="Pages" className="mt-14 flex items-center justify-center gap-2">
       {page > 1 && (
-        <Link href={catalogHref({ ...filters, page: page - 1 })} className={`${link} border-line hover:border-ink`}>
+        <Link href={catalogHref({ ...filters, page: page - 1 })} className={`${link} border-line hover:border-accent`}>
           Previous
         </Link>
       )}
@@ -19,7 +19,7 @@ export function Pagination({ filters, page, pageCount }: { filters: CatalogFilte
               href={catalogHref({ ...filters, page: n })}
               aria-current={n === page ? "page" : undefined}
               aria-label={`Page ${n}`}
-              className={`${link} ${n === page ? "border-ink bg-ink text-white" : "border-line hover:border-ink"}`}
+              className={`${link} ${n === page ? "border-accent bg-accent text-white" : "border-line hover:border-accent"}`}
             >
               {n}
             </Link>
@@ -27,7 +27,7 @@ export function Pagination({ filters, page, pageCount }: { filters: CatalogFilte
         ))}
       </ul>
       {page < pageCount && (
-        <Link href={catalogHref({ ...filters, page: page + 1 })} className={`${link} border-line hover:border-ink`}>
+        <Link href={catalogHref({ ...filters, page: page + 1 })} className={`${link} border-line hover:border-accent`}>
           Next
         </Link>
       )}

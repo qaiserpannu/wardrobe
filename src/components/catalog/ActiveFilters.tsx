@@ -51,7 +51,7 @@ export function ActiveFilters({ filters, categories, shop }: Props) {
           <Link
             href={chip.href}
             scroll={false}
-            className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-line bg-surface px-3.5 text-sm hover:border-ink"
+            className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-line bg-surface px-3.5 text-sm hover:border-accent"
           >
             {chip.label}
             <span aria-hidden className="text-muted">
