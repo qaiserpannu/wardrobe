@@ -13,7 +13,7 @@ import { runMigrations } from "../migrate";
 import { categories, productImages, products, siteSettings } from "../schema";
 import { clearLocalFolder, localStorageDriver } from "../../storage/local";
 import { renderHeroImage, renderProductImage } from "./artwork";
-import { seedCategories, seedProducts } from "./data";
+import { seedCategoryGroups, seedProducts } from "./data";
 
 /**
  * Stored images are served as "never changes", so every file name includes a
@@ -36,11 +36,18 @@ export async function seed() {
 
   await clearLocalFolder("seed");
 
-  const insertedCategories = await db
-    .insert(categories)
-    .values(seedCategories.map((name, i) => ({ name, slug: slugify(name), sortOrder: i })))
-    .returning();
-  const categoryId = new Map(insertedCategories.map((c) => [c.name, c.id]));
+  const categoryId = new Map<string, string>();
+  for (const [g, group] of seedCategoryGroups.entries()) {
+    const [parent] = await db
+      .insert(categories)
+      .values({ name: group.name, slug: slugify(group.name), sortOrder: g })
+      .returning();
+    const children = await db
+      .insert(categories)
+      .values(group.children.map((name, i) => ({ name, slug: slugify(name), parentId: parent.id, sortOrder: i })))
+      .returning();
+    for (const c of children) categoryId.set(c.name, c.id);
+  }
 
   // Spread publish dates so "newest arrivals" has a stable, meaningful order.
   const start = Date.now() - seedProducts.length * 36 * 60 * 60 * 1000;
@@ -100,7 +107,7 @@ export async function seed() {
     { key: "social", value: { instagram: "https://instagram.com/", facebook: "https://facebook.com/" } },
   ]);
 
-  return { products: seedProducts.length, categories: seedCategories.length };
+  return { products: seedProducts.length, categories: categoryId.size };
 }
 
 if (process.argv[1]?.endsWith("index.ts")) {

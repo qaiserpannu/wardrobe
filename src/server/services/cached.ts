@@ -1,6 +1,6 @@
 import "server-only";
 import { cacheLife, cacheTag } from "next/cache";
-import { listCategories } from "./categories";
+import { listCategoryTree } from "./categories";
 import { getSettings } from "./settings";
 
 /**
@@ -25,5 +25,5 @@ export async function getCachedCategories() {
   "use cache";
   cacheLife({ stale: 300, revalidate: 60, expire: 300 });
   cacheTag(CACHE_TAGS.categories);
-  return listCategories();
+  return listCategoryTree();
 }

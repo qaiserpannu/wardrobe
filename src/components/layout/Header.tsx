@@ -5,16 +5,17 @@ import { ArchMark } from "@/components/ui/Ornament";
 import { getCachedCategories, getCachedSettings } from "@/server/services/cached";
 import { MobileMenu } from "./MobileMenu";
 
-/** How many categories fit in the desktop navigation bar; the rest are reachable from the shop page. */
-const DESKTOP_CATEGORY_LIMIT = 5;
-
 export async function Header() {
-  const [settings, categories] = await Promise.all([getCachedSettings(), getCachedCategories()]);
-  const categoryLinks = categories.map((c) => ({ href: `/shop?category=${c.slug}`, label: c.name }));
+  const [settings, groups] = await Promise.all([getCachedSettings(), getCachedCategories()]);
+  const href = (slug: string) => `/shop?category=${slug}`;
   const mobileLinks = [
     { href: "/", label: "Home" },
     { href: "/shop", label: "Shop all" },
-    ...categoryLinks,
+    ...groups.map((g) => ({
+      href: href(g.slug),
+      label: g.name,
+      children: g.children.map((c) => ({ href: href(c.slug), label: c.name })),
+    })),
     { href: "/#how-it-works", label: "How it works" },
   ];
 
@@ -54,11 +55,40 @@ export async function Header() {
                 Shop all
               </Link>
             </li>
-            {categoryLinks.slice(0, DESKTOP_CATEGORY_LIMIT).map((link) => (
-              <li key={link.href}>
-                <Link href={link.href} className="py-2 hover:text-accent">
-                  {link.label}
+            {groups.map((group) => (
+              <li key={group.slug} className="group/menu relative">
+                <Link
+                  href={href(group.slug)}
+                  aria-haspopup={group.children.length > 0 ? "true" : undefined}
+                  className="inline-flex items-center gap-1 py-2 hover:text-accent"
+                >
+                  {group.name}
+                  {group.children.length > 0 && (
+                    <svg viewBox="0 0 12 12" aria-hidden className="size-2.5 text-muted" fill="none" stroke="currentColor" strokeWidth="1.6">
+                      <path d="m2 4 4 4 4-4" />
+                    </svg>
+                  )}
                 </Link>
+                {group.children.length > 0 && (
+                  // Opens on hover and on keyboard focus; the group name itself is also a link.
+                  <ul
+                    data-testid={`submenu-${group.slug}`}
+                    className="invisible absolute top-full left-1/2 z-40 min-w-48 -translate-x-1/2 rounded-sm border border-gold/50 bg-canvas py-2 opacity-0 shadow-lg transition-opacity group-focus-within/menu:visible group-focus-within/menu:opacity-100 group-hover/menu:visible group-hover/menu:opacity-100"
+                  >
+                    <li>
+                      <Link href={href(group.slug)} className="block px-5 py-2 font-medium text-accent hover:bg-sand">
+                        All {group.name}
+                      </Link>
+                    </li>
+                    {group.children.map((child) => (
+                      <li key={child.slug}>
+                        <Link href={href(child.slug)} className="block px-5 py-2 hover:bg-sand hover:text-accent">
+                          {child.name}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </li>
             ))}
           </ul>

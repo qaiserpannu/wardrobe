@@ -122,21 +122,32 @@ export default async function Home() {
       <section aria-labelledby="categories-heading" className="mt-20 sm:mt-28">
         <Container>
           <SectionHeading eyebrow="Find your style" title="Browse by category" id="categories-heading" />
-          <ul className="grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-4 sm:gap-x-6 sm:gap-y-8" data-testid="category-list">
-            {categories.map((c) => (
-              <li key={c.slug}>
+          <ul className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-4 sm:gap-x-6" data-testid="category-list">
+            {categories.map((group) => (
+              <li key={group.slug} data-testid="category-group">
                 <Link
-                  href={`/shop?category=${c.slug}`}
+                  href={`/shop?category=${group.slug}`}
                   className="group block rounded-t-full border border-gold/60 p-1.5 transition-colors hover:border-accent"
                 >
-                  <span className="pattern-jali flex aspect-[4/5] flex-col items-center justify-end gap-3 rounded-t-full bg-sand px-3 pb-7 lg:aspect-[10/11] text-center transition-colors group-hover:bg-accent group-hover:text-white sm:pb-9">
+                  <span className="pattern-jali flex aspect-[4/5] flex-col items-center justify-end gap-3 rounded-t-full bg-sand px-3 pb-7 text-center transition-colors group-hover:bg-accent group-hover:text-white sm:pb-9 lg:aspect-[10/11]">
                     <Ornament className="group-hover:text-gold-light" />
-                    <span className="font-display text-xl leading-tight font-medium sm:text-2xl">{c.name}</span>
+                    <span className="font-display text-2xl leading-tight font-medium sm:text-3xl">{group.name}</span>
                     <span className="inline-flex items-center gap-1.5 text-xs tracking-[0.14em] uppercase opacity-70">
-                      Shop <ArrowRightIcon className="size-3.5 transition-transform group-hover:translate-x-1" />
+                      Shop all <ArrowRightIcon className="size-3.5 transition-transform group-hover:translate-x-1" />
                     </span>
                   </span>
                 </Link>
+                {group.children.length > 0 && (
+                  <ul className="mt-3 flex flex-wrap justify-center gap-x-3 gap-y-1 px-1 text-sm">
+                    {group.children.map((c) => (
+                      <li key={c.slug}>
+                        <Link href={`/shop?category=${c.slug}`} className="inline-block py-1 text-muted underline-offset-4 hover:text-accent hover:underline">
+                          {c.name}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </li>
             ))}
           </ul>

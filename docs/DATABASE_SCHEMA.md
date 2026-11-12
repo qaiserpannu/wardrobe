@@ -10,7 +10,7 @@ unless noted.
 ## Relationships
 
 ```
-categories 1 ──── many products 1 ──── many product_images
+categories (group) 1 ──── many categories 1 ──── many products 1 ──── many product_images
 admin users 1 ──── many audit_log entries
 site_settings   (standalone key/value)
 ai_knowledge    (standalone FAQ / policy entries)
@@ -22,7 +22,8 @@ ai_knowledge    (standalone FAQ / policy entries)
 | --- | --- | --- |
 | id | uuid, primary key | |
 | name | text, unique | "Dresses" |
-| slug | text, unique | "dresses", used in URLs |
+| slug | text, unique | "lehengas", used in URLs |
+| parent_id | uuid → categories.id, nullable | The group this category sits in. Null for a group (Women, Men...). Two levels only |
 | sort_order | integer | Display order |
 | is_active | boolean | Hidden categories stay in the database |
 

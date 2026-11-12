@@ -4,11 +4,11 @@ import { CONDITION_LABELS } from "@/lib/conditions";
 import { OCCASION_LABELS, STITCHING_LABELS, piecesLabel } from "@/lib/product-options";
 import { formatPrice } from "@/lib/money";
 import type { SiteSettings } from "@/lib/settings";
-import type { PublicCategory } from "@/server/services/types";
+import type { PublicCategoryGroup } from "@/server/services/types";
 
 type Props = {
   filters: CatalogFilters;
-  categories: PublicCategory[];
+  categories: PublicCategoryGroup[];
   shop: SiteSettings["shop"];
 };
 
@@ -20,7 +20,8 @@ export function ActiveFilters({ filters, categories, shop }: Props) {
 
   if (filters.q) chips.push({ label: `"${filters.q}"`, href: catalogHref({ ...base, q: "" }) });
   if (filters.category) {
-    const name = categories.find((c) => c.slug === filters.category)?.name ?? filters.category;
+    const all = categories.flatMap((g) => [g, ...g.children]);
+    const name = all.find((c) => c.slug === filters.category)?.name ?? filters.category;
     chips.push({ label: name, href: catalogHref({ ...base, category: null }) });
   }
   for (const s of filters.sizes) {

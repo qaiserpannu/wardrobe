@@ -328,11 +328,56 @@ photos look better for selling. Both belong to the admin product form.
 - Cost: a small per-listing AI charge for pre-fill (and for background
   clean-up if chosen).
 
-## D22 — Categories will be owner-managed, with possible grouping
+## D22 — Categories are grouped (two levels)
 
-**Status:** Open — to settle before Milestone 5 category management
+**Status:** Decided by owner (2026-11-12)
 
-Categories are already data, not code, so the admin portal will let the owner
-add, rename, reorder and hide them. Open question for the owner: whether to
-group them (for example Women / Men / Kids, with Lehengas and Kurtis under
-Women). Grouping would add a parent field to categories and a grouped menu.
+Categories form a two-level tree: groups (Women, Men, Kids, Accessories) with
+categories inside them (Women > Lehengas, Kurtis...). Stored as a `parent_id`
+on the categories table. Products belong to a category inside a group; a group
+with no children still works as a plain category.
+
+- A group address (`/shop?category=women`) shows everything inside the group.
+- Switching off a group hides everything inside it.
+- Menu: desktop shows groups with a drop-down of their categories (the group
+  name is itself a link, so it works on touch screens); the phone menu lists
+  groups with their categories underneath.
+- The actual groups and categories are sample data. The owner will manage them
+  in the admin portal (Milestone 5): add, rename, reorder, hide, move between
+  groups. Only two levels are supported, on purpose.
+
+## D23 — Photo clean-up and listing pre-fill must be free (for now)
+
+**Status:** Decided by owner (2026-11-12); supersedes the paid parts of D21.
+Technical choices to be verified by a hands-on trial at the start of
+Milestone 5 — nothing here has been tested yet.
+
+The owner wants no per-use charge for photo clean-up or pre-fill.
+
+- Free and reliable (runs on our own server, no AI): crop to the shop's 4:5
+  shape, lighting and white-balance correction, sharpening, resizing.
+- Background clean-up, free route: an open-source background-removal model
+  running in the owner's browser at upload time, so there is no service fee
+  and photos do not leave the device for this step. The model's licence must
+  allow commercial use (check before choosing — some popular ones do not).
+  Expected weaker than paid services on sheer dupattas, net and fine
+  embroidery edges; must be trialled on real product photos, with a simple
+  "use original instead" switch.
+- Pre-fill, free route, in order of reliability:
+  1. Main colour read directly from the photo's pixels (no AI).
+  2. Form helpers: suggestions from values already used in the shop, "copy
+     details from a similar product", and sensible defaults.
+  3. Category guess from an open-source image model in the browser — to be
+     trialled; kept only if it is right often enough to save time.
+  4. Optional: a hosted AI model's free allowance for fuller suggestions
+     (description, fabric, occasion). Free allowances have daily limits, can
+     change or end without notice, and may let the provider use uploaded
+     photos to improve their models. Off by default; the owner decides.
+- Honest limit: without a capable (paid or free-allowance) AI model, fabric,
+  occasion and a written description cannot be suggested reliably from a
+  photo. Brand, size, price, condition and imperfections always come from the
+  owner.
+- The rule from D21 still applies: clean-up never alters the garment, and the
+  original photo is kept.
+- Because the AI provider is swappable (D8), moving to a paid model later is
+  a settings change, not a rebuild.

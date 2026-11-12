@@ -5,7 +5,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { CloseIcon, MenuIcon } from "@/components/ui/icons";
 
-type NavLink = { href: string; label: string };
+type NavLink = { href: string; label: string; children?: { href: string; label: string }[] };
 
 /** Closes the menu whenever the visitor lands on a new page or filter. */
 function CloseOnNavigate({ onNavigate }: { onNavigate: () => void }) {
@@ -51,14 +51,29 @@ export function MobileMenu({ links }: { links: NavLink[] }) {
         id="mobile-menu"
         aria-label="Mobile"
         hidden={!open}
-        className="absolute inset-x-0 top-full z-40 border-b border-line bg-canvas shadow-lg"
+        className="absolute inset-x-0 top-full z-40 max-h-[calc(100dvh-7rem)] overflow-y-auto border-b border-line bg-canvas shadow-lg"
       >
         <ul className="flex flex-col px-4 py-2">
           {links.map((link) => (
             <li key={link.href} className="border-b border-line last:border-0">
-              <Link href={link.href} onClick={close} className="block py-3.5 text-base">
+              <Link
+                href={link.href}
+                onClick={close}
+                className={`block py-3.5 text-base ${link.children?.length ? "font-semibold text-accent" : ""}`}
+              >
                 {link.label}
               </Link>
+              {link.children && link.children.length > 0 && (
+                <ul className="-mt-1 grid grid-cols-2 gap-x-4 pb-3 pl-3">
+                  {link.children.map((child) => (
+                    <li key={child.href}>
+                      <Link href={child.href} onClick={close} className="block py-2 text-[0.95rem] text-muted">
+                        {child.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </li>
           ))}
         </ul>

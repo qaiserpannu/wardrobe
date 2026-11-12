@@ -105,6 +105,16 @@ async function ProductDetails({ params }: { params: Props["params"] }) {
               Shop
             </Link>
           </li>
+          {product.group && (
+            <>
+              <li aria-hidden>/</li>
+              <li>
+                <Link href={`/shop?category=${product.group.slug}`} className="hover:text-ink">
+                  {product.group.name}
+                </Link>
+              </li>
+            </>
+          )}
           <li aria-hidden>/</li>
           <li>
             <Link href={`/shop?category=${product.category.slug}`} className="hover:text-ink">
@@ -139,7 +149,10 @@ async function ProductDetails({ params }: { params: Props["params"] }) {
             <Detail label="Stitching" value={product.stitching ? STITCHING_LABELS[product.stitching] : null} />
             <Detail label="Occasion" value={product.occasion ? OCCASION_LABELS[product.occasion] : null} />
             <Detail label="Condition" value={CONDITION_LABELS[product.condition]} />
-            <Detail label="Category" value={product.category.name} />
+            <Detail
+              label="Category"
+              value={product.group ? `${product.group.name} · ${product.category.name}` : product.category.name}
+            />
             <Detail label="Product ID" value={product.code} />
           </dl>
           <p className="mt-3 text-xs text-muted">

@@ -1,14 +1,22 @@
 import "server-only";
-import { and, asc, desc, eq, gte, ilike, inArray, isNotNull, lte, ne, or, sql, type SQL } from "drizzle-orm";
+import { and, asc, desc, eq, gte, ilike, inArray, isNotNull, isNull, lte, ne, or, sql, type SQL } from "drizzle-orm";
+import { alias } from "drizzle-orm/pg-core";
 import { PAGE_SIZE, type CatalogFilters } from "@/lib/catalog-params";
 import { getDb } from "@/server/db/client";
 import { categories, productImages, products } from "@/server/db/schema";
 import { getStorage } from "@/server/storage";
 import type { CatalogFacets, ProductListResult, PublicImage, PublicProduct } from "./types";
 
-/** The single rule for what the public can see: available or sold, in an active category. */
+/** The group a category sits in, joined alongside it in every query. */
+const parents = alias(categories, "parent_categories");
+
+/** The single rule for what the public can see: available or sold, in an active category (and active group). */
 const PUBLIC_STATUSES = ["available", "sold"] as const;
-const isPublic = and(inArray(products.status, PUBLIC_STATUSES), eq(categories.isActive, true));
+const isPublic = and(
+  inArray(products.status, PUBLIC_STATUSES),
+  eq(categories.isActive, true),
+  or(isNull(categories.parentId), eq(parents.isActive, true)),
+);
 
 const publicColumns = {
   id: products.id,
@@ -31,6 +39,8 @@ const publicColumns = {
   publishedAt: products.publishedAt,
   categoryName: categories.name,
   categorySlug: categories.slug,
+  groupName: parents.name,
+  groupSlug: parents.slug,
 };
 
 type Row = {
@@ -54,13 +64,16 @@ type Row = {
   publishedAt: Date | null;
   categoryName: string;
   categorySlug: string;
+  groupName: string | null;
+  groupSlug: string | null;
 };
 
 function baseQuery() {
   return getDb()
     .select(publicColumns)
     .from(products)
-    .innerJoin(categories, eq(products.categoryId, categories.id));
+    .innerJoin(categories, eq(products.categoryId, categories.id))
+    .leftJoin(parents, eq(categories.parentId, parents.id));
 }
 
 async function withImages(rows: Row[]): Promise<PublicProduct[]> {
@@ -95,6 +108,7 @@ async function withImages(rows: Row[]): Promise<PublicProduct[]> {
     name: r.name,
     description: r.description,
     category: { name: r.categoryName, slug: r.categorySlug },
+    group: r.groupName && r.groupSlug ? { name: r.groupName, slug: r.groupSlug } : null,
     brand: r.brand,
     size: r.size,
     color: r.color,
@@ -131,10 +145,12 @@ function filterConditions(f: Partial<CatalogFilters>): SQL | undefined {
         ilike(products.fabric, like),
         ilike(products.code, like),
         ilike(categories.name, like),
+        ilike(parents.name, like),
       ),
     );
   }
-  if (f.category) where.push(eq(categories.slug, f.category));
+  // A group address (women) matches everything inside the group.
+  if (f.category) where.push(or(eq(categories.slug, f.category), eq(parents.slug, f.category)));
   if (f.sizes?.length) where.push(inArray(products.size, f.sizes));
   if (f.brands?.length) where.push(inArray(products.brand, f.brands));
   if (f.conditions?.length) where.push(inArray(products.condition, f.conditions));
@@ -160,6 +176,7 @@ export async function listProducts(
     .select({ total: sql<number>`count(*)::int` })
     .from(products)
     .innerJoin(categories, eq(products.categoryId, categories.id))
+    .leftJoin(parents, eq(categories.parentId, parents.id))
     .where(where);
 
   const pageCount = Math.max(1, Math.ceil(total / pageSize));
@@ -231,6 +248,7 @@ export async function getCatalogFacets(): Promise<CatalogFacets> {
       .selectDistinct({ value: col })
       .from(products)
       .innerJoin(categories, eq(products.categoryId, categories.id))
+    .leftJoin(parents, eq(categories.parentId, parents.id))
       .where(and(isPublic, isNotNull(col), ne(col, "")));
 
   const [sizes, brands, fabrics, pieces, [range]] = await Promise.all([
@@ -241,6 +259,7 @@ export async function getCatalogFacets(): Promise<CatalogFacets> {
       .selectDistinct({ value: products.pieces })
       .from(products)
       .innerJoin(categories, eq(products.categoryId, categories.id))
+    .leftJoin(parents, eq(categories.parentId, parents.id))
       .where(and(isPublic, isNotNull(products.pieces))),
     db
       .select({
@@ -249,6 +268,7 @@ export async function getCatalogFacets(): Promise<CatalogFacets> {
       })
       .from(products)
       .innerJoin(categories, eq(products.categoryId, categories.id))
+    .leftJoin(parents, eq(categories.parentId, parents.id))
       .where(isPublic),
   ]);
 

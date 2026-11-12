@@ -18,6 +18,8 @@ export type PublicProduct = {
   name: string;
   description: string;
   category: { name: string; slug: string };
+  /** The group the category sits in (Women, Men...), if any. */
+  group: { name: string; slug: string } | null;
   brand: string | null;
   size: string | null;
   color: string | null;
@@ -38,8 +40,12 @@ export type PublicProduct = {
 export type PublicCategory = {
   name: string;
   slug: string;
+  /** Items currently available. For a group this includes everything inside it. */
   availableCount: number;
 };
+
+/** A top-level category with the categories inside it. A group with no children is just a plain category. */
+export type PublicCategoryGroup = PublicCategory & { children: PublicCategory[] };
 
 export type ProductListResult = {
   items: PublicProduct[];

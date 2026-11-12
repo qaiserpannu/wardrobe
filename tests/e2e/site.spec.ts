@@ -35,7 +35,8 @@ test.describe("homepage", () => {
 
     await expect(page.getByTestId("featured").getByTestId("product-card")).toHaveCount(4);
     await expect(page.getByTestId("recent").getByTestId("product-card")).toHaveCount(8);
-    await expect(page.getByTestId("category-list").getByRole("link")).toHaveCount(8);
+    await expect(page.getByTestId("category-group")).toHaveCount(4);
+    await expect(page.getByTestId("category-list").getByRole("link")).toHaveCount(16); // 4 groups + 12 categories
 
     // Nothing on the homepage is sold.
     await expect(page.locator('[data-testid="product-card"][data-status="sold"]')).toHaveCount(0);
@@ -78,10 +79,14 @@ test.describe("navigation", () => {
       await expect(page).toHaveURL(/category=kurtas/);
       await expect(menu).toBeHidden(); // closes after choosing
     } else {
-      await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Kurtas" }).click();
+      const main = page.getByRole("navigation", { name: "Main" });
+      await expect(main.getByTestId("submenu-men")).toBeHidden();
+      await main.getByRole("link", { name: "Men", exact: true }).hover();
+      await expect(main.getByTestId("submenu-men")).toBeVisible();
+      await main.getByRole("link", { name: "Kurtas" }).click();
       await expect(page).toHaveURL(/category=kurtas/);
     }
-    await expect(count(page)).toHaveText("6 items");
+    await expect(count(page)).toHaveText("2 items");
     await page.getByRole("banner").getByRole("link", { name: "Pre-Loved Wardrobe" }).click();
     await expect(page).toHaveURL(/\/$/);
   });
@@ -153,12 +158,26 @@ test.describe("navigation", () => {
 test.describe("catalog", () => {
   test("lists all public products with paging", async ({ page }) => {
     await page.goto("/shop");
-    await expect(count(page)).toHaveText("25 items");
+    await expect(count(page)).toHaveText("27 items");
     await expect(cards(page)).toHaveCount(12);
     await page.getByRole("navigation", { name: "Pages" }).getByRole("link", { name: "Page 3" }).click();
     await expect(page).toHaveURL(/page=3/);
-    await expect(cards(page)).toHaveCount(1);
+    await expect(cards(page)).toHaveCount(3);
     await expect(page.getByText("Navy Mirror Work Lehenga")).toHaveCount(0);
+  });
+
+  test("a group shows everything inside it, and its categories narrow it down", async ({ page }) => {
+    await page.goto("/shop?category=women");
+    await expect(count(page)).toHaveText("19 items");
+    await expect(page.locator("#results").getByRole("heading", { level: 2 })).toHaveText("Women");
+    await openFilters(page);
+    await expect(page.getByRole("radio", { name: /^All Women/ })).toBeChecked();
+    await page.getByRole("radio", { name: /^Lehengas/ }).check();
+    await expect(page).toHaveURL(/category=lehengas/);
+    await expect(count(page)).toHaveText("2 items");
+    await page.getByRole("radio", { name: /^All Kids/ }).check();
+    await expect(count(page)).toHaveText("2 items");
+    await expect(cards(page)).toContainText(["Boys Cream Kurta Pajama", "Girls Pink Gharara Set"]);
   });
 
   test("sold items are marked SOLD and listed after available ones", async ({ page }) => {
@@ -187,7 +206,7 @@ test.describe("catalog", () => {
     await expect(page.getByTestId("no-results")).toContainText("No items match your search");
     await expect(cards(page)).toHaveCount(0);
     await page.getByRole("link", { name: "Clear all filters" }).click();
-    await expect(count(page)).toHaveText("25 items");
+    await expect(count(page)).toHaveText("27 items");
   });
 
   test("header search works", async ({ page }, testInfo) => {
@@ -203,13 +222,13 @@ test.describe("catalog", () => {
     await page.goto("/shop");
     await openFilters(page);
 
-    await page.getByRole("radio", { name: /^Kurtas/ }).check();
-    await expect(page).toHaveURL(/category=kurtas/);
-    await expect(count(page)).toHaveText("6 items");
+    await page.getByRole("radio", { name: /^Kurtis/ }).check();
+    await expect(page).toHaveURL(/category=kurtis/);
+    await expect(count(page)).toHaveText("4 items");
 
     await page.getByText("M", { exact: true }).click();
     await expect(page).toHaveURL(/size=M/);
-    await expect(count(page)).toHaveText("3 items");
+    await expect(count(page)).toHaveText("2 items");
 
     await page.getByRole("checkbox", { name: "Sapphire" }).check();
     await expect(page).toHaveURL(/brand=Sapphire/);
@@ -218,16 +237,16 @@ test.describe("catalog", () => {
 
     // Remove filters using the chips above the results.
     await page.getByRole("link", { name: /Sapphire.*remove filter/ }).click();
-    await expect(count(page)).toHaveText("3 items");
+    await expect(count(page)).toHaveText("2 items");
     await page.getByRole("link", { name: "Clear all" }).click();
-    await expect(count(page)).toHaveText("25 items");
+    await expect(count(page)).toHaveText("27 items");
     await expect(page).toHaveURL(/\/shop$/);
 
     await openFilters(page);
     await page.getByRole("checkbox", { name: "New with tags" }).check();
     await expect(count(page)).toHaveText("2 items");
     await page.getByRole("checkbox", { name: "New with tags" }).uncheck();
-    await expect(count(page)).toHaveText("25 items");
+    await expect(count(page)).toHaveText("27 items");
 
     await page.getByRole("spinbutton", { name: "Maximum price" }).fill("15");
     await page.getByRole("button", { name: "Apply" }).click();
@@ -246,7 +265,7 @@ test.describe("catalog", () => {
     await expect(count(page)).toHaveText("1 item");
     await expect(cards(page)).toContainText(["Red Bridal Lehenga Choli"]);
     await page.getByRole("link", { name: /Bridal.*remove filter/ }).click();
-    await expect(count(page)).toHaveText("25 items");
+    await expect(count(page)).toHaveText("27 items");
 
     await openFilters(page);
     await page.getByRole("checkbox", { name: "Unstitched (fabric)" }).check();
@@ -256,10 +275,10 @@ test.describe("catalog", () => {
 
     await page.getByRole("checkbox", { name: "Cotton", exact: true }).check();
     await expect(page).toHaveURL(/fabric=Cotton/);
-    await expect(count(page)).toHaveText("6 items");
+    await expect(count(page)).toHaveText("7 items");
     await page.getByRole("checkbox", { name: "2-piece" }).check();
     await expect(page).toHaveURL(/pieces=2/);
-    await expect(count(page)).toHaveText("2 items");
+    await expect(count(page)).toHaveText("3 items");
   });
 
   test("hide sold items", async ({ page }) => {
@@ -276,7 +295,7 @@ test.describe("catalog", () => {
       (await cards(page).locator("p", { hasText: "$" }).allTextContents()).map((p) => Number(p.replace("$", "")));
 
     await page.goto("/shop?hideSold=1");
-    await expect(cards(page).first()).toContainText("Black Chiffon Formal Suit"); // newest first
+    await expect(cards(page).first()).toContainText("Boys Cream Kurta Pajama"); // newest first
 
     await openFilters(page);
     await page.getByRole("combobox", { name: "Sort by" }).selectOption("price_asc");
@@ -301,7 +320,7 @@ test.describe("catalog", () => {
     await expect(page.getByRole("combobox", { name: "Sort by" })).toHaveValue("price_asc");
 
     await page.getByRole("checkbox", { name: "Khaadi" }).uncheck();
-    await expect(count(page)).toHaveText("6 items");
+    await expect(count(page)).toHaveText("2 items");
     await page.goBack();
     await expect(count(page)).toHaveText("1 item");
     await expect(page.getByRole("checkbox", { name: "Khaadi" })).toBeChecked();
@@ -318,6 +337,8 @@ test.describe("product page", () => {
 
     const detail = page.getByTestId("product-detail");
     await expect(detail.getByRole("heading", { level: 1 })).toHaveText("Teal Embroidered Lawn Suit");
+    const crumbs = page.getByRole("navigation", { name: "Breadcrumb" });
+    await expect(crumbs.getByRole("link")).toHaveText(["Home", "Shop", "Women", "Shalwar Kameez"]);
     await expect(detail.getByTestId("product-price")).toHaveText("$45");
     await expect(detail.getByText("Available", { exact: true })).toBeVisible();
     await expect(detail).toContainText("Three-piece lawn suit");
@@ -392,7 +413,7 @@ test.describe("product page", () => {
       await expect(page.locator('main a[href*="wa.me"]')).toHaveCount(0);
       await page.goto("/");
       await expect(page.getByTestId("recent")).not.toContainText("Black Prince Coat");
-      await page.goto("/shop?category=menswear");
+      await page.goto("/shop?category=sherwanis");
       await expect(cards(page).last()).toHaveAttribute("data-status", "sold");
       await expect(cards(page).last()).toContainText("Black Prince Coat");
     } finally {

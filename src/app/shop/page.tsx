@@ -9,7 +9,7 @@ import { Container } from "@/components/ui/Container";
 import { Ornament } from "@/components/ui/Ornament";
 import { catalogHref, countActiveFilters, parseCatalogParams } from "@/lib/catalog-params";
 import { getCachedSettings } from "@/server/services/cached";
-import { listCategories } from "@/server/services/categories";
+import { findCategory, listCategoryTree } from "@/server/services/categories";
 import { getCatalogFacets, listProducts } from "@/server/services/products";
 
 export const metadata: Metadata = {
@@ -21,12 +21,12 @@ async function Catalog({ searchParams }: { searchParams: PageProps<"/shop">["sea
   const filters = parseCatalogParams(await searchParams);
   const [settings, categories, facets, result] = await Promise.all([
     getCachedSettings(),
-    listCategories(),
+    listCategoryTree(),
     getCatalogFacets(),
     listProducts(filters),
   ]);
   const { shop } = settings;
-  const categoryName = categories.find((c) => c.slug === filters.category)?.name;
+  const categoryName = findCategory(categories, filters.category)?.name;
   const filtered = countActiveFilters(filters) > 0;
 
   return (

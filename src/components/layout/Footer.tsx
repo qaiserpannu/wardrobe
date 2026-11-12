@@ -27,7 +27,7 @@ export async function Footer() {
   return (
     <footer id="contact" className="mt-24 bg-accent-dark text-[#f6ead6]">
       <div className="edge-scallop" aria-hidden />
-      <Container className="grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-4">
+      <Container className="grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-5">
         <div className="lg:col-span-1">
           <p className="font-display text-2xl font-semibold text-gold-light">{branding.siteName}</p>
           {branding.byline && (
@@ -38,22 +38,26 @@ export async function Footer() {
           <p className="mt-3 max-w-xs text-sm leading-relaxed text-[#f6ead6]/70">{branding.tagline}</p>
         </div>
 
-        <nav aria-label="Shop categories">
+        <nav aria-label="Shop categories" className="sm:col-span-2 lg:col-span-2">
           <h2 className="text-xs font-semibold tracking-[0.18em] text-gold-light uppercase">Shop</h2>
-          <ul className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2.5 text-sm">
-            <li>
-              <Link href="/shop" className="hover:text-gold-light">
-                All items
-              </Link>
-            </li>
-            {categories.map((c) => (
-              <li key={c.slug}>
-                <Link href={`/shop?category=${c.slug}`} className="hover:text-gold-light">
-                  {c.name}
-                </Link>
-              </li>
+          <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-6 text-sm sm:grid-cols-4">
+            {categories.map((group) => (
+              <ul key={group.slug} className="space-y-2.5">
+                <li>
+                  <Link href={`/shop?category=${group.slug}`} className="font-semibold hover:text-gold-light">
+                    {group.name}
+                  </Link>
+                </li>
+                {group.children.map((c) => (
+                  <li key={c.slug}>
+                    <Link href={`/shop?category=${c.slug}`} className="text-[#f6ead6]/80 hover:text-gold-light">
+                      {c.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             ))}
-          </ul>
+          </div>
         </nav>
 
         <div>

@@ -3,12 +3,12 @@ import { SearchIcon } from "@/components/ui/icons";
 import { SORTS, SORT_LABELS, countActiveFilters, type CatalogFilters } from "@/lib/catalog-params";
 import { CONDITIONS, CONDITION_LABELS } from "@/lib/conditions";
 import { OCCASIONS, OCCASION_LABELS, STITCHING, STITCHING_LABELS, piecesLabel } from "@/lib/product-options";
-import type { CatalogFacets, PublicCategory } from "@/server/services/types";
+import type { CatalogFacets, PublicCategoryGroup } from "@/server/services/types";
 import { FilterForm } from "./FilterForm";
 
 type Props = {
   filters: CatalogFilters;
-  categories: PublicCategory[];
+  categories: PublicCategoryGroup[];
   facets: CatalogFacets;
   currency: string;
 };
@@ -29,6 +29,7 @@ function Check({
   checked,
   type = "checkbox",
   hint,
+  strong,
 }: {
   name: string;
   value: string;
@@ -36,11 +37,12 @@ function Check({
   checked: boolean;
   type?: "checkbox" | "radio";
   hint?: string;
+  strong?: boolean;
 }) {
   return (
     <label className="flex min-h-9 cursor-pointer items-center gap-2.5 text-sm">
       <input type={type} name={name} value={value} defaultChecked={checked} className="size-4 accent-accent" />
-      <span>{label}</span>
+      <span className={strong ? "font-semibold" : undefined}>{label}</span>
       {hint && <span className="text-xs text-muted">{hint}</span>}
     </label>
   );
@@ -87,16 +89,33 @@ export function FilterPanel({ filters, categories, facets, currency }: Props) {
 
       <Group title="Category">
         <Check type="radio" name="category" value="" label="All categories" checked={!filters.category} />
-        {categories.map((c) => (
-          <Check
-            key={c.slug}
-            type="radio"
-            name="category"
-            value={c.slug}
-            label={c.name}
-            hint={`(${c.availableCount})`}
-            checked={filters.category === c.slug}
-          />
+        {categories.map((group) => (
+          <div key={group.slug} className="mt-1">
+            <Check
+              type="radio"
+              name="category"
+              value={group.slug}
+              label={group.children.length > 0 ? `All ${group.name}` : group.name}
+              hint={`(${group.availableCount})`}
+              checked={filters.category === group.slug}
+              strong
+            />
+            {group.children.length > 0 && (
+              <div className="ml-6">
+                {group.children.map((c) => (
+                  <Check
+                    key={c.slug}
+                    type="radio"
+                    name="category"
+                    value={c.slug}
+                    label={c.name}
+                    hint={`(${c.availableCount})`}
+                    checked={filters.category === c.slug}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
         ))}
       </Group>
 

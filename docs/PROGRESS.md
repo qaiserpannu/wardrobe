@@ -76,20 +76,32 @@ Owner feedback after the redesign:
   (D21), owner-managed categories with possible grouping (D22).
 - Tests: 42 logic/database tests, 77 browser runs, all passing.
 
+### Milestone 2 revision 3 (2026-11-12) — category groups
+
+- Categories are grouped (D22): Women, Men, Kids, Accessories, each with
+  categories inside. Third database migration (`parent_id`).
+- Desktop menu has drop-downs per group; phone menu lists groups with their
+  categories; homepage shows four group tiles with category links beneath;
+  filters, breadcrumbs and footer follow the groups.
+- Sample data regrouped; two kids' items added (30 products: 24 available,
+  3 sold, 2 drafts, 1 archived).
+- Owner chose the free route for photo clean-up and pre-fill (D23); to be
+  trialled and built in Milestone 5.
+- Occasion list confirmed.
+- Tests: 44 logic/database tests, 80 browser runs, all passing.
+
 ### Milestone 1 (2026-11-12) — approved
 
 Stack selection, Next.js scaffold, folder structure, project memory documents.
 
 ## Outstanding — waiting on the owner
 
-1. Review revision 2; list further changes or approve Milestone 2.
-2. Categories: say whether they should be grouped (Women / Men / Kids) and
-   give the preferred list (D22). Editing them without code comes with the
-   admin portal in Milestone 5.
-3. Confirm the occasion list (casual, formal, party, festive, wedding, bridal).
-4. WhatsApp number: stays configurable; owner will supply it once Milestone 2
+1. Review revision 3; list further changes or approve Milestone 2.
+2. Give the real list of groups and categories if the sample ones are wrong
+   (editing them without code comes with the admin portal in Milestone 5).
+3. WhatsApp number: stays configurable; owner will supply it once Milestone 2
    issues are settled.
-5. Still open from Milestone 1: hosting choice (D9); proposed services (D4,
+4. Still open from Milestone 1: hosting choice (D9); proposed services (D4,
    D6, D7, D8).
 
 ## Known issues and limitations
