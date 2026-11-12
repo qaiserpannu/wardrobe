@@ -18,6 +18,10 @@ describe("catalog URL parameters", () => {
       size: ["M", "L", "M"],
       brand: "Zara",
       condition: ["good", "bogus"],
+      fabric: ["Cotton", "Raw silk"],
+      occasion: ["bridal", "bogus"],
+      stitching: "unstitched",
+      pieces: ["3", "0", "x"],
       min: "10",
       max: "29.50",
       sort: "price_asc",
@@ -28,6 +32,10 @@ describe("catalog URL parameters", () => {
     expect(f.sizes).toEqual(["M", "L"]);
     expect(f.brands).toEqual(["Zara"]);
     expect(f.conditions).toEqual(["good"]);
+    expect(f.fabrics).toEqual(["Cotton", "Raw silk"]);
+    expect(f.occasions).toEqual(["bridal"]);
+    expect(f.stitching).toEqual(["unstitched"]);
+    expect(f.pieces).toEqual([3]);
     expect(f.minPriceCents).toBe(1000);
     expect(f.maxPriceCents).toBe(2950);
     expect(f.sort).toBe("price_asc");
@@ -58,7 +66,17 @@ describe("catalog URL parameters", () => {
   });
 
   it("round-trips through catalogHref", () => {
-    const original = parseCatalogParams({ q: "silk", size: ["S", "M"], max: "40", sort: "price_desc", page: "3" });
+    const original = parseCatalogParams({
+      q: "silk",
+      size: ["S", "M"],
+      fabric: "Raw silk",
+      occasion: "wedding",
+      stitching: "stitched",
+      pieces: ["2", "3"],
+      max: "40",
+      sort: "price_desc",
+      page: "3",
+    });
     const href = catalogHref(original);
     const params = Object.fromEntries(
       [...new URL(href, "http://x").searchParams.keys()].map((k) => [

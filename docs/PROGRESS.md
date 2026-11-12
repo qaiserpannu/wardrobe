@@ -61,20 +61,34 @@ design must reflect that.
 - All tests updated and passing: 40 logic/database tests, 71 browser runs;
   the previously intermittent test was repeated 36 times without failure.
 
+### Milestone 2 revision 2 (2026-11-12) — extra details, imperfections, logo
+
+Owner feedback after the redesign:
+
+- Currency confirmed: USD.
+- Products now have fabric, pieces, stitched/unstitched, occasion and an
+  imperfections note (D20): shown on the product page, with four new catalog
+  filters; fabric is searchable. Second database migration.
+- Product page has an "Imperfections" section, always shown.
+- Logo shows "By Skyra" under the site name (`branding.byline` setting), in
+  the header and footer.
+- Recorded for Milestone 5: photo-assisted listing and photo enhancement
+  (D21), owner-managed categories with possible grouping (D22).
+- Tests: 42 logic/database tests, 77 browser runs, all passing.
+
 ### Milestone 1 (2026-11-12) — approved
 
 Stack selection, Next.js scaffold, folder structure, project memory documents.
 
 ## Outstanding — waiting on the owner
 
-1. Review the redesigned website; list any further changes, or approve
-   Milestone 2.
-2. Confirm currency (USD assumed) and whether the category list is right.
-3. Decide whether products need extra details common for this clothing:
-   fabric, number of pieces (2-piece / 3-piece), stitched or unstitched,
-   occasion (casual, party, bridal). Not built; would be new columns/filters.
-4. WhatsApp number: stays configurable (site settings). The owner will supply
-   it after the other Milestone 2 issues are resolved.
+1. Review revision 2; list further changes or approve Milestone 2.
+2. Categories: say whether they should be grouped (Women / Men / Kids) and
+   give the preferred list (D22). Editing them without code comes with the
+   admin portal in Milestone 5.
+3. Confirm the occasion list (casual, formal, party, festive, wedding, bridal).
+4. WhatsApp number: stays configurable; owner will supply it once Milestone 2
+   issues are settled.
 5. Still open from Milestone 1: hosting choice (D9); proposed services (D4,
    D6, D7, D8).
 

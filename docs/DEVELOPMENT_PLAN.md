@@ -127,10 +127,16 @@ Steps:
    one-time setup script for the first admin. No public registration.
 2. Dashboard: product counts by status, recent items, recent changes.
 3. Product management: create, edit, draft, preview, publish, mark sold,
-   archive, delete; multi-photo upload with reordering.
+   archive, delete; multi-photo upload with reordering; all product details
+   including fabric, pieces, stitching, occasion and imperfections.
+   - Photo-assisted listing: uploaded photos pre-fill a draft for the owner
+     to review (D21).
+   - Photo enhancement: crop, lighting correction, optional background
+     clean-up, never altering the garment (D21).
 4. Image storage: production storage implementation; file type, size and
    content validation.
-5. Category management.
+5. Category management: add, rename, reorder, hide; grouping if the owner
+   wants it (D22).
 6. Settings: branding, logo, WhatsApp, contact, social links, featured
    products, description, SEO, chat widget.
 7. AI management: enable/disable, greeting, behaviour instructions, handoff

@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { SearchIcon } from "@/components/ui/icons";
 import { SORTS, SORT_LABELS, countActiveFilters, type CatalogFilters } from "@/lib/catalog-params";
 import { CONDITIONS, CONDITION_LABELS } from "@/lib/conditions";
+import { OCCASIONS, OCCASION_LABELS, STITCHING, STITCHING_LABELS, piecesLabel } from "@/lib/product-options";
 import type { CatalogFacets, PublicCategory } from "@/server/services/types";
 import { FilterForm } from "./FilterForm";
 
@@ -141,6 +142,42 @@ export function FilterPanel({ filters, categories, facets, currency }: Props) {
           />
         ))}
       </Group>
+
+      {facets.fabrics.length > 0 && (
+        <Group title="Fabric">
+          <div className="max-h-56 overflow-y-auto pr-1">
+            {facets.fabrics.map((fabric) => (
+              <Check key={fabric} name="fabric" value={fabric} label={fabric} checked={filters.fabrics.includes(fabric)} />
+            ))}
+          </div>
+        </Group>
+      )}
+
+      <Group title="Occasion">
+        {OCCASIONS.map((o) => (
+          <Check key={o} name="occasion" value={o} label={OCCASION_LABELS[o]} checked={filters.occasions.includes(o)} />
+        ))}
+      </Group>
+
+      <Group title="Stitching">
+        {STITCHING.map((v) => (
+          <Check key={v} name="stitching" value={v} label={STITCHING_LABELS[v]} checked={filters.stitching.includes(v)} />
+        ))}
+      </Group>
+
+      {facets.pieces.length > 0 && (
+        <Group title="Pieces">
+          {facets.pieces.map((n) => (
+            <Check
+              key={n}
+              name="pieces"
+              value={String(n)}
+              label={piecesLabel(n)}
+              checked={filters.pieces.includes(n)}
+            />
+          ))}
+        </Group>
+      )}
 
       <Group title={`Price (${currency})`}>
         <div className="flex items-center gap-2">

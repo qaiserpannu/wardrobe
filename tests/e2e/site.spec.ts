@@ -29,6 +29,8 @@ test.describe("homepage", () => {
     await expect(page).toHaveTitle(/Pre-Loved Wardrobe/);
     await expect(page.getByRole("banner").getByRole("link", { name: "Pre-Loved Wardrobe" })).toBeVisible();
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Loved once. Ready to be loved again.");
+    await expect(page.getByRole("banner").getByTestId("logo-byline")).toHaveText("By Skyra");
+    await expect(page.getByRole("banner").getByTestId("logo-byline")).toBeVisible();
     await expect(page.getByRole("link", { name: /shop the collection/i })).toBeVisible();
 
     await expect(page.getByTestId("featured").getByTestId("product-card")).toHaveCount(4);
@@ -235,6 +237,31 @@ test.describe("catalog", () => {
     for (const p of prices) expect(Number(p.replace("$", ""))).toBeLessThanOrEqual(15);
   });
 
+  test("filter by occasion, fabric, stitching and pieces", async ({ page }) => {
+    await page.goto("/shop");
+    await openFilters(page);
+
+    await page.getByRole("checkbox", { name: "Bridal" }).check();
+    await expect(page).toHaveURL(/occasion=bridal/);
+    await expect(count(page)).toHaveText("1 item");
+    await expect(cards(page)).toContainText(["Red Bridal Lehenga Choli"]);
+    await page.getByRole("link", { name: /Bridal.*remove filter/ }).click();
+    await expect(count(page)).toHaveText("25 items");
+
+    await openFilters(page);
+    await page.getByRole("checkbox", { name: "Unstitched (fabric)" }).check();
+    await expect(page).toHaveURL(/stitching=unstitched/);
+    await expect(count(page)).toHaveText("2 items");
+    await page.getByRole("checkbox", { name: "Unstitched (fabric)" }).uncheck();
+
+    await page.getByRole("checkbox", { name: "Cotton", exact: true }).check();
+    await expect(page).toHaveURL(/fabric=Cotton/);
+    await expect(count(page)).toHaveText("6 items");
+    await page.getByRole("checkbox", { name: "2-piece" }).check();
+    await expect(page).toHaveURL(/pieces=2/);
+    await expect(count(page)).toHaveText("2 items");
+  });
+
   test("hide sold items", async ({ page }) => {
     await page.goto("/shop?category=shalwar-kameez");
     await openFilters(page);
@@ -294,7 +321,7 @@ test.describe("product page", () => {
     await expect(detail.getByTestId("product-price")).toHaveText("$45");
     await expect(detail.getByText("Available", { exact: true })).toBeVisible();
     await expect(detail).toContainText("Three-piece lawn suit");
-    for (const [label, value] of [["Brand", "Khaadi"], ["Size", "M"], ["Colour", "Teal"], ["Condition", "Like new"], ["Product ID", "PLW-0001"]]) {
+    for (const [label, value] of [["Brand", "Khaadi"], ["Size", "M"], ["Colour", "Teal"], ["Fabric", "Lawn"], ["Pieces", "3-piece"], ["Stitching", "Stitched (ready to wear)"], ["Occasion", "Casual"], ["Condition", "Like new"], ["Product ID", "PLW-0001"]]) {
       await expect(detail.locator("dl > div", { hasText: label }).locator("dd")).toHaveText(value);
     }
 
@@ -334,9 +361,18 @@ test.describe("product page", () => {
   test("missing details are shown as not specified, never made up", async ({ page }) => {
     await page.goto("/shop/embroidered-potli-bag-plw-0024");
     const detail = page.getByTestId("product-detail");
-    for (const label of ["Brand", "Size", "Colour"]) {
+    for (const label of ["Brand", "Size", "Colour", "Fabric", "Pieces", "Stitching", "Occasion"]) {
       await expect(detail.locator("dl > div", { hasText: label }).locator("dd")).toHaveText("Not specified");
     }
+    await expect(detail.getByTestId("imperfections")).toContainText("No imperfections have been recorded");
+  });
+
+  test("imperfections are shown in their own section", async ({ page }) => {
+    await page.goto("/shop/red-bridal-lehenga-choli-plw-0011");
+    const section = page.getByTestId("imperfections");
+    await expect(section.getByRole("heading", { name: "Imperfections" })).toBeVisible();
+    await expect(section).toContainText("A few loose sequins near the hem");
+    await expect(section).toContainText("altered to fit");
   });
 
   test("marking a product sold shows up immediately everywhere", async ({ page }, testInfo) => {

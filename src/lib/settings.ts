@@ -8,6 +8,8 @@ import { z } from "zod";
 export const settingsSchemas = {
   branding: z.object({
     siteName: z.string().default("Pre-Loved Wardrobe"),
+    /** Small line under the site name in the logo. Empty hides it. */
+    byline: z.string().default("By Skyra"),
     tagline: z.string().default("Pre-loved Indian & Pakistani fashion, chosen with care."),
     logoKey: z.string().nullable().default(null),
     /** Short line shown in the strip above the header. Empty hides the strip. */

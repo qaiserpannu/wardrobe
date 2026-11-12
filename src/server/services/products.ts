@@ -19,6 +19,11 @@ const publicColumns = {
   brand: products.brand,
   size: products.size,
   color: products.color,
+  fabric: products.fabric,
+  pieces: products.pieces,
+  stitching: products.stitching,
+  occasion: products.occasion,
+  imperfections: products.imperfections,
   condition: products.condition,
   priceCents: products.priceCents,
   status: products.status,
@@ -37,6 +42,11 @@ type Row = {
   brand: string | null;
   size: string | null;
   color: string | null;
+  fabric: string | null;
+  pieces: number | null;
+  stitching: PublicProduct["stitching"];
+  occasion: PublicProduct["occasion"];
+  imperfections: string | null;
   condition: PublicProduct["condition"];
   priceCents: number;
   status: "draft" | "available" | "sold" | "archived";
@@ -88,6 +98,11 @@ async function withImages(rows: Row[]): Promise<PublicProduct[]> {
     brand: r.brand,
     size: r.size,
     color: r.color,
+    fabric: r.fabric,
+    pieces: r.pieces,
+    stitching: r.stitching,
+    occasion: r.occasion,
+    imperfections: r.imperfections?.trim() || null,
     condition: r.condition,
     priceCents: r.priceCents,
     // Safe: every query in this file filters on PUBLIC_STATUSES.
@@ -113,6 +128,7 @@ function filterConditions(f: Partial<CatalogFilters>): SQL | undefined {
         sql`${products.searchVector} @@ websearch_to_tsquery('english', ${q})`,
         ilike(products.name, like),
         ilike(products.brand, like),
+        ilike(products.fabric, like),
         ilike(products.code, like),
         ilike(categories.name, like),
       ),
@@ -122,6 +138,10 @@ function filterConditions(f: Partial<CatalogFilters>): SQL | undefined {
   if (f.sizes?.length) where.push(inArray(products.size, f.sizes));
   if (f.brands?.length) where.push(inArray(products.brand, f.brands));
   if (f.conditions?.length) where.push(inArray(products.condition, f.conditions));
+  if (f.fabrics?.length) where.push(inArray(products.fabric, f.fabrics));
+  if (f.occasions?.length) where.push(inArray(products.occasion, f.occasions));
+  if (f.stitching?.length) where.push(inArray(products.stitching, f.stitching));
+  if (f.pieces?.length) where.push(inArray(products.pieces, f.pieces));
   if (f.minPriceCents != null) where.push(gte(products.priceCents, f.minPriceCents));
   if (f.maxPriceCents != null) where.push(lte(products.priceCents, f.maxPriceCents));
   if (f.hideSold) where.push(eq(products.status, "available"));
@@ -206,16 +226,22 @@ export async function getRelatedProducts(product: PublicProduct, limit = 4): Pro
 /** The sizes, brands and price range that exist among public products, for building filter controls. */
 export async function getCatalogFacets(): Promise<CatalogFacets> {
   const db = getDb();
-  const join = (col: typeof products.size | typeof products.brand) =>
+  const join = (col: typeof products.size | typeof products.brand | typeof products.fabric) =>
     db
       .selectDistinct({ value: col })
       .from(products)
       .innerJoin(categories, eq(products.categoryId, categories.id))
       .where(and(isPublic, isNotNull(col), ne(col, "")));
 
-  const [sizes, brands, [range]] = await Promise.all([
+  const [sizes, brands, fabrics, pieces, [range]] = await Promise.all([
     join(products.size),
     join(products.brand),
+    join(products.fabric),
+    db
+      .selectDistinct({ value: products.pieces })
+      .from(products)
+      .innerJoin(categories, eq(products.categoryId, categories.id))
+      .where(and(isPublic, isNotNull(products.pieces))),
     db
       .select({
         min: sql<number | null>`min(${products.priceCents})::int`,
@@ -229,6 +255,8 @@ export async function getCatalogFacets(): Promise<CatalogFacets> {
   return {
     sizes: sortSizes(sizes.map((s) => s.value!)),
     brands: brands.map((b) => b.value!).sort((a, b) => a.localeCompare(b)),
+    fabrics: fabrics.map((f) => f.value!).sort((a, b) => a.localeCompare(b)),
+    pieces: pieces.map((p) => p.value!).sort((a, b) => a - b),
     minPriceCents: range?.min ?? null,
     maxPriceCents: range?.max ?? null,
   };

@@ -42,13 +42,18 @@ archive the products first.
 | brand | text, nullable | Missing is allowed and shown as "not specified" |
 | size | text, nullable | Free text ("M", "UK 10", "32W") — see TECHNICAL_DECISIONS D16 |
 | color | text, nullable | |
+| fabric | text, nullable | Free text ("Lawn", "Chiffon"); searchable; filter options built from values in use |
+| pieces | smallint, nullable | Number of pieces in the outfit (3 = 3-piece) |
+| stitching | enum, nullable | `stitched`, `unstitched` |
+| occasion | enum, nullable | `casual`, `formal`, `party`, `festive`, `wedding`, `bridal` |
+| imperfections | text, nullable | Seller's notes on flaws. Null means nothing recorded, not "no flaws" |
 | condition | enum | `new_with_tags`, `like_new`, `good`, `fair` |
 | price_cents | integer | Price in smallest currency unit |
 | status | enum | `draft`, `available`, `sold`, `archived` |
 | is_featured | boolean | Shown in homepage "Featured" |
 | published_at | timestamp, nullable | Set when first made available; drives "newest" sorting |
 | sold_at | timestamp, nullable | |
-| search_vector | tsvector, generated | Full-text search over name, description, brand, color |
+| search_vector | tsvector, generated | Full-text search over name, description, brand, color, fabric |
 
 Visibility rules, enforced in the services layer:
 

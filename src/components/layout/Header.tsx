@@ -33,8 +33,18 @@ export async function Header() {
           href="/"
           className="flex items-center gap-2 font-display text-2xl leading-none font-semibold tracking-tight text-accent lg:text-[1.7rem]"
         >
-          <ArchMark className="hidden h-7 w-6 text-gold sm:block" />
-          {settings.branding.siteName}
+          <ArchMark className="hidden h-8 w-7 text-gold sm:block" />
+          <span className="flex flex-col">
+            {settings.branding.siteName}
+            {settings.branding.byline && (
+              <span
+                className="mt-1 font-sans text-[0.62rem] leading-none font-medium tracking-[0.28em] text-muted uppercase"
+                data-testid="logo-byline"
+              >
+                {settings.branding.byline}
+              </span>
+            )}
+          </span>
         </Link>
 
         <nav aria-label="Main" className="hidden lg:block">

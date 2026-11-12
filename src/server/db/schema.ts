@@ -8,6 +8,7 @@ import {
   pgEnum,
   pgSequence,
   pgTable,
+  smallint,
   text,
   timestamp,
   uuid,
@@ -41,6 +42,17 @@ export const productStatus = pgEnum("product_status", [
   "archived",
 ]);
 
+export const productStitching = pgEnum("product_stitching", ["stitched", "unstitched"]);
+
+export const productOccasion = pgEnum("product_occasion", [
+  "casual",
+  "formal",
+  "party",
+  "festive",
+  "wedding",
+  "bridal",
+]);
+
 /** Feeds the human-readable product code (PLW-0001). Numbers are never reused. */
 export const productCodeSeq = pgSequence("product_code_seq", { startWith: 1 });
 
@@ -70,6 +82,13 @@ export const products = pgTable(
     brand: text("brand"),
     size: text("size"),
     color: text("color"),
+    fabric: text("fabric"),
+    /** How many pieces the outfit has (a 3-piece suit is 3). */
+    pieces: smallint("pieces"),
+    stitching: productStitching("stitching"),
+    occasion: productOccasion("occasion"),
+    /** Honest notes on flaws: marks, loose threads, alterations. */
+    imperfections: text("imperfections"),
     condition: productCondition("condition").notNull(),
     priceCents: integer("price_cents").notNull(),
     status: productStatus("status").notNull().default("draft"),
@@ -78,7 +97,7 @@ export const products = pgTable(
     soldAt: timestamp("sold_at", { withTimezone: true }),
     searchVector: tsvector("search_vector").generatedAlwaysAs(
       (): SQL =>
-        sql`to_tsvector('english', coalesce(${products.name}, '') || ' ' || coalesce(${products.description}, '') || ' ' || coalesce(${products.brand}, '') || ' ' || coalesce(${products.color}, ''))`,
+        sql`to_tsvector('english', coalesce(${products.name}, '') || ' ' || coalesce(${products.description}, '') || ' ' || coalesce(${products.brand}, '') || ' ' || coalesce(${products.color}, '') || ' ' || coalesce(${products.fabric}, ''))`,
     ),
     ...timestamps,
   },

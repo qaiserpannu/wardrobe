@@ -1,4 +1,5 @@
 import { CONDITIONS, type Condition } from "./conditions";
+import { OCCASIONS, STITCHING, type Occasion, type Stitching } from "./product-options";
 
 export const SORTS = ["newest", "price_asc", "price_desc"] as const;
 export type Sort = (typeof SORTS)[number];
@@ -17,6 +18,10 @@ export type CatalogFilters = {
   sizes: string[];
   brands: string[];
   conditions: Condition[];
+  fabrics: string[];
+  occasions: Occasion[];
+  stitching: Stitching[];
+  pieces: number[];
   minPriceCents: number | null;
   maxPriceCents: number | null;
   hideSold: boolean;
@@ -57,6 +62,12 @@ export function parseCatalogParams(raw: RawParams): CatalogFilters {
     conditions: many(raw.condition).filter((c): c is Condition =>
       (CONDITIONS as readonly string[]).includes(c),
     ),
+    fabrics: many(raw.fabric),
+    occasions: many(raw.occasion).filter((o): o is Occasion => (OCCASIONS as readonly string[]).includes(o)),
+    stitching: many(raw.stitching).filter((v): v is Stitching => (STITCHING as readonly string[]).includes(v)),
+    pieces: many(raw.pieces)
+      .filter((v) => /^[1-9]$/.test(v))
+      .map(Number),
     minPriceCents: min,
     maxPriceCents: max,
     hideSold: one(raw.hideSold) === "1",
@@ -73,6 +84,10 @@ export function catalogHref(filters: Partial<CatalogFilters>): string {
   filters.sizes?.forEach((s) => p.append("size", s));
   filters.brands?.forEach((b) => p.append("brand", b));
   filters.conditions?.forEach((c) => p.append("condition", c));
+  filters.fabrics?.forEach((f) => p.append("fabric", f));
+  filters.occasions?.forEach((o) => p.append("occasion", o));
+  filters.stitching?.forEach((v) => p.append("stitching", v));
+  filters.pieces?.forEach((n) => p.append("pieces", String(n)));
   if (filters.minPriceCents != null) p.set("min", String(filters.minPriceCents / 100));
   if (filters.maxPriceCents != null) p.set("max", String(filters.maxPriceCents / 100));
   if (filters.hideSold) p.set("hideSold", "1");
@@ -89,6 +104,10 @@ export function countActiveFilters(f: CatalogFilters): number {
     f.sizes.length +
     f.brands.length +
     f.conditions.length +
+    f.fabrics.length +
+    f.occasions.length +
+    f.stitching.length +
+    f.pieces.length +
     (f.minPriceCents != null ? 1 : 0) +
     (f.maxPriceCents != null ? 1 : 0) +
     (f.hideSold ? 1 : 0)

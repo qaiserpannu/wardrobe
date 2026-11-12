@@ -285,3 +285,54 @@ keep that safe, every stored file name contains a short fingerprint of its
 contents (`plw-0001-1-3fa9c2d1.webp`). A replaced photo gets a new name, so
 browsers and the image optimiser can never show an outdated picture. Admin
 uploads in Milestone 5 must follow the same rule.
+
+## D20 — Extra product details for South Asian clothing
+
+**Status:** Decided by owner (2026-11-12)
+
+Products gained fabric, number of pieces, stitched/unstitched, occasion and an
+imperfections note. All are optional. The catalog can be filtered by the first
+four, and fabric is included in keyword search.
+
+- Fabric is free text (like brand and size, D16). Stitching and occasion are
+  fixed lists defined in `src/lib/product-options.ts`; changing the lists needs
+  a small database migration.
+- The product page always shows an "Imperfections" section. If nothing was
+  recorded it says so and invites a question — it never claims the item is
+  flawless.
+- Currency confirmed as USD.
+
+## D21 — Photo-assisted listing and photo enhancement (planned for Milestone 5)
+
+**Status:** Proposed — approach to confirm when Milestone 5 starts
+
+The owner wants uploading a photo to pre-fill product details and to make
+photos look better for selling. Both belong to the admin product form.
+
+- Pre-fill: the uploaded photos are sent to the AI provider (the same
+  swappable interface as the shopping assistant, D8), which suggests name,
+  category, colour, likely fabric, occasion, pieces and a draft description.
+  Suggestions fill the form as a draft for the owner to check and correct;
+  nothing is published automatically. Brand, size, price, condition and
+  imperfections must be confirmed or entered by the owner, because a photo
+  cannot reliably show them. Visible flaws the AI notices are offered as
+  suggestions for the imperfections note.
+- Enhancement: automatic straightening/cropping to the shop's 4:5 shape,
+  brightness and white-balance correction, sharpening and resizing, done on
+  our own server at no cost. Optional background clean-up (plain or soft
+  studio backdrop) would use an AI background-removal step.
+- Rule: enhancement must never change the garment itself — no colour shifts
+  beyond correcting lighting, and no retouching of marks, fading or damage.
+  This is second-hand selling; buyers must see the real item. The original
+  photo is always kept.
+- Cost: a small per-listing AI charge for pre-fill (and for background
+  clean-up if chosen).
+
+## D22 — Categories will be owner-managed, with possible grouping
+
+**Status:** Open — to settle before Milestone 5 category management
+
+Categories are already data, not code, so the admin portal will let the owner
+add, rename, reorder and hide them. Open question for the owner: whether to
+group them (for example Women / Men / Kids, with Lehengas and Kurtis under
+Women). Grouping would add a parent field to categories and a grouped menu.

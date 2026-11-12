@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { catalogHref, type CatalogFilters } from "@/lib/catalog-params";
 import { CONDITION_LABELS } from "@/lib/conditions";
+import { OCCASION_LABELS, STITCHING_LABELS, piecesLabel } from "@/lib/product-options";
 import { formatPrice } from "@/lib/money";
 import type { SiteSettings } from "@/lib/settings";
 import type { PublicCategory } from "@/server/services/types";
@@ -33,6 +34,24 @@ export function ActiveFilters({ filters, categories, shop }: Props) {
       label: CONDITION_LABELS[c],
       href: catalogHref({ ...base, conditions: filters.conditions.filter((x) => x !== c) }),
     });
+  }
+  for (const f of filters.fabrics) {
+    chips.push({ label: f, href: catalogHref({ ...base, fabrics: filters.fabrics.filter((x) => x !== f) }) });
+  }
+  for (const o of filters.occasions) {
+    chips.push({
+      label: OCCASION_LABELS[o],
+      href: catalogHref({ ...base, occasions: filters.occasions.filter((x) => x !== o) }),
+    });
+  }
+  for (const v of filters.stitching) {
+    chips.push({
+      label: STITCHING_LABELS[v],
+      href: catalogHref({ ...base, stitching: filters.stitching.filter((x) => x !== v) }),
+    });
+  }
+  for (const n of filters.pieces) {
+    chips.push({ label: piecesLabel(n), href: catalogHref({ ...base, pieces: filters.pieces.filter((x) => x !== n) }) });
   }
   if (filters.minPriceCents != null) {
     chips.push({ label: `From ${price(filters.minPriceCents)}`, href: catalogHref({ ...base, minPriceCents: null }) });

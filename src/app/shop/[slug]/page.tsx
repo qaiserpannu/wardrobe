@@ -11,6 +11,7 @@ import { WhatsAppIcon } from "@/components/ui/icons";
 import { buildProductInquiryLink } from "@/integrations/whatsapp";
 import { CONDITION_DESCRIPTIONS, CONDITION_LABELS } from "@/lib/conditions";
 import { formatPrice } from "@/lib/money";
+import { OCCASION_LABELS, STITCHING_LABELS, piecesLabel } from "@/lib/product-options";
 import { siteUrl } from "@/lib/site-url";
 import { getCachedSettings } from "@/server/services/cached";
 import { getProductBySlug, getRelatedProducts } from "@/server/services/products";
@@ -74,6 +75,7 @@ async function ProductDetails({ params }: { params: Props["params"] }) {
     ...(product.brand ? { brand: { "@type": "Brand", name: product.brand } } : {}),
     ...(product.color ? { color: product.color } : {}),
     ...(product.size ? { size: product.size } : {}),
+    ...(product.fabric ? { material: product.fabric } : {}),
     itemCondition: product.condition === "new_with_tags" ? "https://schema.org/NewCondition" : "https://schema.org/UsedCondition",
     offers: {
       "@type": "Offer",
@@ -132,6 +134,10 @@ async function ProductDetails({ params }: { params: Props["params"] }) {
             <Detail label="Brand" value={product.brand} />
             <Detail label="Size" value={product.size} />
             <Detail label="Colour" value={product.color} />
+            <Detail label="Fabric" value={product.fabric} />
+            <Detail label="Pieces" value={product.pieces ? piecesLabel(product.pieces) : null} />
+            <Detail label="Stitching" value={product.stitching ? STITCHING_LABELS[product.stitching] : null} />
+            <Detail label="Occasion" value={product.occasion ? OCCASION_LABELS[product.occasion] : null} />
             <Detail label="Condition" value={CONDITION_LABELS[product.condition]} />
             <Detail label="Category" value={product.category.name} />
             <Detail label="Product ID" value={product.code} />
@@ -139,6 +145,24 @@ async function ProductDetails({ params }: { params: Props["params"] }) {
           <p className="mt-3 text-xs text-muted">
             {CONDITION_LABELS[product.condition]}: {CONDITION_DESCRIPTIONS[product.condition]}
           </p>
+
+          <section
+            aria-labelledby="imperfections-heading"
+            className="mt-6 rounded-sm border border-gold/50 bg-sand p-5"
+            data-testid="imperfections"
+          >
+            <h2 id="imperfections-heading" className="text-xs font-semibold tracking-[0.18em] uppercase">
+              Imperfections
+            </h2>
+            {product.imperfections ? (
+              <p className="mt-2 text-sm leading-relaxed whitespace-pre-line">{product.imperfections}</p>
+            ) : (
+              <p className="mt-2 text-sm leading-relaxed text-muted">
+                No imperfections have been recorded for this item. Please ask if you would like more detail or
+                extra photos.
+              </p>
+            )}
+          </section>
 
           <div className="mt-8">
             {sold ? (

@@ -30,6 +30,11 @@ export async function Footer() {
       <Container className="grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-4">
         <div className="lg:col-span-1">
           <p className="font-display text-2xl font-semibold text-gold-light">{branding.siteName}</p>
+          {branding.byline && (
+            <p className="mt-1 text-[0.62rem] font-medium tracking-[0.28em] text-[#f6ead6]/70 uppercase">
+              {branding.byline}
+            </p>
+          )}
           <p className="mt-3 max-w-xs text-sm leading-relaxed text-[#f6ead6]/70">{branding.tagline}</p>
         </div>
 

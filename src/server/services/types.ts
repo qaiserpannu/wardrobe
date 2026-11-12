@@ -1,4 +1,5 @@
 import type { Condition } from "@/lib/conditions";
+import type { Occasion, Stitching } from "@/lib/product-options";
 
 export type PublicImage = {
   url: string;
@@ -20,6 +21,12 @@ export type PublicProduct = {
   brand: string | null;
   size: string | null;
   color: string | null;
+  fabric: string | null;
+  pieces: number | null;
+  stitching: Stitching | null;
+  occasion: Occasion | null;
+  /** Seller's notes on flaws. Null means nothing has been recorded - not that there are none. */
+  imperfections: string | null;
   condition: Condition;
   priceCents: number;
   status: "available" | "sold";
@@ -44,6 +51,8 @@ export type ProductListResult = {
 export type CatalogFacets = {
   sizes: string[];
   brands: string[];
+  fabrics: string[];
+  pieces: number[];
   minPriceCents: number | null;
   maxPriceCents: number | null;
 };
