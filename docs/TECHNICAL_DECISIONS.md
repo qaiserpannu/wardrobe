@@ -349,6 +349,9 @@ with no children still works as a plain category.
 ## D23 — Photo clean-up and listing pre-fill must be free (for now)
 
 **Status:** Decided by owner (2026-11-12); supersedes the paid parts of D21.
+On 2026-11-12 the owner said they were "happy with recommendations 1 and 2",
+read as accepting both free pre-fill options below (form helpers, and an AI
+provider's free allowance) — to be confirmed with the owner.
 Technical choices to be verified by a hands-on trial at the start of
 Milestone 5 — nothing here has been tested yet.
 
@@ -381,3 +384,232 @@ The owner wants no per-use charge for photo clean-up or pre-fill.
   original photo is kept.
 - Because the AI provider is swappable (D8), moving to a paid model later is
   a settings change, not a rebuild.
+
+## D24 — One AI sales agent, many channels
+
+**Status:** Decided in principle by owner (2026-11-12); details at Milestone 4
+
+The AI shopping assistant becomes a sales and customer-service agent that
+serves both the website chat and WhatsApp. It is built once:
+
+```
+Website widget ─┐
+                ├─> channel adapters ─> agent core ─> tools ─> services layer ─> database
+WhatsApp ───────┘                          │
+                                           └─> AI provider (swappable, D8)
+```
+
+- Agent core (`src/server/agent`): conversation history, rules, tool calling,
+  interest stages, escalation. It knows nothing about channels.
+- Channel adapters turn a channel's messages into the core's format and render
+  replies for that channel (product cards on the website; photo messages with
+  captions on WhatsApp). Adding a channel later (Instagram DMs, Messenger)
+  means writing one adapter.
+- Both channels share the inventory database, business knowledge and
+  conversation logic, so they cannot give different answers.
+- Conversation history is stored per customer per channel, so returning
+  customers are not asked the same questions again. Website visitors are
+  recognised by an anonymous browser ID; WhatsApp customers by their number.
+- All accuracy rules in D8 apply unchanged.
+
+## D25 — Inventory statuses: draft, available, pending, sold, archived
+
+**Status:** Decided by owner (2026-11-12). To be added to the data model as
+the next piece of Milestone 2 work, once the owner gives the go-ahead.
+
+| Status | Website | AI agent | Meta catalog |
+| --- | --- | --- | --- |
+| Draft | Hidden | Unknown to it | Not listed |
+| Available | Shown, can be inquired about | Offered | In stock |
+| Pending (on hold) | Shown with an ON HOLD badge, listed after available items, no buy prompt | Not offered as available; says it is on hold if asked about it | Out of stock |
+| Sold | Shown with SOLD badge, listed last, no buy prompt | Not offered; says it is sold if asked | Out of stock, then removed after a set period |
+| Archived | Hidden | Unknown to it | Removed |
+
+- Allowed changes: draft → available; available ⇄ pending; pending → sold;
+  available → sold; sold → available (to undo a mistake); anything → archived.
+  Only the owner changes status, in admin. The agent never does.
+- Nothing is permanently deleted. "Delete" in admin means archive. Every
+  status change is recorded with time and admin user.
+- Hold details (customer name, contact, hold date, expected expiry, internal
+  notes) live in a separate admin-only table. They are never included in
+  public product data, so neither the website nor the agent can reveal them.
+- Automatic hold expiry is possible (a daily job returning expired holds to
+  available, with a notification) but will not be built without the owner's
+  approval; if built it is a setting, off by default.
+- Featured, recently-added and related lists contain available items only.
+
+## D26 — What the agent may and may not do
+
+**Status:** Decided by owner (2026-11-12)
+
+- Inventory and settings are read-only for the agent. This replaces the
+  earlier "read-only tools only" rule with a precise one: the agent has three
+  record-keeping tools that write only to conversation records —
+  `record_purchase_interest`, `escalate_question`, `request_human`.
+- Interest stages on a conversation's lead record: inquiry (asking),
+  purchase request (clearly wants to buy a specific item), reservation
+  request (asks to hold it), completed sale. Only the owner can set
+  "completed sale", and only the owner changes product status.
+- The agent tells the customer the truth about what happens next: "I've
+  passed this to the owner, who will confirm" — never "it's yours" or "it's
+  reserved".
+- The agent never invents availability, details, prices, discounts, delivery,
+  returns, payment methods or any other business fact. If the answer is not in
+  the inventory or approved knowledge, it says it needs to confirm and
+  escalates (scenario B).
+- It always identifies itself as an AI assistant and never claims to be the
+  owner or a human.
+
+## D27 — Owner notifications and human handoff
+
+**Status:** Decided by owner (2026-11-12)
+
+The owner is notified in exactly three situations; ordinary browsing and
+questions never notify.
+
+- A. Serious buying interest: customer name if known; contact details where
+  available and permitted (WhatsApp number on WhatsApp; whatever the visitor
+  chose to give on the website); product name, ID, price and link; a short
+  conversation summary; what the customer agreed to or asked for.
+- B. Agent cannot answer: the question and conversation context. The
+  customer is told the agent needs to confirm. The conversation waits for the
+  owner; the owner's answer is passed on and the agent resumes. The owner can
+  choose to save the answer as approved knowledge so it need not be asked
+  again.
+- C. Customer asks for a human: immediate handoff offer and notification.
+
+Conversation states: agent active → waiting for owner → owner active (agent
+paused) → handed back to agent → closed.
+
+Notification delivery: email from Milestone 4 (free); the admin inbox from
+Milestone 5; optionally a WhatsApp message to the owner's own number from
+Milestone 6. Duplicate notifications for the same conversation are merged.
+
+Privacy: conversations and phone numbers are personal data. A privacy notice
+in the widget and on WhatsApp, a retention period setting, and deletion on
+request are part of Milestone 8 at the latest.
+
+## D28 — WhatsApp: official Cloud API with our own agent
+
+**Status:** Proposed (researched 2026-11-12). Facts marked "verify" came from
+secondary sources because Meta's own documentation could not be opened from
+the development environment; re-check them at the start of Milestone 6.
+
+Recommendation: connect our own agent directly to Meta's WhatsApp Business
+Platform (Cloud API). No third-party WhatsApp agent or reseller is needed.
+
+- How it works: Meta sends each incoming customer message to a secure address
+  on our site (a webhook); our agent decides the reply and sends it back
+  through the API. Meta hosts the API; there is no platform subscription fee.
+- Allowed use: Meta banned general-purpose AI chatbots from the platform in
+  January 2026, but AI that serves a business's own customers (support,
+  sales) remains allowed. Our agent only discusses this shop, which keeps it
+  on the permitted side. Meta's policy also expects a clear path to a human,
+  which D27 provides.
+- Costs (verify current rates):
+  - Template messages (messages we start, or send more than 24 hours after
+    the customer's last message) are charged per message.
+  - Replies inside the 24-hour window ("service messages") were free until
+    2026-10-01 and are now charged per message. Third-party sources report a
+    free allowance of 1,000 service messages per number per month; this was
+    not confirmed on Meta's own page.
+  - Rates depend on the customer's country and can change quarterly.
+  - Plus AI model usage per conversation (D8).
+  - A cost guard (monthly message cap, alert) is part of the build.
+- The 24-hour rule: free-form replies are only allowed within 24 hours of the
+  customer's last message. If the owner answers an escalated question later
+  than that, the reply must use a pre-approved template message.
+- Phone number: a number used with the Cloud API cannot also be used in the
+  ordinary WhatsApp app in the usual setup. Options:
+  1. A dedicated new number for the shop (recommended): simplest and fully
+     supported; the owner reads and replies through the admin inbox, which
+     works in a phone browser.
+  2. "Coexistence": keep using the WhatsApp Business app on the same number
+     alongside the API. It exists, but appears to be offered through Meta's
+     partner sign-up flow and has limits (verify whether a business can enable
+     it directly).
+- Until Milestone 6, WhatsApp is click-to-chat only (Milestone 3) and
+  conversations go straight to the owner's phone, as now.
+- The WhatsApp number is a site setting. When the Cloud API number goes live,
+  changing that one setting points every link on the site at it.
+- Alternatives considered: third-party "WhatsApp AI agent" products and
+  business solution providers add monthly fees or per-message mark-ups and
+  put the conversation logic outside our control; Meta's own Business AI
+  agent would not use our inventory rules or accuracy safeguards. Unofficial
+  WhatsApp automation libraries break Meta's terms and risk the number being
+  banned — never to be used.
+
+Needed from the owner for Milestone 6: Meta business portfolio (Business
+Manager) with business details; whether to use a new dedicated number or
+attempt coexistence; display name; a payment method on the WhatsApp Business
+Account; business verification if Meta requests it.
+
+## D29 — Facebook and Instagram catalog sync
+
+**Status:** Proposed (researched 2026-11-12); same caveat as D28 about
+secondary sources. Re-check at the start of Milestone 7.
+
+Feasible. Facebook and Instagram shops read from one Meta catalog in Commerce
+Manager; we push products into that catalog through Meta's official catalog
+API.
+
+- Master data: the website database. Meta is a destination only; nothing is
+  read back into inventory.
+- No duplicates: our product ID is the catalog item ID, so sending a product
+  again updates it rather than creating a second one.
+- Reliability: changes are written to a job queue in our database in the same
+  step as the product change, then sent by a background worker with retries.
+  Each product has a visible sync status and a manual retry. A scheduled
+  full comparison repairs drift.
+- Availability: Meta's catalog supports "in stock" and "out of stock" (and a
+  "used" condition), which covers available, pending and sold as in D25.
+- Simpler fallback if API access is delayed: a product feed file on our site
+  that Meta collects on a schedule (about hourly). Less immediate for "sold",
+  so the API is preferred.
+- Requires a live public website with cloud-hosted photos, and scheduled
+  background jobs on the hosting platform.
+
+What the sync cannot guarantee:
+
+- Meta reviews each shop and each product against its commerce policies.
+  Review can take from hours to (reportedly) weeks for a new shop, and items
+  can be rejected. Sync status in admin will show "sent" separately from
+  Meta's review result where Meta exposes it.
+- A status change reaches Meta within moments of the job running, but Meta's
+  own apps may show the old state for a short time afterwards.
+
+Important eligibility risk — website checkout:
+
+- Meta ended in-app checkout in 2025. A Shop now sends buyers to the seller's
+  website to pay, and Meta requires a checkout address on a domain the seller
+  owns for the Shop to be visible.
+- This site has no online checkout by design (sales are completed on
+  WhatsApp). It is therefore uncertain whether Meta will approve a Shop for
+  it. This must be tested with Meta early in Milestone 7, before building the
+  full sync.
+- Options if Meta refuses: (a) add a simple online checkout or "reserve with
+  deposit" to the website (currently out of scope, a future feature);
+  (b) use the catalog without a Shop — for catalog ads and for the WhatsApp
+  Business catalog — and keep posting to Instagram with links; (c) both.
+- Shops are only available in supported countries; the owner's country must
+  be confirmed.
+- Second-hand clothing: the catalog has a "used" condition, but Meta's
+  commerce policy for pre-owned items should be confirmed before applying.
+
+Needed from the owner for Milestone 7: Facebook Page for the shop; Instagram
+professional (business) account linked to that Page; Meta business portfolio
+owning both; Commerce Manager account and catalog; domain verification for
+the shop's website; contact details and returns/refund policy shown on the
+website; the country the business operates from.
+
+## D30 — Background jobs
+
+**Status:** Proposed
+
+Milestones 6 and 7 need work that happens outside a page request: sending
+queued catalog updates, retrying failures, processing incoming WhatsApp
+messages, optional hold expiry. Approach: a jobs table in our database plus a
+scheduled trigger from the hosting platform (and immediate processing after a
+change where possible). No separate queue service. This affects the hosting
+choice (D9): the chosen host must support scheduled jobs and requests long
+enough for an AI reply.

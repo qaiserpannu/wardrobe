@@ -8,16 +8,44 @@ Current status is tracked in `PROGRESS.md`.
 
 ## Sequence and dependencies
 
+Roadmap revised 2026-11-12 after the owner added the AI sales agent on
+WhatsApp, Facebook/Instagram catalog sync and the PENDING status. The order
+below is **proposed and awaits the owner's approval** (see "Why this order").
+
 ```
-M1 Foundation ─> M2 Website ─> M3 WhatsApp widget ─> M4 AI assistant ─> M5 Admin portal
+M1 Foundation
+M2 Public website (incl. PENDING status in the core data model)
+M3 WhatsApp click-to-chat widget, number from settings
+M4 AI sales agent — core, on the website chat
+M5 Admin portal (inventory, statuses and holds, settings, conversation inbox)
+M6 AI sales agent on WhatsApp (official Cloud API)
+M7 Facebook and Instagram catalog sync
+M8 End-to-end testing and production readiness
 ```
 
-- M2 needs M1 (framework, structure).
-- M3 needs M2 (product pages to attach context to) and the settings table.
-- M4 needs M2's product search services and M3's widget.
-- M5 needs M2's data model. It replaces the seed script as the way to manage
-  inventory, and gives editing screens for settings that M2–M4 already read
-  from the database.
+Why this order (it differs from the owner's suggested list in one way: the
+WhatsApp side of the AI agent is its own milestone, after the admin portal):
+
+- The agent is built once, channel-neutral, in M4. The website chat is the
+  first channel because it needs no outside accounts and costs nothing per
+  message, so the agent's accuracy can be proven before real customers on
+  WhatsApp meet it.
+- "AI cannot answer → owner replies → agent resumes" needs a secure place for
+  the owner to read and answer conversations. That is the admin inbox, which
+  needs admin login (M5). In M4 escalations are recorded and the owner is
+  notified; replying inside the system arrives with M5.
+- The WhatsApp Cloud API needs a Meta business portfolio, a dedicated phone
+  number, display-name approval and a public HTTPS address. The same Meta
+  business setup is needed for the catalog (M7), so M6 and M7 share their
+  prerequisites and sit together. The owner can start the Meta paperwork any
+  time; it does not block M3–M5.
+- M7 needs M5 (products are created and marked sold in admin) and a live
+  public site with cloud image storage (Meta fetches product pages and photos).
+- PENDING is part of the product data model from M2 onward; changing a status
+  by hand arrives with M5.
+
+Deployment: a private preview deployment is needed by M6 at the latest
+(WhatsApp webhooks) and may be brought forward on request.
 
 Until M5 exists, products and settings are loaded by a seed script with sample
 data, so M2–M4 can be built and tested against real database records.
@@ -70,54 +98,69 @@ Completion criteria:
 - [x] WhatsApp button message contains the product name and ID.
 - [x] No broken links or console errors.
 - [x] Testing report delivered.
+- [ ] PENDING / ON HOLD status in the data model and on the public website
+  (D25) — not started; needs the owner's go-ahead as the next piece of work.
 - [ ] Owner approval.
 
 Needed from the owner: brand preferences (colours, logo if any), currency,
 category list, a few real product photos if available (otherwise placeholders).
 
-## Milestone 3 — Floating chat widget and WhatsApp
+## Milestone 3 — WhatsApp click-to-chat widget
 
 Steps:
 
-1. WhatsApp link builder in `src/integrations/whatsapp`; number read from
-   settings.
-2. Floating widget on all public pages: open, close, keyboard accessible,
+1. Floating widget on all public pages: open, close, keyboard accessible,
    mobile friendly.
+2. Uses the existing link builder (`src/integrations/whatsapp`); the number is
+   read from site settings, never from code.
 3. Product-aware message: on a product page the pre-filled message includes
    product name and ID.
-4. Tests: link format, widget behaviour on desktop and mobile sizes.
+4. `chat_widget` settings (on/off, greeting text, position).
+5. Tests: link format, widget behaviour on desktop and mobile sizes.
 
 Completion criteria: widget works on every public page; correct pre-filled
-message with and without product context; number changed in one place; owner
-confirms a real conversation opens on their phone and desktop.
+message with and without product context; number changed in one place with no
+code change; owner confirms a real conversation opens on phone and desktop.
 
 Needed from the owner: WhatsApp number in international format.
 
-## Milestone 4 — AI shopping assistant
+## Milestone 4 — AI sales agent (core, website chat)
+
+One agent, built channel-neutral (D24), first used in the website widget.
 
 Steps:
 
-1. Provider interface and Anthropic implementation in `src/server/ai`.
-2. Read-only tools: search products, get product, list categories, get
-   policies/FAQs — all through the public services layer.
-3. Chat API endpoint with input limits and rate limiting.
-4. Guardrails: product cards rendered from tool data, product-ID verification,
-   exact vs partial match labelling, policy answers only from configured
-   content, injection resistance.
-5. Widget upgrade: conversation view, product cards with image, price, size,
-   condition, availability, link, and per-item WhatsApp button; "talk to a
-   person" handoff. The assistant identifies itself as an AI.
-6. Evaluation suite: scripted scenarios — match exists, several matches, no
-   match, missing information, item becomes sold mid-conversation, off-topic
-   request, injection attempts.
+1. Agent core in `src/server/agent`: provider interface (D8), conversation
+   store with history, system rules, approved business knowledge.
+2. Tools: read-only catalog search, product lookup, comparison data,
+   categories, policies/FAQs; plus three narrow record-keeping tools —
+   record purchase interest, escalate a question, request a human (D26).
+3. Conversation flow: greet, ask preferences, search, recommend, answer about
+   specific items, compare, explain how buying works (from configured text).
+4. Interest stages: inquiry, purchase request, reservation request. The agent
+   never changes a product's status and never confirms a sale (D26).
+5. Guardrails: product cards rendered from database records, product-ID
+   verification, exact vs partial match, policies only from configured
+   content, "I need to confirm that" instead of guessing, injection
+   resistance, rate and length limits.
+6. Owner notifications for scenarios A, B and C only (D27), by email at this
+   stage; each links to the conversation.
+7. Widget upgrade: conversation view, product cards with photo, price, size,
+   condition, status, link; "talk to a person" at any time. The assistant
+   says it is an AI.
+8. Evaluation suite: match exists, several matches, no match, missing
+   information, item becomes sold or pending mid-conversation, off-topic,
+   injection attempts, purchase intent vs browsing, unanswerable question,
+   human request, returning visitor with history.
 
-Completion criteria: every evaluation scenario passes with no invented product
-details; assistant can be switched off and the widget falls back to WhatsApp
-only; owner approval.
+Completion criteria: every evaluation scenario passes with no invented
+details; notifications fire only for A, B and C; the agent can be switched off
+and the widget falls back to WhatsApp click-to-chat; owner approval.
 
-Needed from the owner: Anthropic API account and key; business policies
-(delivery, returns, payment) to be quoted — anything not provided will be
-answered with "please ask on WhatsApp".
+Needed from the owner: AI provider account and key (or approval of a free
+allowance to start); business policies (delivery, returns, payment, how a
+purchase is completed) — anything not provided is escalated, not guessed;
+notification email address.
 
 ## Milestone 5 — Admin portal
 
@@ -125,35 +168,119 @@ Steps:
 
 1. Authentication: login, logout, change password, protected routes and APIs,
    one-time setup script for the first admin. No public registration.
-2. Dashboard: product counts by status, recent items, recent changes.
-3. Product management: create, edit, draft, preview, publish, mark sold,
-   archive, delete; multi-photo upload with reordering; all product details
-   including fabric, pieces, stitching, occasion and imperfections.
+2. Dashboard: product counts by status (draft, available, pending, sold),
+   recent items, recent changes, open escalations.
+3. Product management: create, edit, draft, preview, publish, archive; all
+   product details including fabric, pieces, stitching, occasion and
+   imperfections; multi-photo upload with reordering.
    - Photo clean-up and listing pre-fill using free methods only (D23);
      start with a trial on real product photos before building.
-4. Image storage: production storage implementation; file type, size and
+4. Status changes (D25): available ⇄ pending, pending → sold, available →
+   sold, sold → available (undo). Hold details (customer name, hold date,
+   expected expiry, internal notes) visible only in admin. Nothing is
+   permanently deleted; status history is kept. Optional automatic hold
+   expiry — built only if the owner approves, off by default.
+5. Image storage: production storage implementation; file type, size and
    content validation.
-5. Category management: add, rename, reorder, hide, and move categories
+6. Category management: add, rename, reorder, hide, and move categories
    between groups (D22).
-6. Settings: branding, logo, WhatsApp, contact, social links, featured
-   products, description, SEO, chat widget.
-7. AI management: enable/disable, greeting, behaviour instructions, handoff
-   message, FAQs and policies.
-8. Audit log of inventory and settings changes.
-9. Security review and tests: access restrictions, upload validation, and that
-   admin changes appear immediately on the public site and in AI search.
+7. Settings: branding, logo, byline, WhatsApp number, contact, social links,
+   featured products, description, SEO, chat widget. Saving takes effect
+   immediately, with no redeployment.
+8. Conversation inbox: list conversations and leads; read history; reply as
+   the owner; hand a conversation back to the agent; answer an escalated
+   question so the agent can resume (D27).
+9. AI management: enable/disable, greeting, behaviour instructions, handoff
+   message, FAQs and policies, notification preferences.
+10. Audit log of inventory, status and settings changes.
+11. Security review and tests: access restrictions, upload validation, and
+    that admin changes appear immediately on the public site and in the
+    agent's answers.
 
 Completion criteria: every item in the Milestone 5 verification list in the
-owner's brief passes; owner approval.
+owner's brief passes, plus status/hold behaviour and the inbox; owner approval.
 
 Needed from the owner: admin email address; Supabase account (or agreed
 alternative) for production database and images.
 
-## Launch (after Milestone 5, or earlier as a preview)
+## Milestone 6 — AI sales agent on WhatsApp
 
-Hosting account, production database, environment variables, custom domain,
-backups, final checks. Can be brought forward as a private preview at any time
-if the owner wants to see the site on their phone during development.
+The same agent from M4, connected to the official WhatsApp Business Platform
+(Cloud API) directly, with no third-party agent service (D28).
+
+Steps:
+
+1. Meta setup with the owner: business portfolio, WhatsApp Business Account,
+   dedicated phone number, display name, payment method, permanent access
+   token. (Can start during M3–M5.)
+2. Webhook endpoint: signature verification, fast acknowledgement, duplicate
+   protection, message queue.
+3. WhatsApp channel adapter: text, product photo messages with price, size,
+   condition and link; reply buttons where useful.
+4. Customer-service window handling: free-form replies only within 24 hours
+   of the customer's last message; approved template messages for anything
+   later (for example the owner's answer arriving the next day).
+5. Human handoff on WhatsApp: agent pauses when the owner takes over in the
+   inbox and resumes when handed back.
+6. Owner notifications by WhatsApp as well as email, if wanted.
+7. Opt-out handling ("stop"), privacy notice, message retention setting.
+8. Click-to-chat links from M3 now open a conversation with the agent.
+9. Tests with Meta's test number first, then the real number: all M4
+   evaluation scenarios over WhatsApp, plus window expiry, duplicates,
+   out-of-order messages and handoff.
+
+Completion criteria: a customer can go from greeting to purchase request on
+WhatsApp with accurate product details; scenarios A, B and C behave as
+specified; nothing is sent outside Meta's rules; owner approval.
+
+Needed from the owner: decisions and accounts listed in D28.
+
+## Milestone 7 — Facebook and Instagram catalog sync
+
+The website database stays the master. Products are pushed to one Meta
+catalog that feeds both Facebook and Instagram (D29).
+
+Steps:
+
+1. Meta setup with the owner: Commerce Manager catalog, Facebook Page,
+   Instagram professional account linked to the Page, domain verification.
+2. Field mapping from our product to Meta's catalog fields; our product ID
+   (`PLW-0001`) is the catalog item ID, which prevents duplicates.
+3. Sync engine: every publish, edit, photo change and status change queues a
+   sync job; a background worker sends it through Meta's official catalog
+   API, retries failures with increasing delays, and records the result.
+4. Status mapping: available → in stock; pending → out of stock; sold → out
+   of stock, then removed after a configurable period; draft or archived →
+   removed.
+5. Safety net: a scheduled full comparison between our database and the
+   catalog that repairs any drift.
+6. Admin: per-product sync status (synced, waiting, failed with the reason,
+   Meta review result where available), "retry" button, a channel overview
+   page, and a master on/off switch.
+7. Tests against a test catalog: create, update, sold, pending, back to
+   available, archive, API failure and recovery, no duplicates.
+
+Completion criteria: publishing a product creates exactly one catalog item;
+edits and status changes arrive without manual work; failures are visible and
+retryable; owner approval. Visibility inside Facebook and Instagram Shops is
+subject to Meta's review and eligibility rules and is not guaranteed by the
+sync itself (D29).
+
+Needed from the owner: accounts listed in D29; a decision on the Shop
+eligibility question (website checkout) described there.
+
+## Milestone 8 — End-to-end testing and production readiness
+
+- Full journeys across website, website chat, WhatsApp, admin and Meta
+  catalog, including an item going available → pending → sold everywhere.
+- Hosting account, production database and storage, environment variables,
+  custom domain, HTTPS, scheduled jobs, backups and a restore test.
+- Security review, privacy policy and terms pages, cookie/consent notice where
+  required, data retention settings.
+- Monitoring and alerts for failed sync jobs, webhook errors and AI spend;
+  spending caps.
+- Performance and accessibility pass; real-device testing.
+- Owner handover guide.
 
 ## Later (not scheduled)
 

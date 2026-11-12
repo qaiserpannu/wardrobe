@@ -14,6 +14,8 @@ WhatsApp; there is no online checkout.
 
 ## Working rules
 
+- **Roadmap has 8 milestones** (revised 2026-11-12); see
+  `docs/DEVELOPMENT_PLAN.md`.
 - **One milestone at a time.** Never start the next milestone without the
   owner's explicit approval. Do not build ahead.
 - **Tested means tested.** Do not report something as working unless it was
@@ -44,17 +46,35 @@ WhatsApp; there is no online checkout.
   the server.
 - Every admin page and admin API checks authentication on the server.
 
-## AI assistant rules (Milestone 4 onward)
+## AI agent rules (Milestone 4 onward)
 
-- The model only has read-only tools that call public services. It must never
-  get a tool that writes, or raw database access.
-- Product facts shown to visitors come from tool results, not from model text.
-  Product cards are rendered by our code from database records.
-- Never state policies (delivery, returns, discounts, payment) that are not
-  configured in the database.
-- The assistant always identifies itself as an AI and offers WhatsApp for
-  speaking to the owner.
-- All model calls go through the provider interface in `src/server/ai`.
+- One agent core serves every channel (website chat, WhatsApp). Channel code
+  lives in adapters; never put channel-specific logic in the core (D24).
+- Inventory and settings are read-only for the agent. Its only writes are
+  conversation records through three narrow tools: record purchase interest,
+  escalate a question, request a human. It never changes a product's status
+  and never confirms a sale or a hold (D26).
+- Product facts shown to customers come from tool results, not from model
+  text. Product cards are rendered by our code from database records.
+- Never state availability, prices, discounts, delivery, returns, payment
+  methods or policies that are not in the database. If unsure, say it needs
+  to confirm and escalate.
+- Only `available` items are offered. `pending` and `sold` are described as
+  such if asked. Hold details and internal notes are never reachable by
+  public or agent code paths (D25).
+- Notify the owner only for: serious buying interest, a question the agent
+  cannot answer, or a request for a human (D27).
+- The agent always identifies itself as an AI and offers a human handoff.
+- All model calls go through the provider interface.
+- WhatsApp: official Cloud API only; never unofficial automation libraries.
+  Respect the 24-hour reply window and template rules (D28).
+
+## Integration rules (Milestone 7 onward)
+
+- The website database is the master for inventory. Meta's catalog is a
+  destination; never read inventory back from it.
+- Every product change that matters to a channel queues a sync job in the
+  same database transaction. Use the product code as the external item ID.
 
 ## Coding standards
 

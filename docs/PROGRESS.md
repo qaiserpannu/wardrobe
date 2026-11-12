@@ -90,19 +90,43 @@ Owner feedback after the redesign:
 - Occasion list confirmed.
 - Tests: 44 logic/database tests, 80 browser runs, all passing.
 
+### Roadmap revision (2026-11-12) — documentation only, nothing built
+
+Owner added requirements; plans and architecture updated, no code changed.
+
+- Roadmap now has 8 milestones (order from M6 proposed, awaiting approval).
+- New decisions: D24 one agent for web and WhatsApp; D25 statuses including
+  PENDING and admin-only hold details; D26 what the agent may do; D27 owner
+  notifications and handoff; D28 WhatsApp Cloud API with our own agent; D29
+  Facebook/Instagram catalog sync; D30 background jobs.
+- Planned tables documented in `DATABASE_SCHEMA.md`.
+- Research limits: Meta's official documentation pages could not be opened
+  from the development environment (network rules), so D28 and D29 rest on
+  search results and secondary sources and are marked "verify".
+- Category groups confirmed by the owner.
+
 ### Milestone 1 (2026-11-12) — approved
 
 Stack selection, Next.js scaffold, folder structure, project memory documents.
 
 ## Outstanding — waiting on the owner
 
-1. Review revision 3; list further changes or approve Milestone 2.
-2. Give the real list of groups and categories if the sample ones are wrong
-   (editing them without code comes with the admin portal in Milestone 5).
-3. WhatsApp number: stays configurable; owner will supply it once Milestone 2
-   issues are settled.
-4. Still open from Milestone 1: hosting choice (D9); proposed services (D4,
-   D6, D7, D8).
+1. Go-ahead to add the PENDING status to the data model and public website
+   as the next piece of Milestone 2 work (D25), then Milestone 2 approval.
+2. Approve or change the proposed milestone order (WhatsApp agent as its own
+   milestone after the admin portal).
+3. Confirm what "recommendations 1 and 2" referred to (read as: both free
+   pre-fill options in D23).
+4. Country the business operates from (decides Meta Shop availability and
+   WhatsApp message rates).
+5. WhatsApp: new dedicated number for the AI agent, or try to keep the
+   existing number (D28). Number for click-to-chat in Milestone 3.
+6. Whether to consider adding an online checkout if Meta requires one for a
+   Shop (D29).
+7. Whether automatic hold expiry is wanted (D25).
+8. Later: Meta business portfolio, Facebook Page, Instagram professional
+   account, Commerce Manager, domain; AI provider account; notification
+   email; hosting choice (D9); proposed services (D4, D6, D7, D8).
 
 ## Known issues and limitations
 
@@ -128,5 +152,6 @@ Stack selection, Next.js scaffold, folder structure, project memory documents.
 
 ## Next steps
 
-On approval, begin Milestone 3: floating chat widget using the existing
-WhatsApp link builder, `chat_widget` settings, product-aware messages.
+1. With the owner's go-ahead: add PENDING to the status list, show it on the
+   website (badge, ordering, no buy prompt), update tests — closes Milestone 2.
+2. On Milestone 2 approval: Milestone 3, the click-to-chat widget.

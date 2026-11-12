@@ -50,7 +50,7 @@ archive the products first.
 | imperfections | text, nullable | Seller's notes on flaws. Null means nothing recorded, not "no flaws" |
 | condition | enum | `new_with_tags`, `like_new`, `good`, `fair` |
 | price_cents | integer | Price in smallest currency unit |
-| status | enum | `draft`, `available`, `sold`, `archived` |
+| status | enum | `draft`, `available`, `sold`, `archived` today. `pending` (on hold) is to be added next — D25 |
 | is_featured | boolean | Shown in homepage "Featured" |
 | published_at | timestamp, nullable | Set when first made available; drives "newest" sorting |
 | sold_at | timestamp, nullable | |
@@ -125,13 +125,64 @@ as salted hashes.
 | changes | jsonb | Before/after values of changed fields |
 | created_at | timestamp | No `updated_at`; entries are never edited |
 
+## Planned for the expanded roadmap (not built)
+
+Designed now so later milestones add tables rather than change existing ones.
+Column lists are indicative and will be finalised in each milestone.
+
+### products.status gains `pending` — Milestone 2 (next step, D25)
+
+Public rule becomes: `available`, `pending` and `sold` are visible; only
+`available` can be inquired about or recommended.
+
+### product_status_events — Milestone 5
+
+One row per status change: product, from, to, admin user, time, optional
+note. History is never deleted.
+
+### product_holds — Milestone 5 (admin only)
+
+| Column | Notes |
+| --- | --- |
+| product_id | → products.id |
+| customer_name, customer_contact | Internal only |
+| held_at, expires_at | Expiry is informational unless auto-expiry is switched on |
+| notes | Internal only |
+| ended_at, outcome | `sold`, `released`, `expired` |
+| lead_id | Optional link to the conversation lead that led to the hold |
+
+Kept in its own table, outside `products`, so public queries and the AI agent
+cannot reach it.
+
+### conversations, messages, leads, escalations — Milestone 4
+
+| Table | Purpose |
+| --- | --- |
+| customers | One per person per channel: channel (`web`, `whatsapp`), channel identity (anonymous browser ID or phone number), name if given |
+| conversations | customer, channel, state (`agent`, `waiting_for_owner`, `owner`, `closed`), last activity |
+| messages | conversation, sender (`customer`, `agent`, `owner`, `system`), text, attached product codes, channel message ID (for duplicate protection), time |
+| leads | conversation, product, stage (`inquiry`, `purchase_request`, `reservation_request`, `completed`), summary, what the customer asked for |
+| escalations | conversation, reason (`cannot_answer`, `human_requested`, `purchase_request`), question, owner's answer, resolved time |
+| notifications | what was sent to the owner, by which route, when; prevents duplicates |
+
+### channel_listings and sync_jobs — Milestone 7
+
+| Table | Purpose |
+| --- | --- |
+| channel_listings | product, channel (`meta_catalog`), external item ID (our product code), sync state (`pending`, `synced`, `failed`), last synced time, last error, Meta review status if available, fingerprint of what was last sent |
+| jobs | type, payload, state, attempts, next attempt time, last error (shared by catalog sync, WhatsApp processing and other background work — D30) |
+
+Products need no change for Meta: name, description, price, condition, brand,
+photos, status and the unique product code already map to catalog fields.
+
 ## Room for future features
 
 Not built now; noted so current design does not block them.
 
 - **Cart / orders / payments:** new `orders` and `order_items` tables that
-  reference `products`. Because each item is unique, an order will move a
-  product to a `reserved` status (to be added to the enum).
+  reference `products`. Because each item is unique, an order would place the
+  product on hold (`pending`) until paid. An online checkout may also be what
+  Meta requires for a Shop (D29).
 - **Customer accounts / wishlist / purchase history:** separate `customers`
   table, kept apart from admin users.
 - **Discount codes:** separate `discounts` table applied at order level.
