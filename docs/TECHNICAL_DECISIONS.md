@@ -1,0 +1,186 @@
+# Technical Decisions
+
+Each decision records what was chosen, why, and what was given up. Add a new
+numbered entry when a significant decision is made; do not rewrite history —
+mark an old entry "Superseded by Dn" instead.
+
+Status values: **Decided**, **Proposed** (awaiting owner approval), **Open**.
+
+---
+
+## D1 — One Next.js application for website, API and admin
+
+**Status:** Decided (2026-11-12)
+
+Next.js with TypeScript, App Router. Public pages, the admin portal and the
+backend API all live in one codebase and deploy as one unit.
+
+- Why: product pages are rendered on the server, so they load fast and search
+  engines and link previews (important when sharing items on WhatsApp and social
+  media) see full content. One codebase is far easier for a small business to
+  maintain than a separate frontend and backend.
+- Trade-off: frontend and backend are deployed together. If a mobile app or
+  very heavy backend work appears later, the services layer (D3) can be exposed
+  as a standalone API without rewriting it.
+
+## D2 — Tailwind CSS for styling
+
+**Status:** Decided (2026-11-12)
+
+- Why: consistent spacing, colour and typography from one theme file; no
+  separate stylesheet sprawl; comes preconfigured with Next.js.
+- Trade-off: class names in markup are verbose. Mitigated by reusable
+  components in `src/components/ui`.
+- No component library is installed up front. One will be added only if a
+  specific need arises (for example accessible dialogs in the admin portal).
+
+## D3 — A services layer is the only code that touches the database
+
+**Status:** Decided (2026-11-12)
+
+Pages, API routes and AI tools call functions in `src/server/services`. Those
+functions are split into public read functions (only ever return publicly
+visible products and fields) and admin functions (require an authenticated
+admin).
+
+- Why: one place enforces "drafts and archived items are never public" and
+  "sold items are marked sold". The website and the AI assistant cannot drift
+  apart. Future features (cart, orders) add services rather than rewrite pages.
+- Trade-off: a little more structure than querying directly from pages.
+
+## D4 — PostgreSQL, hosted on Supabase
+
+**Status:** Proposed
+
+- Why PostgreSQL: reliable, free, standard; has built-in full-text search,
+  which covers catalog keyword search and AI product search without a separate
+  search service.
+- Why Supabase: free tier includes the database and image storage in one
+  account, with a dashboard and backups-by-export. It is ordinary PostgreSQL,
+  so moving to another host later is a data export, not a rewrite.
+- Trade-off: free-tier projects can be paused after a period with no activity
+  and have size limits. Current limits must be checked at sign-up time. If they
+  are a problem, Neon (database) plus Cloudflare R2 (images) is the fallback,
+  and D5/D6 mean the code barely changes.
+
+## D5 — Drizzle ORM with migrations
+
+**Status:** Decided (2026-11-12)
+
+- Why: the schema is defined in TypeScript, so a mistyped column is caught
+  before the code runs. Schema changes are recorded as migration files in the
+  repository. Lightweight, no code-generation step.
+- The app talks to Postgres through Drizzle rather than the Supabase client
+  library, so the database host can change without touching application code.
+- Development and automated tests use a local PostgreSQL database, so no cloud
+  account is needed to build and verify Milestone 2.
+
+## D6 — Image storage behind a small interface
+
+**Status:** Proposed
+
+One interface (`upload`, `delete`, `publicUrl`) with two implementations: local
+folder for development, Supabase Storage for production. The database stores a
+storage key per image, not a full URL.
+
+- Why: switching storage providers later means writing one new implementation.
+- Images are served through the Next.js image component, which resizes and
+  compresses them for each screen size.
+- Trade-off: hosting plans cap free image optimisation. If the cap is reached,
+  images can be pre-resized at upload time instead.
+
+## D7 — Better Auth for admin login (confirm at Milestone 5)
+
+**Status:** Proposed
+
+Email and password login, with user and session records in our own database.
+Public sign-up disabled. The first admin is created by a one-time command-line
+setup script that reads the password interactively — never from source code.
+
+- Why: a maintained, widely used library is safer than hand-written login code.
+  It stores data in our own database (no extra service or account), and has
+  role support for future additional admins.
+- Trade-off: one more dependency to keep updated. To be re-checked against
+  current options when Milestone 5 starts.
+
+## D8 — AI assistant: tool calling behind a provider interface
+
+**Status:** Proposed (details finalised at Milestone 4)
+
+The assistant uses a language model with tool calling. The model cannot see the
+database. It can only call a short list of read-only tools (search products,
+get one product, list categories, get business policies), each of which calls
+the public services layer (D3).
+
+Accuracy safeguards:
+
+- Product cards shown in the chat are rendered by our code directly from tool
+  results — name, price, size, condition, image, link and availability come from
+  the database, not from text the model wrote.
+- Product IDs mentioned by the model are checked against the tool results for
+  that conversation turn; anything unverified is dropped.
+- Availability is read fresh on every request; nothing about stock is cached in
+  the conversation.
+- Policies (delivery, returns, payment) are only stated if configured in admin.
+- Visitor messages and product text are treated as data, never as instructions.
+  The tools are read-only, so even a successful prompt injection cannot change
+  anything or reach non-public data.
+- Rate limiting and message-length limits on the chat endpoint.
+
+Provider: Anthropic Claude is the default. All model calls go through one
+interface in `src/server/ai`, selected by an environment variable, so another
+provider can be added without touching the rest of the app.
+
+- Trade-off: this is the one unavoidable paid service (pay per use; small for a
+  site this size). A monthly spending cap will be set on the provider account.
+
+## D9 — Hosting
+
+**Status:** Open — owner to choose before first deployment
+
+| Option | Cost | Notes |
+| --- | --- | --- |
+| Vercel Pro | about US$20/month | Made by the Next.js team; least effort. The free Hobby plan is restricted to non-commercial use, so a shop needs Pro. |
+| Netlify free plan | Free to start | Supports Next.js; commercial use allowed on the free plan. Slightly more setup risk with the newest Next.js features. |
+
+Recommendation: build host-neutral (already the case), use a free preview
+deployment during development, and pick between these at launch. Plan terms
+must be re-checked at that time.
+
+## D10 — WhatsApp via official click-to-chat links
+
+**Status:** Decided (2026-11-12)
+
+`https://wa.me/<number>?text=<prefilled message>` — the official, free
+mechanism. One function builds every link; the number comes from site settings.
+
+- Trade-off: no automated replies or message tracking. The paid WhatsApp
+  Business API is not needed for this project.
+
+## D11 — Money and product IDs
+
+**Status:** Decided (2026-11-12)
+
+- Prices are stored as whole numbers in the smallest currency unit (cents) to
+  avoid rounding errors. The currency is a site setting.
+- Each product has a short human-readable code (for example `PLW-0042`) used in
+  WhatsApp messages, the AI assistant and the admin portal, in addition to its
+  internal database ID.
+
+## D12 — Testing approach
+
+**Status:** Decided (2026-11-12)
+
+Vitest for logic (services, WhatsApp link builder, AI guardrails) and Playwright
+for real-browser checks at desktop and mobile sizes. Both are added in
+Milestone 2 when there is something to test. A milestone is complete only when
+lint, type-check, build and tests pass and the result has been checked in a
+browser.
+
+## D13 — Dependencies are added only when used
+
+**Status:** Decided (2026-11-12)
+
+Milestone 1 installs only the framework. Database, auth, AI and test packages
+are installed in the milestone that first needs them, so nothing unused or
+untested sits in the project.
