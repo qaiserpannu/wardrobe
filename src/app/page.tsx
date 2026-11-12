@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { io } from "next/cache";
 import Link from "next/link";
 import { Suspense } from "react";
 import { ProductGrid, ProductGridSkeleton } from "@/components/catalog/ProductGrid";
@@ -12,7 +13,15 @@ import { getCachedCategories, getCachedSettings } from "@/server/services/cached
 import { getFeaturedProducts, getRecentProducts } from "@/server/services/products";
 import { mediaUrl } from "@/server/services/settings";
 
+/**
+ * Product sections are never part of the prerendered page shell. "await io()"
+ * says so explicitly, before any database work starts. Without it, opening a
+ * database connection (which generates a random value for the password
+ * handshake) can happen while Next.js is prerendering and is reported as an
+ * error.
+ */
 async function FeaturedSection({ shop }: { shop: SiteSettings["shop"] }) {
+  await io();
   const products = await getFeaturedProducts(4);
   if (products.length === 0) return null;
   return (
@@ -26,6 +35,7 @@ async function FeaturedSection({ shop }: { shop: SiteSettings["shop"] }) {
 }
 
 async function RecentSection({ shop }: { shop: SiteSettings["shop"] }) {
+  await io();
   const products = await getRecentProducts(8);
   if (products.length === 0) {
     return (

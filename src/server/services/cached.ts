@@ -16,14 +16,14 @@ export const CACHE_TAGS = { settings: "settings", categories: "categories" } as 
 
 export async function getCachedSettings() {
   "use cache";
-  cacheLife({ stale: 30, revalidate: 60, expire: 300 });
+  cacheLife({ stale: 300, revalidate: 60, expire: 300 });
   cacheTag(CACHE_TAGS.settings);
   return getSettings();
 }
 
 export async function getCachedCategories() {
   "use cache";
-  cacheLife({ stale: 30, revalidate: 60, expire: 300 });
+  cacheLife({ stale: 300, revalidate: 60, expire: 300 });
   cacheTag(CACHE_TAGS.categories);
   return listCategories();
 }

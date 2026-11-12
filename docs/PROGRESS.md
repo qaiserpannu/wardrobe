@@ -35,6 +35,12 @@ Do not start Milestone 3 until the owner approves.
   tablet and phone sizes (71 runs passed, 7 intentionally skipped as
   size-specific), including a crawl of every internal link and image.
 
+### Fixes after Milestone 2 (2026-11-12)
+
+- Homepage showed a "Blocking Route" error (random value while prerendering)
+  and a "URL data" warning when run with `npm run dev`. Both fixed (D14
+  update); all checks and browser tests re-run and passing.
+
 ### Milestone 1 (2026-11-12) — approved
 
 Stack selection, Next.js scaffold, folder structure, project memory documents.
@@ -60,7 +66,8 @@ Stack selection, Next.js scaffold, folder structure, project memory documents.
 - A non-existent product address shows the not-found page with response code
   200 plus "noindex" instead of 404 (see D14).
 - Settings and category names can take up to a minute to update after a direct
-  database change (D14). Product data is immediate.
+  database change, and up to 5 minutes for a visitor who keeps browsing without
+  reloading (D14). Product data is immediate.
 - Only local image storage exists; cloud storage arrives with Milestone 5.
 - `docker-compose.yml` is provided for local setup but was not run in the
   cloud development environment (no Docker there); the database was tested

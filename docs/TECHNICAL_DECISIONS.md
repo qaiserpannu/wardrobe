@@ -204,6 +204,16 @@ for about a minute.
   admin saves can be added in one place (`src/server/services/cached.ts`).
 - Consequence: building the site needs a database connection, because settings
   are read at build time.
+- Update (2026-11-12): two development-mode errors on the homepage were fixed.
+  (1) Product sections call `await io()` before their first query, so opening a
+  database connection (the password handshake generates a random value) never
+  happens while Next.js prerenders the page frame. Any new component that reads
+  uncached data without first awaiting `params`/`searchParams` needs the same.
+  (2) The cached settings and categories now use a browser-side lifetime
+  (`stale`) of 5 minutes instead of 30 seconds; Next.js leaves anything shorter
+  out of the instantly shown page frame. The server still refreshes them every
+  minute, but a visitor who keeps browsing without reloading may see an old
+  setting for up to 5 minutes.
 - Consequence: a product address that does not exist shows the not-found page
   but, because the page frame is sent first, the response code is 200 with a
   "noindex" tag rather than 404. Addresses outside `/shop/` return a true 404.
