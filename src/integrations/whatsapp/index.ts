@@ -28,6 +28,21 @@ export function buildWhatsAppLink(number: string, message: string): string | nul
   return text ? `${base}?text=${encodeURIComponent(text)}` : base;
 }
 
+export type ChatLinkConfig = { number: string; productMessage: string; generalMessage: string };
+
+/**
+ * The link for the floating chat button: a product inquiry when the visitor is
+ * looking at an item that can be bought, otherwise the general greeting.
+ */
+export function buildChatLink(
+  config: ChatLinkConfig,
+  product?: (WhatsAppProduct & { url?: string }) | null,
+): string | null {
+  return product
+    ? buildProductInquiryLink(config, product, product.url)
+    : buildWhatsAppLink(config.number, config.generalMessage);
+}
+
 /** Link whose pre-filled message names the product and its ID, plus a link back to the item. */
 export function buildProductInquiryLink(
   config: { number: string; productMessage: string },

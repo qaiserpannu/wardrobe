@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  buildChatLink,
   buildProductInquiryLink,
   buildWhatsAppLink,
   isWhatsAppConfigured,
@@ -45,5 +46,24 @@ describe("WhatsApp links", () => {
     const text = new URL(link).searchParams.get("text")!;
     expect(text).toContain("PLW-0001");
     expect(text).toContain("Black Midi Wrap Dress");
+  });
+
+  it("chat button: general message without a product, product message with one", () => {
+    const chat = { ...config, generalMessage: "Hi! I have a question." };
+    const general = new URL(buildChatLink(chat, null)!);
+    expect(general.origin + general.pathname).toBe("https://wa.me/15555550100");
+    expect(general.searchParams.get("text")).toBe("Hi! I have a question.");
+
+    const text = new URL(buildChatLink(chat, { ...product, url: "https://example.com/shop/x" })!).searchParams.get("text")!;
+    expect(text).toContain("Black Midi Wrap Dress");
+    expect(text).toContain("PLW-0001");
+    expect(text).toContain("https://example.com/shop/x");
+  });
+
+  it("chat button: follows whatever number is in the settings, and disappears without one", () => {
+    const chat = { ...config, generalMessage: "Hello" };
+    expect(buildChatLink({ ...chat, number: "18139907900" }, null)).toBe("https://wa.me/18139907900?text=Hello");
+    expect(buildChatLink({ ...chat, number: "" }, null)).toBeNull();
+    expect(buildChatLink({ ...chat, number: "" }, product)).toBeNull();
   });
 });

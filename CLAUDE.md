@@ -45,6 +45,9 @@ WhatsApp; there is no online checkout.
   details, branding, social links, homepage text, AI messages) is read from
   site settings, not hardcoded.
 - WhatsApp links are built only by `src/integrations/whatsapp`.
+- The floating chat button (`src/components/chat`) is in the root layout. A
+  page tells it about a product by rendering `ChatProductContext`; do this
+  only for items that can be bought (`available`).
 - Validate all external input (forms, query strings, API bodies, uploads) on
   the server.
 - Every admin page and admin API checks authentication on the server.

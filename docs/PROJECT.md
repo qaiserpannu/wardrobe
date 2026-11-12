@@ -155,6 +155,7 @@ src/
     layout/              Header, mobile menu, footer
     home/                Homepage pieces
     catalog/             Product card, grid, filters, gallery, pagination
+    chat/                Floating chat button (WhatsApp click-to-chat)
   server/                Server-only code
     db/                  Schema, client, migrations, sample data
     services/            Business logic; the only layer that touches the database
@@ -168,7 +169,7 @@ tests/
   e2e/                   Browser tests (desktop, tablet, phone)
 ```
 
-Folders for chat (`src/components/chat`), AI (`src/server/ai`), auth
+Folders for AI (`src/server/ai`), auth
 (`src/server/auth`) and admin are created in the milestone that needs them.
 
 ## Public pages

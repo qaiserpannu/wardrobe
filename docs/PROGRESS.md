@@ -4,11 +4,29 @@ Update this file at the end of every working session.
 
 ## Current milestone
 
-**Milestone 2 — Public website: built and tested (including the ON HOLD
-status), awaiting owner approval.**
-Do not start Milestone 3 until the owner approves.
+**Milestone 3 — WhatsApp chat widget: built and tested, awaiting owner
+approval.** Milestone 2 was approved on 2026-11-12. Do not start Milestone 4
+until the owner approves.
 
 ## Completed
+
+### Milestone 3 (2026-11-12) — floating WhatsApp chat button
+
+- Round WhatsApp button in the bottom corner of every public page. It opens a
+  small panel with a greeting and a "Start chat on WhatsApp" button (official
+  click-to-chat link, opens in a new tab or the app).
+- On the page of an available item the message names the item, its ID and
+  its link. On sold and on-hold items, and everywhere else, it is the general
+  greeting.
+- Closes with its X, the round button, the Escape key or a click elsewhere;
+  keyboard focus moves in and back out.
+- New `chat_widget` settings: on/off, title, greeting, left or right corner.
+  The button disappears if switched off or if no WhatsApp number is set.
+- Tests: 48 logic/database tests; 125 browser runs passed across desktop,
+  tablet and phone (7 size-specific skips); lint, type-check and build pass;
+  visual check at desktop and phone sizes.
+- Not verified here: that WhatsApp itself opens a conversation (needs a real
+  phone or WhatsApp account).
 
 ### Milestone 2 (2026-11-12)
 
@@ -134,7 +152,8 @@ Stack selection, Next.js scaffold, folder structure, project memory documents.
 
 ## Outstanding — waiting on the owner
 
-1. Approval of Milestone 2 (then Milestone 3, the chat widget, starts).
+1. Approval of Milestone 3, and a check on a real phone that the chat
+   button opens WhatsApp with the right number and message.
 2. Milestone 6: use +1 813 990 7900 for the AI agent, or a new dedicated
    number (D28, D31).
 3. Later: Meta business portfolio, Facebook Page, Instagram professional
@@ -169,4 +188,6 @@ Stack selection, Next.js scaffold, folder structure, project memory documents.
 
 ## Next steps
 
-1. On Milestone 2 approval: Milestone 3, the click-to-chat widget.
+1. On Milestone 3 approval: Milestone 4, the AI sales agent on the website
+   chat. Needs from the owner first: AI provider choice/account, wording of
+   pickup and returns policies, notification email address.

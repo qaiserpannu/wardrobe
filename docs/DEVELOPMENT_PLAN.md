@@ -101,7 +101,7 @@ Completion criteria:
 - [x] PENDING / ON HOLD status in the data model and on the public website
   (D25, D31): shown as "On hold", listed between available and sold, no
   inquiry button.
-- [ ] Owner approval.
+- [x] Owner approval (2026-11-12).
 
 Needed from the owner: brand preferences (colours, logo if any), currency,
 category list, a few real product photos if available (otherwise placeholders).
@@ -119,9 +119,16 @@ Steps:
 4. `chat_widget` settings (on/off, greeting text, position).
 5. Tests: link format, widget behaviour on desktop and mobile sizes.
 
-Completion criteria: widget works on every public page; correct pre-filled
-message with and without product context; number changed in one place with no
-code change; owner confirms a real conversation opens on phone and desktop.
+Completion criteria:
+
+- [x] Widget on every public page; opens, closes, works from the keyboard,
+  fits phone, tablet and desktop screens.
+- [x] Correct pre-filled message with and without product context; sold and
+  on-hold items never get a "buy" message.
+- [x] Number and widget texts come from settings only, no code change needed.
+- [ ] Owner confirms a real conversation opens on phone and desktop (can only
+  be checked on a deployed or locally run copy).
+- [ ] Owner approval.
 
 WhatsApp number: provided (D31), already in the sample data.
 

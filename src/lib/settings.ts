@@ -32,6 +32,18 @@ export const settingsSchemas = {
       .default("Hi! I'm interested in {name} (ID: {code}). Is it still available?"),
     generalMessage: z.string().default("Hi! I have a question about Pre-Loved Wardrobe."),
   }),
+  /** The floating chat button shown on every public page. */
+  chat_widget: z.object({
+    enabled: z.boolean().default(true),
+    title: z.string().default("Chat with us"),
+    greeting: z
+      .string()
+      .default(
+        "Hello! Have a question about a piece, sizing or pickup? Send us a message on WhatsApp and we'll reply as soon as we can.",
+      ),
+    /** Which bottom corner the button sits in. */
+    position: z.enum(["right", "left"]).default("right"),
+  }),
   social: z.object({
     instagram: z.string().default(""),
     facebook: z.string().default(""),

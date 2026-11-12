@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { io } from "next/cache";
 import Link from "next/link";
 import { Suspense } from "react";
+import { ChatProductContext } from "@/components/chat/ChatProductContext";
 import { ProductGallery } from "@/components/catalog/ProductGallery";
 import { ProductGrid } from "@/components/catalog/ProductGrid";
 import { AvailableBadge, OnHoldBadge, SoldBadge } from "@/components/catalog/StatusBadge";
@@ -103,6 +104,8 @@ async function ProductDetails({ params }: { params: Props["params"] }) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
       />
+      {/* Tells the floating chat button which item the visitor is looking at. Only items that can be bought. */}
+      {!sold && !onHold && <ChatProductContext name={product.name} code={product.code} url={productUrl} />}
       <nav aria-label="Breadcrumb" className="mb-6 text-sm text-muted">
         <ol className="flex flex-wrap items-center gap-2">
           <li>

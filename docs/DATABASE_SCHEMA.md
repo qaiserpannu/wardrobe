@@ -83,7 +83,7 @@ on `search_vector`.
 
 | Column | Type | Notes |
 | --- | --- | --- |
-| key | text, primary key | Built: `branding`, `shop`, `contact`, `whatsapp`, `social`, `seo`, `homepage`. Later: `chat_widget`, `ai_assistant` |
+| key | text, primary key | Built: `branding`, `shop`, `contact`, `whatsapp`, `social`, `seo`, `homepage`, `chat_widget` (on/off, title, greeting, corner). Later: `ai_assistant` |
 | value | jsonb | Validated against a schema per key in code |
 | updated_at | timestamp | |
 
