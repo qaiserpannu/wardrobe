@@ -40,3 +40,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local image storage and test output
+/storage/
+/test-results/
+/playwright-report/

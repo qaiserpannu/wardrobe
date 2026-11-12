@@ -1,8 +1,8 @@
-# Database Schema (planned)
+# Database Schema
 
-This is the planned structure. Tables are created in the milestone that first
-needs them. Once created, the source of truth is the Drizzle schema in
-`src/server/db`; keep this document in step with it.
+Tables marked **(built)** exist; the source of truth for them is
+`src/server/db/schema.ts` with migrations in `src/server/db/migrations`. Other
+tables are planned and are created in the milestone that first needs them.
 
 Database: PostgreSQL. All tables have `created_at` and `updated_at` timestamps
 unless noted.
@@ -16,7 +16,7 @@ site_settings   (standalone key/value)
 ai_knowledge    (standalone FAQ / policy entries)
 ```
 
-## categories — Milestone 2
+## categories — Milestone 2 (built)
 
 | Column | Type | Notes |
 | --- | --- | --- |
@@ -29,7 +29,7 @@ ai_knowledge    (standalone FAQ / policy entries)
 Deleting a category that still has products is blocked; the admin must move or
 archive the products first.
 
-## products — Milestone 2
+## products — Milestone 2 (built)
 
 | Column | Type | Notes |
 | --- | --- | --- |
@@ -40,7 +40,7 @@ archive the products first.
 | description | text | |
 | category_id | uuid → categories.id | |
 | brand | text, nullable | Missing is allowed and shown as "not specified" |
-| size | text, nullable | Free text ("M", "UK 10", "32W") — see open question below |
+| size | text, nullable | Free text ("M", "UK 10", "32W") — see TECHNICAL_DECISIONS D16 |
 | color | text, nullable | |
 | condition | enum | `new_with_tags`, `like_new`, `good`, `fair` |
 | price_cents | integer | Price in smallest currency unit |
@@ -54,13 +54,14 @@ Visibility rules, enforced in the services layer:
 
 - `draft`, `archived`: never visible publicly or to the AI assistant.
 - `available`: visible and can be inquired about.
-- `sold`: visible with a SOLD badge, no purchase prompt. (How long sold items
-  stay visible will be a site setting.)
+- `sold`: visible with a SOLD badge, no purchase prompt, listed after
+  available items.
+- A product in an inactive category is hidden regardless of status.
 
 Indexes: `status`, `category_id`, `published_at`, `price_cents`, and a GIN index
 on `search_vector`.
 
-## product_images — Milestone 2
+## product_images — Milestone 2 (built)
 
 | Column | Type | Notes |
 | --- | --- | --- |
@@ -71,13 +72,16 @@ on `search_vector`.
 | sort_order | integer | 0 is the main photo |
 | width, height | integer | For layout without page jumps |
 
-## site_settings — Milestone 2 (read), Milestone 5 (edit)
+## site_settings — Milestone 2 (built, read-only), Milestone 5 (edit)
 
 | Column | Type | Notes |
 | --- | --- | --- |
-| key | text, primary key | e.g. `branding`, `contact`, `whatsapp`, `social`, `seo`, `homepage`, `chat_widget`, `ai_assistant` |
+| key | text, primary key | Built: `branding`, `shop`, `contact`, `whatsapp`, `social`, `seo`, `homepage`. Later: `chat_widget`, `ai_assistant` |
 | value | jsonb | Validated against a schema per key in code |
 | updated_at | timestamp | |
+
+The shape and defaults of each key are defined in `src/lib/settings.ts`; a
+missing or invalid row falls back to defaults, so the site always renders.
 
 Grouping settings as a few validated JSON documents means new settings do not
 need database changes. Secrets (API keys) are never stored here — they stay in
@@ -128,8 +132,5 @@ Not built now; noted so current design does not block them.
 
 ## Open questions
 
-1. **Sizes:** free text is flexible but makes the size filter messy ("M" vs
-   "Medium"). Option: a managed list of sizes per type (clothing, shoes, waist).
-   To be decided with the owner at the start of Milestone 2.
-2. **Currency:** which currency and country the shop operates in.
-3. **Sold items:** hide after N days, or keep visible indefinitely.
+1. **Currency:** USD assumed; owner to confirm.
+2. **Sold items:** currently visible indefinitely; could be hidden after N days.

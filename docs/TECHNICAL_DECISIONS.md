@@ -74,6 +74,8 @@ admin).
   library, so the database host can change without touching application code.
 - Development and automated tests use a local PostgreSQL database, so no cloud
   account is needed to build and verify Milestone 2.
+- Driver: `postgres` (postgres.js), with prepared statements off so pooled
+  connections (Supabase) work unchanged.
 
 ## D6 — Image storage behind a small interface
 
@@ -184,3 +186,66 @@ browser.
 Milestone 1 installs only the framework. Database, auth, AI and test packages
 are installed in the milestone that first needs them, so nothing unused or
 untested sits in the project.
+
+## D14 — Product data is always live; only settings and categories are cached
+
+**Status:** Decided (2026-11-12)
+
+Product lists and product pages read the database on every visit. Site settings
+and the category list, which appear on every page and change rarely, are cached
+for about a minute.
+
+- Why: showing a sold item as available is the worst mistake this site can
+  make, so availability is never served from a cache. Caching the page frame
+  (header, footer, hero) still lets pages appear instantly while products
+  stream in.
+- Trade-off: each visit costs a few database queries. That is negligible at
+  this size. If traffic grows, product caching with explicit invalidation on
+  admin saves can be added in one place (`src/server/services/cached.ts`).
+- Consequence: building the site needs a database connection, because settings
+  are read at build time.
+- Consequence: a product address that does not exist shows the not-found page
+  but, because the page frame is sent first, the response code is 200 with a
+  "noindex" tag rather than 404. Addresses outside `/shop/` return a true 404.
+
+## D15 — Catalog filters live in the URL
+
+**Status:** Decided (2026-11-12)
+
+Search text, filters, sort order and page number are all query parameters
+(`/shop?category=dresses&size=M&max=30`). The filter panel is an ordinary form
+that works without JavaScript; with JavaScript it applies changes instantly.
+
+- Why: filtered views can be shared and bookmarked, the back button works, and
+  the AI assistant (Milestone 4) can link to a filtered catalog.
+- All URL input is validated by `parseCatalogParams` before reaching a query.
+
+## D16 — Sizes and brands are free text for now
+
+**Status:** Decided (2026-11-12) — revisit at Milestone 5
+
+Size and brand are plain text on each product; the filter lists are built from
+the values in use. Sizes are sorted naturally (S, M, L, then numbers).
+
+- Why: second-hand stock has mixed sizing systems (letters, waist, shoe sizes).
+- Trade-off: inconsistent typing ("M" vs "Medium") would create duplicate
+  filter options. The admin product form will offer existing values as
+  suggestions to prevent this.
+
+## D17 — Defaults chosen without owner input
+
+**Status:** Proposed — owner to confirm or change
+
+Currency USD (`en-US` formatting); the eight example categories from the brief;
+warm neutral palette with a terracotta accent, Cormorant Garamond headings and
+Geist body text; sold items stay visible indefinitely, listed after available
+items, with a "Hide sold items" filter. Currency is a setting; colours and
+fonts are in `src/app/globals.css` and `src/app/layout.tsx`.
+
+## D18 — Placeholder artwork for sample products
+
+**Status:** Decided (2026-11-12)
+
+Sample products use generated garment illustrations
+(`src/server/db/seed/artwork.ts`) because no real photographs exist yet. They
+go through the same storage and image pipeline that real photos will.

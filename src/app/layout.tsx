@@ -1,29 +1,44 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Cormorant_Garamond, Geist } from "next/font/google";
+import { Footer } from "@/components/layout/Footer";
+import { Header } from "@/components/layout/Header";
+import { siteUrl } from "@/lib/site-url";
+import { getCachedSettings } from "@/server/services/cached";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const body = Geist({ variable: "--font-body", subsets: ["latin"] });
+const display = Cormorant_Garamond({
+  variable: "--font-display-face",
   subsets: ["latin"],
+  weight: ["500", "600"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-export const metadata: Metadata = {
-  title: "Pre-Loved Wardrobe",
-  description: "Pre-owned clothing, carefully chosen.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { branding, seo } = await getCachedSettings();
+  return {
+    metadataBase: new URL(siteUrl()),
+    title: { default: `${branding.siteName} | ${branding.tagline}`, template: `%s | ${branding.siteName}` },
+    description: seo.description,
+    openGraph: { siteName: branding.siteName, type: "website" },
+  };
+}
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="en" className={`${body.variable} ${display.variable} h-full antialiased`}>
+      <body className="flex min-h-full flex-col font-sans">
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded focus:bg-ink focus:px-4 focus:py-2 focus:text-white"
+        >
+          Skip to content
+        </a>
+        <Header />
+        <main id="main" className="flex-1">
+          {children}
+        </main>
+        <Footer />
+      </body>
     </html>
   );
 }

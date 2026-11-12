@@ -101,27 +101,37 @@ Key ideas:
 
 ```
 docs/                    Project memory (this folder)
-public/                  Static files (logo, icons)
+scripts/                 Small helper files (database setup)
 src/
-  app/                   Pages and API routes
-    (public site)        Milestone 2
-    admin/               Milestone 5
-    api/                 Chat and admin endpoints
+  app/                   Pages and routes
+    page.tsx             Homepage
+    shop/                Catalog and product pages
+    media/               Serves locally stored images (development)
   components/
-    ui/                  Generic building blocks
-    layout/              Header, navigation, footer
-    catalog/             Product cards, filters, gallery
-    chat/                Chat widget and assistant UI
-    admin/               Admin portal components
+    ui/                  Generic building blocks (buttons, icons, container)
+    layout/              Header, mobile menu, footer
+    home/                Homepage pieces
+    catalog/             Product card, grid, filters, gallery, pagination
   server/                Server-only code
-    db/                  Schema, client, migrations
+    db/                  Schema, client, migrations, sample data
     services/            Business logic; the only layer that touches the database
-    ai/                  Provider interface, tools, guardrails
-    storage/             Image storage interface
-    auth/                Admin authentication
+    storage/             Image storage interface (local driver so far)
   integrations/
     whatsapp/            Click-to-chat link builder
-  lib/                   Shared helpers
-  types/                 Shared types
-tests/                   Automated tests
+  lib/                   Shared helpers (settings schema, URL filters, money)
+tests/
+  unit/                  Logic tests
+  integration/           Service tests against the test database
+  e2e/                   Browser tests (desktop, tablet, phone)
 ```
+
+Folders for chat (`src/components/chat`), AI (`src/server/ai`), auth
+(`src/server/auth`) and admin are created in the milestone that needs them.
+
+## Public pages
+
+| Address | Page |
+| --- | --- |
+| `/` | Homepage: hero, featured, categories, recently added, how it works |
+| `/shop` | Catalog with search, filters, sorting and paging (all state in the URL) |
+| `/shop/<name>-<product id>` | Product details with gallery and WhatsApp inquiry |

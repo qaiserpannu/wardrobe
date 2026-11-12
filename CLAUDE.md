@@ -31,7 +31,7 @@ WhatsApp; there is no online checkout.
 - Only `src/server/services` talks to the database. Pages, API routes and AI
   tools call services.
 - Public service functions return only publicly visible products (`available`
-  and `sold`) and only public fields. Drafts and archived items never leave
+  and `sold`, in an active category) and only public fields (`PublicProduct`). Drafts and archived items never leave
   admin code paths.
 - Anything under `src/server` is server-only. Never import it into a client
   component. Secrets come from environment variables and never reach the
@@ -71,8 +71,27 @@ WhatsApp; there is no online checkout.
 
 - `npm run dev` — start the development server at http://localhost:3000
 - `npm run lint` — code style checks
-- `npm run typecheck` — TypeScript checks
-- `npm run build` — production build
+- `npm run typecheck` — regenerate route types, then TypeScript checks
+- `npm run build` — production build (needs `DATABASE_URL`; settings are read at build time)
+- `npm run db:seed` — migrate and reset the database to sample data
+- `npm run db:generate` — create a migration after changing `src/server/db/schema.ts`
+- `npm test` — Vitest unit and database tests against `wardrobe_test`
+- `npm run test:e2e` — Playwright; seeds the test database, builds, serves on port 3100
+
+In a fresh cloud session PostgreSQL may be stopped: `pg_ctlcluster 16 main start`.
+The `wardrobe` role and the `wardrobe` / `wardrobe_test` databases may need
+creating again (see `docker-compose.yml` for names), then `npm run db:seed`.
+
+## Data freshness and caching
+
+- Product data is never cached. Product components fetch at request time
+  inside `<Suspense>`, so availability is always current.
+- Settings and the category list are cached for about a minute via
+  `src/server/services/cached.ts` (tags `settings`, `categories`). Admin saves
+  in Milestone 5 must call `updateTag` for these so edits appear immediately.
+- Run the automated tests before reporting work as done. Browser tests must
+  wait for streamed content before interacting (see `openFilters` in
+  `tests/e2e/site.spec.ts`).
 
 ## Maintaining project memory
 

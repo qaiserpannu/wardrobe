@@ -37,7 +37,7 @@ Completion criteria:
 - [x] Project memory files created
 - [x] Development roadmap documented
 - [x] Lint, type-check and production build pass
-- [ ] Owner approval
+- [x] Owner approval (2026-11-12)
 
 ## Milestone 2 — Public website
 
@@ -63,13 +63,14 @@ Steps, in order:
 
 Completion criteria:
 
-- All pages render correctly on phone, tablet and desktop.
-- Search, every filter and both sort orders return correct results.
-- Sold items show SOLD and have no purchase prompt; drafts and archived items
-  never appear.
-- WhatsApp button message contains the product name and ID.
-- No broken links or console errors.
-- Testing report delivered; owner approval.
+- [x] All pages render correctly on phone, tablet and desktop.
+- [x] Search, every filter and both sort orders return correct results.
+- [x] Sold items show SOLD and have no purchase prompt; drafts and archived
+  items never appear.
+- [x] WhatsApp button message contains the product name and ID.
+- [x] No broken links or console errors.
+- [x] Testing report delivered.
+- [ ] Owner approval.
 
 Needed from the owner: brand preferences (colours, logo if any), currency,
 category list, a few real product photos if available (otherwise placeholders).
