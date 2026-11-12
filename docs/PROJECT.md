@@ -7,8 +7,9 @@ kurtas, lehengas, sarees, anarkalis, menswear, dupattas, accessories). Visitors 
 details and photos, and contact the owner on WhatsApp to buy. It should feel
 like a modern fashion boutique, not a classifieds site.
 
-There is no online checkout. Every sale is completed by the owner in a WhatsApp
-conversation.
+The shop is local to Tampa, Florida (US). There is no online checkout: a
+customer chooses an item, agrees the sale with the owner on WhatsApp, and
+pays by Zelle, Cash App or cash when collecting it.
 
 ## Business requirements
 
@@ -32,8 +33,8 @@ with them. Details in `TECHNICAL_DECISIONS.md` D17.
 
 ## Scope
 
-In scope, in milestone order (details in `DEVELOPMENT_PLAN.md`; order from M6
-on is proposed and awaits owner approval):
+In scope, in milestone order (details in `DEVELOPMENT_PLAN.md`; order approved
+by the owner, D31):
 
 1. Foundation, framework and project memory
 2. Public website: homepage, catalog, product pages
@@ -54,6 +55,10 @@ Requirements added 2026-11-12:
 - The agent never changes inventory and never confirms a sale; the owner does.
 - Products published in admin are sent automatically to a Meta catalog for
   Facebook and Instagram; the website database is the master (D29).
+- Messages from Facebook and Instagram are answered by the owner in
+  Messenger / Instagram; the AI agent is not used there (D31).
+- Holds end automatically after 72 hours (a setting) unless the owner
+  extends them (D31).
 - The WhatsApp number and all contact details are admin settings that take
   effect without a redeployment.
 

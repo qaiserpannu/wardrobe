@@ -4,7 +4,7 @@ import { CONDITION_LABELS } from "@/lib/conditions";
 import { formatPrice } from "@/lib/money";
 import type { SiteSettings } from "@/lib/settings";
 import type { PublicProduct } from "@/server/services/types";
-import { SoldBadge } from "./StatusBadge";
+import { OnHoldBadge, SoldBadge } from "./StatusBadge";
 
 type Props = {
   product: PublicProduct;
@@ -15,6 +15,7 @@ type Props = {
 
 export function ProductCard({ product, shop, priority }: Props) {
   const sold = product.status === "sold";
+  const onHold = product.status === "pending";
   const image = product.images[0];
   const details = [product.brand, product.size ? `Size ${product.size}` : null, CONDITION_LABELS[product.condition]]
     .filter(Boolean)
@@ -36,6 +37,7 @@ export function ProductCard({ product, shop, priority }: Props) {
           <div className="flex h-full items-center justify-center text-sm text-muted">No photo yet</div>
         )}
         {sold && <SoldBadge className="absolute top-3 left-3" />}
+        {onHold && <OnHoldBadge className="absolute top-3 left-3" />}
       </div>
       <div className="mt-3 flex items-start justify-between gap-3">
         <div className="min-w-0">

@@ -4,7 +4,8 @@ Update this file at the end of every working session.
 
 ## Current milestone
 
-**Milestone 2 — Public website: built and tested, awaiting owner approval.**
+**Milestone 2 — Public website: built and tested (including the ON HOLD
+status), awaiting owner approval.**
 Do not start Milestone 3 until the owner approves.
 
 ## Completed
@@ -105,36 +106,49 @@ Owner added requirements; plans and architecture updated, no code changed.
   search results and secondary sources and are marked "verify".
 - Category groups confirmed by the owner.
 
+### Milestone 2 revision 4 (2026-11-12) — ON HOLD status and owner decisions
+
+- New `pending` status (fourth migration). Public site: "On hold" badge on
+  cards and the product page, a notice instead of the WhatsApp button, listed
+  after available and before sold items, "Hide sold and on-hold items"
+  filter, out-of-stock in search-engine data. Two sample items on hold
+  (32 products: 24 available, 2 on hold, 3 sold, 2 drafts, 1 archived).
+- Owner decisions recorded in D31: milestone order approved; US only, local
+  to Tampa FL with pickup; payment by Zelle, Cash App or cash; no online
+  checkout for now; Facebook/Instagram messages handled by the owner, no AI
+  there; holds expire after 72 hours (built in M5); WhatsApp number
+  +1 813 990 7900.
+- The WhatsApp number is in the local sample data; the product page button
+  now opens a chat with that number (link checked, a real conversation still
+  to be confirmed by the owner on a phone).
+- Tests: 46 logic/database tests, 86 browser runs passed (7 size-specific
+  skips); lint, type-check and build pass; visual check at desktop and phone
+  sizes.
+
 ### Milestone 1 (2026-11-12) — approved
 
 Stack selection, Next.js scaffold, folder structure, project memory documents.
 
 ## Outstanding — waiting on the owner
 
-1. Go-ahead to add the PENDING status to the data model and public website
-   as the next piece of Milestone 2 work (D25), then Milestone 2 approval.
-2. Approve or change the proposed milestone order (WhatsApp agent as its own
-   milestone after the admin portal).
-3. Confirm what "recommendations 1 and 2" referred to (read as: both free
-   pre-fill options in D23).
-4. Country the business operates from (decides Meta Shop availability and
-   WhatsApp message rates).
-5. WhatsApp: new dedicated number for the AI agent, or try to keep the
-   existing number (D28). Number for click-to-chat in Milestone 3.
-6. Whether to consider adding an online checkout if Meta requires one for a
-   Shop (D29).
-7. Whether automatic hold expiry is wanted (D25).
-8. Later: Meta business portfolio, Facebook Page, Instagram professional
+1. Approval of Milestone 2 (then Milestone 3, the chat widget, starts).
+2. Milestone 6: use +1 813 990 7900 for the AI agent, or a new dedicated
+   number (D28, D31).
+3. Later: Meta business portfolio, Facebook Page, Instagram professional
    account, Commerce Manager, domain; AI provider account; notification
-   email; hosting choice (D9); proposed services (D4, D6, D7, D8).
+   email; hosting choice (D9); proposed services (D4, D6, D7, D8); wording
+   of pickup/returns policies for the agent.
 
 ## Known issues and limitations
 
 - Product pictures and the hero image are generated placeholders, not
   photographs.
-- No WhatsApp number is set in the development data, so the product page shows
-  a "quote this product ID" note instead of the button. Tests use a fictional
-  number to verify the button and message.
+- The WhatsApp number comes from `SEED_WHATSAPP_NUMBER` in `.env.local`
+  (not committed); a fresh environment must set it to `18139907900` before
+  seeding, otherwise the product page shows a "quote this product ID" note.
+  Tests use a fictional number.
+- Status can only be changed in the database until the admin portal (M5);
+  hold details and the 72-hour expiry do not exist yet.
 - Products and settings can only be changed by editing the sample data or the
   database until the admin portal (Milestone 5).
 - A non-existent product address shows the not-found page with response code
@@ -152,6 +166,4 @@ Stack selection, Next.js scaffold, folder structure, project memory documents.
 
 ## Next steps
 
-1. With the owner's go-ahead: add PENDING to the status list, show it on the
-   website (badge, ordering, no buy prompt), update tests — closes Milestone 2.
-2. On Milestone 2 approval: Milestone 3, the click-to-chat widget.
+1. On Milestone 2 approval: Milestone 3, the click-to-chat widget.

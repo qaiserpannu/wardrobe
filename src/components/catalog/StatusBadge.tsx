@@ -8,6 +8,16 @@ export function SoldBadge({ className = "" }: { className?: string }) {
   );
 }
 
+export function OnHoldBadge({ className = "" }: { className?: string }) {
+  return (
+    <span
+      className={`inline-flex items-center rounded-full bg-accent px-3 py-1 text-[0.7rem] font-semibold tracking-[0.16em] text-white uppercase ${className}`}
+    >
+      On hold
+    </span>
+  );
+}
+
 export function AvailableBadge({ className = "" }: { className?: string }) {
   return (
     <span

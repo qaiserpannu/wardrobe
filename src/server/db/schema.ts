@@ -39,6 +39,7 @@ export const productCondition = pgEnum("product_condition", [
 export const productStatus = pgEnum("product_status", [
   "draft",
   "available",
+  "pending",
   "sold",
   "archived",
 ]);

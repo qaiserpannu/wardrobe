@@ -10,8 +10,8 @@ import type { CatalogFacets, ProductListResult, PublicImage, PublicProduct } fro
 /** The group a category sits in, joined alongside it in every query. */
 const parents = alias(categories, "parent_categories");
 
-/** The single rule for what the public can see: available or sold, in an active category (and active group). */
-const PUBLIC_STATUSES = ["available", "sold"] as const;
+/** The single rule for what the public can see: available, on hold or sold, in an active category (and active group). */
+const PUBLIC_STATUSES = ["available", "pending", "sold"] as const;
 const isPublic = and(
   inArray(products.status, PUBLIC_STATUSES),
   eq(categories.isActive, true),
@@ -59,7 +59,7 @@ type Row = {
   imperfections: string | null;
   condition: PublicProduct["condition"];
   priceCents: number;
-  status: "draft" | "available" | "sold" | "archived";
+  status: "draft" | "available" | "pending" | "sold" | "archived";
   isFeatured: boolean;
   publishedAt: Date | null;
   categoryName: string;
@@ -120,7 +120,7 @@ async function withImages(rows: Row[]): Promise<PublicProduct[]> {
     condition: r.condition,
     priceCents: r.priceCents,
     // Safe: every query in this file filters on PUBLIC_STATUSES.
-    status: r.status as "available" | "sold",
+    status: r.status as "available" | "pending" | "sold",
     isFeatured: r.isFeatured,
     publishedAt: r.publishedAt,
     images: (byProduct.get(r.id) ?? []).map((img) => ({ ...img, alt: img.alt || r.name })),
@@ -160,12 +160,13 @@ function filterConditions(f: Partial<CatalogFilters>): SQL | undefined {
   if (f.pieces?.length) where.push(inArray(products.pieces, f.pieces));
   if (f.minPriceCents != null) where.push(gte(products.priceCents, f.minPriceCents));
   if (f.maxPriceCents != null) where.push(lte(products.priceCents, f.maxPriceCents));
+  // "Hide sold and on-hold items": only what can be bought right now.
   if (f.hideSold) where.push(eq(products.status, "available"));
 
   return and(...where);
 }
 
-/** Catalog listing with search, filters, sorting and paging. Available items always come before sold ones. */
+/** Catalog listing with search, filters, sorting and paging. Available items come first, then items on hold, then sold ones. */
 export async function listProducts(
   filters: Partial<CatalogFilters> = {},
   pageSize: number = PAGE_SIZE,
@@ -182,7 +183,7 @@ export async function listProducts(
   const pageCount = Math.max(1, Math.ceil(total / pageSize));
   const page = Math.min(Math.max(1, filters.page ?? 1), pageCount);
 
-  const availableFirst = sql`case when ${products.status} = 'available' then 0 else 1 end`;
+  const availableFirst = sql`case ${products.status} when 'available' then 0 when 'pending' then 1 else 2 end`;
   const order =
     filters.sort === "price_asc"
       ? asc(products.priceCents)

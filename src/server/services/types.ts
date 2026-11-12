@@ -9,8 +9,9 @@ export type PublicImage = {
 };
 
 /**
- * A product as the public may see it. Only "available" and "sold" items are
- * ever returned in this shape; drafts and archived items stay internal.
+ * A product as the public may see it. Only "available", "pending" (on hold)
+ * and "sold" items are ever returned in this shape; drafts and archived items
+ * stay internal. Hold details (who, until when, notes) are never part of it.
  */
 export type PublicProduct = {
   code: string;
@@ -31,7 +32,7 @@ export type PublicProduct = {
   imperfections: string | null;
   condition: Condition;
   priceCents: number;
-  status: "available" | "sold";
+  status: "available" | "pending" | "sold";
   isFeatured: boolean;
   publishedAt: Date | null;
   images: PublicImage[];

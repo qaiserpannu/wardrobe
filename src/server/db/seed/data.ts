@@ -26,7 +26,7 @@ export type SeedProduct = {
   art: GarmentKind;
   condition: Condition;
   price: number;
-  status: "draft" | "available" | "sold" | "archived";
+  status: "draft" | "available" | "pending" | "sold" | "archived";
   featured?: boolean;
   images?: number;
 };
@@ -63,4 +63,6 @@ export const seedProducts: SeedProduct[] = [
   { name: "Black Chiffon Formal Suit", description: "Embroidered chiffon suit with sequin work, suitable for evening events.", category: "Shalwar Kameez", brand: "Maria B", size: "L", color: "Black", fabric: "Chiffon", pieces: 3, stitching: "stitched", occasion: "formal", imperfections: "Light wear on the trouser hems.", hex: "#252224", art: "suit", condition: "good", price: 65, status: "available" },
   { name: "Girls Pink Gharara Set", description: "Three-piece gharara set for a girl aged about 6 to 7, with gota trim. Worn once for Eid.", category: "Girls", brand: "Maria B", size: "6-7 years", color: "Pink", fabric: "Cotton net", pieces: 3, stitching: "stitched", occasion: "festive", hex: "#e58fb0", art: "lehenga", condition: "like_new", price: 35, status: "available" },
   { name: "Boys Cream Kurta Pajama", description: "Kurta pajama set for a boy aged about 8 to 9, with a little embroidery on the collar.", category: "Boys", brand: "J.", size: "8-9 years", color: "Cream", fabric: "Cotton", pieces: 2, stitching: "stitched", occasion: "festive", hex: "#efe2c4", art: "suit", condition: "good", price: 22, status: "available" },
+  { name: "Sage Green Organza Saree", description: "Sheer organza saree with a scalloped embroidered border. Includes a stitched blouse.", category: "Sarees", brand: "Sapphire", size: "Free size", color: "Green", fabric: "Organza", pieces: 2, occasion: "party", hex: "#9db59a", art: "saree", condition: "like_new", price: 58, status: "pending" },
+  { name: "Charcoal Waistcoat Kurta Set", description: "Men's kurta with a matching charcoal waistcoat. Worn for one event.", category: "Kurtas", brand: "J.", size: "L", color: "Grey", fabric: "Cotton blend", pieces: 2, stitching: "stitched", occasion: "formal", hex: "#4a4a50", art: "kurta", condition: "like_new", price: 48, status: "pending" },
 ];

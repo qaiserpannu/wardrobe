@@ -433,7 +433,7 @@ the next piece of Milestone 2 work, once the owner gives the go-ahead.
 - Hold details (customer name, contact, hold date, expected expiry, internal
   notes) live in a separate admin-only table. They are never included in
   public product data, so neither the website nor the agent can reveal them.
-- Automatic hold expiry is possible (a daily job returning expired holds to
+- (Updated by D31: expiry after 72 hours is approved.) Automatic hold expiry is possible (a daily job returning expired holds to
   available, with a notification) but will not be built without the owner's
   approval; if built it is a setting, off by default.
 - Featured, recently-added and related lists contain available items only.
@@ -613,3 +613,37 @@ scheduled trigger from the hosting platform (and immediate processing after a
 change where possible). No separate queue service. This affects the hosting
 choice (D9): the chosen host must support scheduled jobs and requests long
 enough for an AI reply.
+
+## D31 — Owner decisions on the expanded roadmap (2026-11-12)
+
+**Status:** Decided by the owner
+
+- **Milestone order approved** as in `DEVELOPMENT_PLAN.md` (WhatsApp agent as
+  its own milestone after the admin portal).
+- **Market:** United States only, local to Tampa, Florida. Customers collect
+  in person. This settles the country question in D28 and D29 (US WhatsApp
+  rates; Meta Shops are offered in the US).
+- **Payment:** Zelle, Cash App, or cash at pickup. No online payment and no
+  online checkout for now; a checkout is a possible future feature. The
+  Meta Shop eligibility risk in D29 therefore stays open and must be tested
+  with Meta at the start of Milestone 7; fallback is the catalog without a
+  Shop.
+- **Facebook and Instagram messages:** go to Messenger / Instagram direct
+  messages and are answered by the owner personally. No AI agent on those
+  channels for now. D24 keeps the door open (a new channel adapter) but
+  nothing is planned.
+- **WhatsApp number:** +1 813 990 7900 (stored as `18139907900`). It is a
+  setting, loaded into sample data through `SEED_WHATSAPP_NUMBER`, and will
+  be editable in admin. Whether the same number or a new dedicated one is
+  used for the AI agent on the Cloud API (D28) is still to be decided in
+  Milestone 6 - moving a number to the Cloud API normally stops it working
+  in the ordinary WhatsApp app.
+- **Hold expiry:** approved. A hold ends automatically after 72 hours and the
+  item returns to available. The period is a setting (default 72 hours) and
+  the owner can extend or end a hold by hand. Built in Milestone 5 together
+  with holds; needs the scheduled job from D30. The expiry is recorded in the
+  status history like any other change.
+- **Photo assist (D23):** confirmed - both free pre-fill options.
+- **PENDING status:** built in Milestone 2 (public side). Shown as "On hold";
+  ordering is available, on hold, sold; no inquiry button; search-engine data
+  says out of stock; the "hide" filter leaves only available items.

@@ -26,14 +26,17 @@ WhatsApp; there is no online checkout.
 - **The owner is not a developer.** Explain decisions in plain language.
 - **No new dependency without a reason.** Install packages in the milestone
   that first uses them.
+- The shop is local to Tampa, Florida (US): pickup in person; payment by
+  Zelle, Cash App or cash. No online checkout. Facebook and Instagram
+  messages are answered by the owner, not the AI agent (D31).
 - Develop on the `develop` branch. No pull requests unless asked.
 
 ## Architecture rules
 
 - Only `src/server/services` talks to the database. Pages, API routes and AI
   tools call services.
-- Public service functions return only publicly visible products (`available`
-  and `sold`, in an active category) and only public fields (`PublicProduct`). Drafts and archived items never leave
+- Public service functions return only publicly visible products (`available`,
+  `pending` and `sold`, in an active category) and only public fields (`PublicProduct`). Drafts and archived items never leave
   admin code paths.
 - Anything under `src/server` is server-only. Never import it into a client
   component. Secrets come from environment variables and never reach the

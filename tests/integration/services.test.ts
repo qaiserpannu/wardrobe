@@ -21,10 +21,10 @@ const all = (params: Record<string, string | string[]> = {}) => listProducts(par
 afterAll(closeDb);
 
 describe("public visibility", () => {
-  it("lists only available and sold products - never drafts or archived", async () => {
+  it("lists only available, on-hold and sold products - never drafts or archived", async () => {
     const { items, total } = await all();
-    expect(total).toBe(27); // 30 seeded minus 2 drafts and 1 archived
-    expect(new Set(items.map((p) => p.status))).toEqual(new Set(["available", "sold"]));
+    expect(total).toBe(29); // 32 seeded minus 2 drafts and 1 archived
+    expect(new Set(items.map((p) => p.status))).toEqual(new Set(["available", "pending", "sold"]));
     const names = items.map((p) => p.name);
     expect(names).not.toContain("Navy Mirror Work Lehenga"); // draft
     expect(names).not.toContain("Maroon Khussa Shoes"); // draft
@@ -60,7 +60,7 @@ describe("public visibility", () => {
     await db.update(categories).set({ isActive: false }).where(eq(categories.slug, "men"));
     try {
       expect((await all({ q: "sherwani" })).total).toBe(0);
-      expect((await all()).total).toBe(23);
+      expect((await all()).total).toBe(24);
       expect(await getProductBySlug("ivory-jamawar-sherwani-plw-0021")).toBeNull();
       expect((await listCategoryTree()).map((g) => g.slug)).toEqual(["women", "kids", "accessories"]);
     } finally {
@@ -70,14 +70,44 @@ describe("public visibility", () => {
 });
 
 describe("availability", () => {
-  it("lists available items before sold ones", async () => {
-    const { items } = await all();
-    const firstSold = items.findIndex((p) => p.status === "sold");
-    expect(firstSold).toBe(24);
-    expect(items.slice(firstSold).every((p) => p.status === "sold")).toBe(true);
+  it("lists available items first, then items on hold, then sold ones", async () => {
+    for (const sort of ["newest", "price_asc", "price_desc"]) {
+      const { items } = await all({ sort });
+      expect(items.map((p) => p.status)).toEqual([
+        ...Array(24).fill("available"),
+        ...Array(2).fill("pending"),
+        ...Array(3).fill("sold"),
+      ]);
+    }
   });
 
-  it("can hide sold items", async () => {
+  it("shows an item on hold publicly but never as featured, recent or related", async () => {
+    const held = (await getProductBySlug((await all({ q: "Sage Green Organza Saree" })).items[0].slug))!;
+    expect(held.status).toBe("pending");
+    // Only public fields: nothing about who the hold is for.
+    expect(Object.keys(held).some((k) => /hold|customer|note/i.test(k))).toBe(false);
+    const everywhere = [
+      ...(await getFeaturedProducts(50)),
+      ...(await getRecentProducts(50)),
+      ...(await getRelatedProducts(held, 50)),
+    ];
+    expect(everywhere.some((p) => p.status !== "available")).toBe(false);
+  });
+
+  it("moves between available, on hold and sold immediately", async () => {
+    const db = getDb();
+    const slug = "teal-embroidered-lawn-suit-plw-0001";
+    try {
+      for (const status of ["pending", "available", "pending", "sold"] as const) {
+        await db.update(products).set({ status }).where(eq(products.slug, slug));
+        expect((await getProductBySlug(slug))!.status).toBe(status);
+      }
+    } finally {
+      await db.update(products).set({ status: "available" }).where(eq(products.slug, slug));
+    }
+  });
+
+  it("can hide sold and on-hold items", async () => {
     const { items, total } = await all({ hideSold: "1" });
     expect(total).toBe(24);
     expect(items.every((p) => p.status === "available")).toBe(true);
@@ -114,9 +144,9 @@ describe("availability", () => {
 
 describe("search", () => {
   it("finds by name keyword, including plural forms and partial words", async () => {
-    expect((await all({ q: "kurta" })).total).toBe(5);
-    expect((await all({ q: "kurtas" })).total).toBe(5);
-    expect((await all({ q: "saree" })).total).toBe(3);
+    expect((await all({ q: "kurta" })).total).toBe(6);
+    expect((await all({ q: "kurtas" })).total).toBe(6);
+    expect((await all({ q: "saree" })).total).toBe(4);
     expect((await all({ q: "jhum" })).items.map((p) => p.name)).toEqual(["Gold Kundan Jhumka Earrings"]);
   });
 
@@ -139,15 +169,15 @@ describe("search", () => {
 describe("filters", () => {
   it("filters by category", async () => {
     const { items, total } = await all({ category: "sarees" });
-    expect(total).toBe(3);
+    expect(total).toBe(4);
     expect(items.every((p) => p.category.slug === "sarees")).toBe(true);
   });
 
   it("a group shows everything inside it", async () => {
     const women = await all({ category: "women" });
-    expect(women.total).toBe(19);
+    expect(women.total).toBe(20);
     expect(women.items.every((p) => p.group?.slug === "women")).toBe(true);
-    expect((await all({ category: "men" })).total).toBe(4);
+    expect((await all({ category: "men" })).total).toBe(5);
     expect((await all({ category: "kids" })).items.map((p) => p.name).sort()).toEqual([
       "Boys Cream Kurta Pajama",
       "Girls Pink Gharara Set",
@@ -200,7 +230,7 @@ describe("filters", () => {
     expect(three.total).toBe(6);
     expect(three.items.every((p) => p.pieces === 3)).toBe(true);
 
-    expect((await all({ occasion: "nonsense", pieces: "abc", stitching: "x" })).total).toBe(27); // ignored
+    expect((await all({ occasion: "nonsense", pieces: "abc", stitching: "x" })).total).toBe(29); // ignored
   });
 
   it("finds products by fabric in keyword search", async () => {
@@ -234,9 +264,9 @@ describe("sorting and paging", () => {
     const p1 = await listProducts(parseCatalogParams({}), 12);
     const p2 = await listProducts(parseCatalogParams({ page: "2" }), 12);
     const p3 = await listProducts(parseCatalogParams({ page: "3" }), 12);
-    expect([p1.pageCount, p1.items.length, p2.items.length, p3.items.length]).toEqual([3, 12, 12, 3]);
+    expect([p1.pageCount, p1.items.length, p2.items.length, p3.items.length]).toEqual([3, 12, 12, 5]);
     const codes = [...p1.items, ...p2.items, ...p3.items].map((p) => p.code);
-    expect(new Set(codes).size).toBe(27);
+    expect(new Set(codes).size).toBe(29);
     const beyond = await listProducts(parseCatalogParams({ page: "99" }), 12);
     expect(beyond.page).toBe(3);
   });

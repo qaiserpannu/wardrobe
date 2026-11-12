@@ -50,7 +50,7 @@ archive the products first.
 | imperfections | text, nullable | Seller's notes on flaws. Null means nothing recorded, not "no flaws" |
 | condition | enum | `new_with_tags`, `like_new`, `good`, `fair` |
 | price_cents | integer | Price in smallest currency unit |
-| status | enum | `draft`, `available`, `sold`, `archived` today. `pending` (on hold) is to be added next — D25 |
+| status | enum | `draft`, `available`, `pending` (on hold), `sold`, `archived` — D25 |
 | is_featured | boolean | Shown in homepage "Featured" |
 | published_at | timestamp, nullable | Set when first made available; drives "newest" sorting |
 | sold_at | timestamp, nullable | |
@@ -60,8 +60,9 @@ Visibility rules, enforced in the services layer:
 
 - `draft`, `archived`: never visible publicly or to the AI assistant.
 - `available`: visible and can be inquired about.
-- `sold`: visible with a SOLD badge, no purchase prompt, listed after
-  available items.
+- `pending`: visible with an ON HOLD badge, no purchase prompt, listed after
+  available items. Who the hold is for is not stored on the product.
+- `sold`: visible with a SOLD badge, no purchase prompt, listed last.
 - A product in an inactive category is hidden regardless of status.
 
 Indexes: `status`, `category_id`, `published_at`, `price_cents`, and a GIN index
@@ -130,11 +131,6 @@ as salted hashes.
 Designed now so later milestones add tables rather than change existing ones.
 Column lists are indicative and will be finalised in each milestone.
 
-### products.status gains `pending` — Milestone 2 (next step, D25)
-
-Public rule becomes: `available`, `pending` and `sold` are visible; only
-`available` can be inquired about or recommended.
-
 ### product_status_events — Milestone 5
 
 One row per status change: product, from, to, admin user, time, optional
@@ -146,7 +142,7 @@ note. History is never deleted.
 | --- | --- |
 | product_id | → products.id |
 | customer_name, customer_contact | Internal only |
-| held_at, expires_at | Expiry is informational unless auto-expiry is switched on |
+| held_at, expires_at | Default expiry 72 hours after the hold starts (setting); a scheduled job returns the item to available (D31) |
 | notes | Internal only |
 | ended_at, outcome | `sold`, `released`, `expired` |
 | lead_id | Optional link to the conversation lead that led to the hold |
@@ -189,5 +185,4 @@ Not built now; noted so current design does not block them.
 
 ## Open questions
 
-1. **Currency:** USD assumed; owner to confirm.
-2. **Sold items:** currently visible indefinitely; could be hidden after N days.
+1. **Sold items:** currently visible indefinitely; could be hidden after N days.

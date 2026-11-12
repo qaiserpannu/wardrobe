@@ -233,7 +233,7 @@ export function FilterPanel({ filters, categories, facets, currency }: Props) {
       </Group>
 
       <Group title="Availability">
-        <Check name="hideSold" value="1" label="Hide sold items" checked={filters.hideSold} />
+        <Check name="hideSold" value="1" label="Hide sold and on-hold items" checked={filters.hideSold} />
       </Group>
 
       <button

@@ -56,7 +56,7 @@ test.describe("homepage", () => {
     await page.goto("/");
     await page.getByTestId("category-list").getByRole("link", { name: "Sarees" }).click();
     await expect(page).toHaveURL(/category=sarees/);
-    await expect(count(page)).toHaveText("3 items");
+    await expect(count(page)).toHaveText("4 items");
   });
 
   test("product images load", async ({ page }) => {
@@ -86,7 +86,7 @@ test.describe("navigation", () => {
       await main.getByRole("link", { name: "Kurtas" }).click();
       await expect(page).toHaveURL(/category=kurtas/);
     }
-    await expect(count(page)).toHaveText("2 items");
+    await expect(count(page)).toHaveText("3 items");
     await page.getByRole("banner").getByRole("link", { name: "Pre-Loved Wardrobe" }).click();
     await expect(page).toHaveURL(/\/$/);
   });
@@ -158,17 +158,17 @@ test.describe("navigation", () => {
 test.describe("catalog", () => {
   test("lists all public products with paging", async ({ page }) => {
     await page.goto("/shop");
-    await expect(count(page)).toHaveText("27 items");
+    await expect(count(page)).toHaveText("29 items");
     await expect(cards(page)).toHaveCount(12);
     await page.getByRole("navigation", { name: "Pages" }).getByRole("link", { name: "Page 3" }).click();
     await expect(page).toHaveURL(/page=3/);
-    await expect(cards(page)).toHaveCount(3);
+    await expect(cards(page)).toHaveCount(5);
     await expect(page.getByText("Navy Mirror Work Lehenga")).toHaveCount(0);
   });
 
   test("a group shows everything inside it, and its categories narrow it down", async ({ page }) => {
     await page.goto("/shop?category=women");
-    await expect(count(page)).toHaveText("19 items");
+    await expect(count(page)).toHaveText("20 items");
     await expect(page.locator("#results").getByRole("heading", { level: 2 })).toHaveText("Women");
     await openFilters(page);
     await expect(page.getByRole("radio", { name: /^All Women/ })).toBeChecked();
@@ -191,6 +191,17 @@ test.describe("catalog", () => {
     await expect(cards(page).first().getByText("Sold", { exact: true })).toHaveCount(0);
   });
 
+  test("items on hold are marked ON HOLD, between available and sold", async ({ page }) => {
+    await page.goto("/shop?category=sarees");
+    await expect(cards(page)).toHaveCount(4);
+    const statuses = await cards(page).evaluateAll((els) => els.map((e) => e.getAttribute("data-status")));
+    expect(statuses).toEqual(["available", "available", "pending", "sold"]);
+    const held = cards(page).nth(2);
+    await expect(held).toContainText("Sage Green Organza Saree");
+    await expect(held.getByText("On hold", { exact: true })).toBeVisible();
+    await expect(cards(page).first().getByText("On hold", { exact: true })).toHaveCount(0);
+  });
+
   test("search by keyword", async ({ page }) => {
     await page.goto("/shop");
     await openFilters(page);
@@ -206,7 +217,7 @@ test.describe("catalog", () => {
     await expect(page.getByTestId("no-results")).toContainText("No items match your search");
     await expect(cards(page)).toHaveCount(0);
     await page.getByRole("link", { name: "Clear all filters" }).click();
-    await expect(count(page)).toHaveText("27 items");
+    await expect(count(page)).toHaveText("29 items");
   });
 
   test("header search works", async ({ page }, testInfo) => {
@@ -239,14 +250,14 @@ test.describe("catalog", () => {
     await page.getByRole("link", { name: /Sapphire.*remove filter/ }).click();
     await expect(count(page)).toHaveText("2 items");
     await page.getByRole("link", { name: "Clear all" }).click();
-    await expect(count(page)).toHaveText("27 items");
+    await expect(count(page)).toHaveText("29 items");
     await expect(page).toHaveURL(/\/shop$/);
 
     await openFilters(page);
     await page.getByRole("checkbox", { name: "New with tags" }).check();
     await expect(count(page)).toHaveText("2 items");
     await page.getByRole("checkbox", { name: "New with tags" }).uncheck();
-    await expect(count(page)).toHaveText("27 items");
+    await expect(count(page)).toHaveText("29 items");
 
     await page.getByRole("spinbutton", { name: "Maximum price" }).fill("15");
     await page.getByRole("button", { name: "Apply" }).click();
@@ -265,7 +276,7 @@ test.describe("catalog", () => {
     await expect(count(page)).toHaveText("1 item");
     await expect(cards(page)).toContainText(["Red Bridal Lehenga Choli"]);
     await page.getByRole("link", { name: /Bridal.*remove filter/ }).click();
-    await expect(count(page)).toHaveText("27 items");
+    await expect(count(page)).toHaveText("29 items");
 
     await openFilters(page);
     await page.getByRole("checkbox", { name: "Unstitched (fabric)" }).check();
@@ -284,10 +295,14 @@ test.describe("catalog", () => {
   test("hide sold items", async ({ page }) => {
     await page.goto("/shop?category=shalwar-kameez");
     await openFilters(page);
-    await page.getByRole("checkbox", { name: "Hide sold items" }).check();
+    await page.getByRole("checkbox", { name: "Hide sold and on-hold items" }).check();
     await expect(page).toHaveURL(/hideSold=1/);
     await expect(count(page)).toHaveText("4 items");
     await expect(page.locator('[data-testid="product-card"][data-status="sold"]')).toHaveCount(0);
+
+    await page.goto("/shop?category=sarees&hideSold=1");
+    await expect(count(page)).toHaveText("2 items");
+    await expect(page.locator('[data-testid="product-card"]:not([data-status="available"])')).toHaveCount(0);
   });
 
   test("sort by price and by newest", async ({ page }) => {
@@ -320,7 +335,7 @@ test.describe("catalog", () => {
     await expect(page.getByRole("combobox", { name: "Sort by" })).toHaveValue("price_asc");
 
     await page.getByRole("checkbox", { name: "Khaadi" }).uncheck();
-    await expect(count(page)).toHaveText("2 items");
+    await expect(count(page)).toHaveText("3 items");
     await page.goBack();
     await expect(count(page)).toHaveText("1 item");
     await expect(page.getByRole("checkbox", { name: "Khaadi" })).toBeChecked();
@@ -364,6 +379,23 @@ test.describe("product page", () => {
     expect(message).toContain("/shop/teal-embroidered-lawn-suit-plw-0001");
 
     await expect(page.getByRole("heading", { name: "More shalwar kameez" })).toBeVisible();
+  });
+
+  test("a product on hold says so and cannot be inquired about", async ({ page }) => {
+    await page.goto("/shop/sage-green-organza-saree-plw-0031");
+    const detail = page.getByTestId("product-detail");
+    await expect(detail).toHaveAttribute("data-status", "pending");
+    await expect(detail.getByText("On hold", { exact: true })).toBeVisible();
+    await expect(detail.getByTestId("hold-notice")).toContainText("on hold for another customer");
+    await expect(detail.getByTestId("product-price")).toHaveText("$58");
+    await expect(detail.getByText("Available", { exact: true })).toHaveCount(0);
+    await expect(detail.getByText("Sold", { exact: true })).toHaveCount(0);
+    await expect(detail.getByRole("link", { name: /whatsapp/i })).toHaveCount(0);
+    await expect(detail.locator('a[href*="wa.me"]')).toHaveCount(0);
+    const ld = JSON.parse((await page.locator('script[type="application/ld+json"]').first().textContent())!);
+    expect(ld.offers.availability).toBe("https://schema.org/OutOfStock");
+    await detail.getByRole("link", { name: /browse available sarees/i }).click();
+    await expect(count(page)).toHaveText("2 items");
   });
 
   test("a sold product is clearly sold and cannot be inquired about", async ({ page }) => {

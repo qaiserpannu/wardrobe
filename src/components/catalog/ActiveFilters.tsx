@@ -60,7 +60,7 @@ export function ActiveFilters({ filters, categories, shop }: Props) {
   if (filters.maxPriceCents != null) {
     chips.push({ label: `Up to ${price(filters.maxPriceCents)}`, href: catalogHref({ ...base, maxPriceCents: null }) });
   }
-  if (filters.hideSold) chips.push({ label: "Sold hidden", href: catalogHref({ ...base, hideSold: false }) });
+  if (filters.hideSold) chips.push({ label: "Available only", href: catalogHref({ ...base, hideSold: false }) });
 
   if (chips.length === 0) return null;
 

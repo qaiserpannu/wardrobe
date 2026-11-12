@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { ProductGallery } from "@/components/catalog/ProductGallery";
 import { ProductGrid } from "@/components/catalog/ProductGrid";
-import { AvailableBadge, SoldBadge } from "@/components/catalog/StatusBadge";
+import { AvailableBadge, OnHoldBadge, SoldBadge } from "@/components/catalog/StatusBadge";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { Container } from "@/components/ui/Container";
 import { NotFoundMessage } from "@/components/ui/NotFoundMessage";
@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const summary = [product.brand, product.size ? `Size ${product.size}` : null, CONDITION_LABELS[product.condition]]
     .filter(Boolean)
     .join(" · ");
-  const description = `${product.status === "sold" ? "Sold" : price} · ${summary}. ${product.description}`.slice(0, 200);
+  const description = `${product.status === "sold" ? "Sold" : product.status === "pending" ? `On hold · ${price}` : price} · ${summary}. ${product.description}`.slice(0, 200);
   return {
     title: product.name,
     description,
@@ -61,9 +61,11 @@ async function ProductDetails({ params }: { params: Props["params"] }) {
   const [settings, related] = await Promise.all([getCachedSettings(), getRelatedProducts(product, 4)]);
   const { shop, whatsapp } = settings;
   const sold = product.status === "sold";
+  const onHold = product.status === "pending";
   const price = formatPrice(product.priceCents, shop.currency, shop.locale);
   const productUrl = `${siteUrl()}/shop/${product.slug}`;
-  const inquiryLink = sold ? null : buildProductInquiryLink(whatsapp, product, productUrl);
+  // Only an available item gets a way to ask to buy it.
+  const inquiryLink = sold || onHold ? null : buildProductInquiryLink(whatsapp, product, productUrl);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -82,7 +84,11 @@ async function ProductDetails({ params }: { params: Props["params"] }) {
       url: productUrl,
       price: (product.priceCents / 100).toFixed(2),
       priceCurrency: shop.currency,
-      availability: sold ? "https://schema.org/SoldOut" : "https://schema.org/InStock",
+      availability: sold
+        ? "https://schema.org/SoldOut"
+        : onHold
+          ? "https://schema.org/OutOfStock"
+          : "https://schema.org/InStock",
     },
   };
 
@@ -135,7 +141,7 @@ async function ProductDetails({ params }: { params: Props["params"] }) {
             <p className={`text-2xl font-medium ${sold ? "text-muted line-through" : ""}`} data-testid="product-price">
               {price}
             </p>
-            {sold ? <SoldBadge /> : <AvailableBadge />}
+            {sold ? <SoldBadge /> : onHold ? <OnHoldBadge /> : <AvailableBadge />}
           </div>
 
           {product.description && <p className="mt-6 max-w-prose leading-relaxed text-muted">{product.description}</p>}
@@ -182,6 +188,16 @@ async function ProductDetails({ params }: { params: Props["params"] }) {
               <div className="rounded-sm border border-line bg-sand p-5" data-testid="sold-notice">
                 <p className="font-medium">This item has been sold.</p>
                 <p className="mt-1 text-sm text-muted">Every piece is one of a kind, but similar items may be available.</p>
+                <ButtonLink href={`/shop?category=${product.category.slug}&hideSold=1`} variant="outline" className="mt-4">
+                  Browse available {product.category.name.toLowerCase()}
+                </ButtonLink>
+              </div>
+            ) : onHold ? (
+              <div className="rounded-sm border border-line bg-sand p-5" data-testid="hold-notice">
+                <p className="font-medium">This item is on hold for another customer.</p>
+                <p className="mt-1 text-sm text-muted">
+                  It may become available again if the sale does not go ahead, so do check back.
+                </p>
                 <ButtonLink href={`/shop?category=${product.category.slug}&hideSold=1`} variant="outline" className="mt-4">
                   Browse available {product.category.name.toLowerCase()}
                 </ButtonLink>

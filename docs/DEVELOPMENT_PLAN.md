@@ -10,7 +10,7 @@ Current status is tracked in `PROGRESS.md`.
 
 Roadmap revised 2026-11-12 after the owner added the AI sales agent on
 WhatsApp, Facebook/Instagram catalog sync and the PENDING status. The order
-below is **proposed and awaits the owner's approval** (see "Why this order").
+below was **approved by the owner on 2026-11-12** (D31).
 
 ```
 M1 Foundation
@@ -98,8 +98,9 @@ Completion criteria:
 - [x] WhatsApp button message contains the product name and ID.
 - [x] No broken links or console errors.
 - [x] Testing report delivered.
-- [ ] PENDING / ON HOLD status in the data model and on the public website
-  (D25) — not started; needs the owner's go-ahead as the next piece of work.
+- [x] PENDING / ON HOLD status in the data model and on the public website
+  (D25, D31): shown as "On hold", listed between available and sold, no
+  inquiry button.
 - [ ] Owner approval.
 
 Needed from the owner: brand preferences (colours, logo if any), currency,
@@ -122,7 +123,7 @@ Completion criteria: widget works on every public page; correct pre-filled
 message with and without product context; number changed in one place with no
 code change; owner confirms a real conversation opens on phone and desktop.
 
-Needed from the owner: WhatsApp number in international format.
+WhatsApp number: provided (D31), already in the sample data.
 
 ## Milestone 4 — AI sales agent (core, website chat)
 
@@ -157,8 +158,12 @@ Completion criteria: every evaluation scenario passes with no invented
 details; notifications fire only for A, B and C; the agent can be switched off
 and the widget falls back to WhatsApp click-to-chat; owner approval.
 
+Known so far (D31): local pickup in Tampa, Florida; payment by Zelle, Cash
+App or cash at pickup. The exact wording the agent may use is still to be
+written with the owner.
+
 Needed from the owner: AI provider account and key (or approval of a free
-allowance to start); business policies (delivery, returns, payment, how a
+allowance to start); business policies (pickup arrangements, returns, how a
 purchase is completed) — anything not provided is escalated, not guessed;
 notification email address.
 
@@ -178,8 +183,9 @@ Steps:
 4. Status changes (D25): available ⇄ pending, pending → sold, available →
    sold, sold → available (undo). Hold details (customer name, hold date,
    expected expiry, internal notes) visible only in admin. Nothing is
-   permanently deleted; status history is kept. Optional automatic hold
-   expiry — built only if the owner approves, off by default.
+   permanently deleted; status history is kept. Automatic hold expiry
+   (approved, D31): a hold ends after 72 hours and the item returns to
+   available; the period is a setting; the owner can extend or end a hold.
 5. Image storage: production storage implementation; file type, size and
    content validation.
 6. Category management: add, rename, reorder, hide, and move categories
@@ -266,8 +272,11 @@ retryable; owner approval. Visibility inside Facebook and Instagram Shops is
 subject to Meta's review and eligibility rules and is not guaranteed by the
 sync itself (D29).
 
-Needed from the owner: accounts listed in D29; a decision on the Shop
-eligibility question (website checkout) described there.
+Needed from the owner: accounts listed in D29. No online checkout for now
+(D31), so step 1 includes testing with Meta whether a Shop is accepted
+without one; if not, the catalog is used without a Shop. Messages from
+Facebook and Instagram go to the owner in Messenger / Instagram; no AI agent
+there.
 
 ## Milestone 8 — End-to-end testing and production readiness
 
