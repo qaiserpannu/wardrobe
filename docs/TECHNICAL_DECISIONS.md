@@ -799,3 +799,17 @@ model up (`AI_MODEL=claude-sonnet-5-5`) costs about 20 times more.
   not be removed without a decision recorded here.
 - Not yet run against the real model; three evaluation conversations were
   added (greeting and name, Roman Urdu, Urdu script).
+
+Fourth evaluation run (2026-11-13, Skyra persona): 100 of 102 checks; both
+failures were outdated checks. About 1.5 cents for 27 replies, 2.3 seconds
+per reply. Faults found by reading the transcripts and fixed afterwards
+(not yet re-run): the model greeted and introduced itself again although
+the chat window already shows Skyra's greeting; it asked for the name
+repeatedly; it answered "Walaikum Assalam" to messages that were not
+greetings; for "I'm looking for a kurti" it asked questions without showing
+anything. The instructions now tell it, on the website, that the greeting
+and the name question have already been shown. Language quality on the
+lowest-cost model: Roman Urdu was understandable and correct on facts but
+wordy; the Urdu-script reply ended with a garbled sentence. The owner
+should judge whether that is acceptable or whether a larger model is worth
+the cost.
