@@ -185,8 +185,7 @@ Stack selection, Next.js scaffold, folder structure, project memory documents.
 
 ## Outstanding — waiting on the owner
 
-1. Run `npm run eval:agent` once more (Skyra persona, name, Roman Urdu and
-   Urdu were added after the last run — D35), then approval of Milestone 4.
+1. Approval of Milestone 4.
 2. Milestone 6: use +1 813 990 7900 for the AI agent, or a new dedicated
    number (D28, D31).
 3. Later: Meta accounts, domain, hosting choice (D9), proposed services

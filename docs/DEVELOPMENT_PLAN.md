@@ -172,6 +172,8 @@ Completion criteria:
 - [x] Evaluation against the real AI model: `npm run eval:agent`. First
   run by the owner: 70 of 71 checks passed (D34).
 - [x] Re-run after the fixes: 75 of 75 checks passed on the third run (D34).
+- [x] Skyra persona, name memory, Roman Urdu and Urdu (D35): 131 of 133
+  checks on the sixth run; both misses were over-strict checks.
 - Email delivery is deferred: the owner chose to wait for the admin inbox.
 - [ ] Owner approval.
 

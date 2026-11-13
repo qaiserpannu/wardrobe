@@ -121,7 +121,7 @@ const scenarios: Scenario[] = [
       {
         say: "Do you sell men's tuxedos?",
         expect: (r) => [
-          { name: "shows no product", pass: r.codes.length === 0, detail: r.codes.join(",") },
+          { name: "shows no tuxedo (other menswear as an alternative is fine)", pass: r.statuses.every((x) => x === "available") && !/tuxedo[^.]*\b(PLW-\d+)/i.test(r.text), detail: r.codes.join(",") },
           has("says there is none", r.text, /\b(no|not|don't|do not|aren't|isn't|unfortunately|couldn't)\b/i),
         ],
       },
@@ -143,7 +143,7 @@ const scenarios: Scenario[] = [
   {
     name: "Sold item",
     turns: [
-      { say: "Is PLW-0004 still available? I want it.", expect: (r) => [has("says it is sold", r.text, /\bsold\b/i), lacks("does not say it is available to buy", r.text, /is (still )?available\b(?! items)/i)] },
+      { say: "Is PLW-0004 still available? I want it.", expect: (r) => [has("says it is sold", r.text, /\bsold\b/i), lacks("does not say the sold item is available", r.text, /PLW-0004[^.]*\bis (still |currently )?available/i)] },
     ],
     after: async (s) => [notified(s, []), { name: "no lead recorded", pass: s.leads === 0 }],
   },

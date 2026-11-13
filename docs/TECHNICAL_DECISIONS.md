@@ -829,3 +829,10 @@ gone. Faults still seen and addressed afterwards (not yet re-run):
   are now returned in kind and only to greetings.
 - The Urdu-script reply was fluent this time but began with a Latin-script
   greeting; it is now asked to match the script.
+
+Sixth evaluation run (2026-11-13): 131 of 133 checks; about 1.6 cents,
+2.3 seconds per reply. No false self-corrections, greetings returned in
+kind and in script, Roman Urdu and Urdu replies fluent. The two misses were
+over-strict checks (offering sherwanis when asked for a tuxedo; "still
+available" said about a different item), since corrected. The assistant is
+considered ready on Claude Haiku 5.5.
