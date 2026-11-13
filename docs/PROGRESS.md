@@ -4,18 +4,38 @@ Update this file at the end of every working session.
 
 ## Current milestone
 
-**Milestone 5 — Admin portal: in progress, built and shown in parts.**
-Milestone 4 was approved on 2026-11-13.
+**Milestone 5 — Admin portal: all five parts built and tested. Awaiting
+owner approval.** Do not start Milestone 6 until the owner approves.
 
 | Part | What | State |
 | --- | --- | --- |
-| 1 | Secure sign-in, setup command, dashboard, account page | Built and tested; shown to the owner |
-| 2 | Products: add, edit, photos, status changes, holds with 72-hour expiry | Built and tested; shown to the owner |
-| 3 | Categories and settings | Built and tested; shown to the owner |
-| 4 | Inbox (conversations, requests, replies) and AI management | Built and tested; shown to the owner |
-| 5 | Audit log page, security review, full verification | Not started |
+| 1 | Secure sign-in, setup command, dashboard, account page | Built and tested |
+| 2 | Items: add, edit, photos, status changes, holds with 72-hour expiry | Built and tested |
+| 3 | Categories and settings | Built and tested |
+| 4 | Inbox (conversations, requests, replies) and AI management | Built and tested |
+| 5 | Activity page, security review, full verification | Built and tested |
+
+Not built in Milestone 5, by decision (each is noted where it belongs):
+photo clean-up and photo-based pre-fill (waiting for real photos, D23);
+cloud image storage (waits for hosting, D6); a logo picture; alerts to the
+owner when a customer is waiting; replying to WhatsApp chats from the inbox
+(Milestone 6).
 
 ## Completed
+
+### Milestone 5, part 5 (2026-11-13) — Activity page and security review (see D40)
+
+- Activity page: the permanent record of every change, sign-in and
+  automatic action, filterable by area. Entries cannot be edited or removed.
+- Security review of the whole portal, with four fixes: a fairer lockout
+  (a stranger can no longer lock the owner out with five wrong guesses);
+  `npm run db:seed` refuses to wipe a database with real items; extra
+  protective headers; `/robots.txt` keeping search engines out of admin.
+- New tests that fail if a future admin page, action or API forgets its
+  sign-in check, and a browser test that replays a real admin request
+  without a session (refused).
+- Tests: 152 logic/database tests (10 new); 15 new browser runs.
+- NOT done: independent security testing; anything on real hosting.
 
 ### Milestone 5, part 4 (2026-11-13) — inbox and assistant management (see D39)
 
@@ -282,8 +302,7 @@ Stack selection, Next.js scaffold, folder structure, project memory documents.
 
 ## Outstanding — waiting on the owner
 
-1. Feedback on Milestone 5 part 4; go-ahead for part 5 (audit log page,
-   security review, full verification). A few real product photos, to trial photo clean-up (D23).
+1. Approval of Milestone 5. A few real product photos, to trial photo clean-up (D23).
 2. Milestone 6: use +1 813 990 7900 for the AI agent, or a new dedicated
    number (D28, D31).
 3. Later: Meta accounts, domain, hosting choice (D9), proposed services
@@ -319,5 +338,5 @@ Stack selection, Next.js scaffold, folder structure, project memory documents.
 
 ## Next steps
 
-1. Milestone 5 part 5: audit log page, security review, full Milestone 5
-   verification, then owner approval of the milestone.
+1. On Milestone 5 approval: Milestone 6 (AI agent on WhatsApp), which
+   needs the owner's Meta/WhatsApp Business setup (D28) before it can start.

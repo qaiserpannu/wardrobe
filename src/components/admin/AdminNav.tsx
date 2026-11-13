@@ -10,13 +10,14 @@ const LINKS = [
   { href: "/admin/categories", label: "Categories" },
   { href: "/admin/settings", label: "Settings" },
   { href: "/admin/assistant", label: "Assistant" },
+  { href: "/admin/activity", label: "Activity" },
   { href: "/admin/account", label: "Account" },
 ] as const;
 
 export function AdminNav({ waiting = 0 }: { waiting?: number }) {
   const pathname = usePathname();
   return (
-    <nav aria-label="Admin" className="flex gap-1 overflow-x-auto lg:flex-col" data-testid="admin-nav">
+    <nav aria-label="Admin" className="flex flex-wrap gap-1 lg:flex-col lg:flex-nowrap" data-testid="admin-nav">
       {LINKS.map((link) => {
         const active = link.href === "/admin" ? pathname === "/admin" : pathname.startsWith(link.href);
         return (

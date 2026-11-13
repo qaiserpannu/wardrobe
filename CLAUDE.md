@@ -59,6 +59,10 @@ WhatsApp; there is no online checkout.
 - Admin-only services are named `admin-*.ts`; never import them from public
   pages, the chat API or the agent.
 - Public pages live in `src/app/(site)`; the admin portal in `src/app/admin`.
+- `tests/unit/admin-guards.test.ts` fails if an admin page, action or API
+  lacks its sign-in check. Never weaken it to make a change pass (D40).
+- `npm run db:seed` deletes all shop data; it refuses on a database with
+  real items. Use `npm run db:migrate` to update the owner's database.
 - Record every admin change with `recordAudit` (no secrets, and no hold or
   customer details, in it).
 - A product's status changes only through `changeProductStatus`

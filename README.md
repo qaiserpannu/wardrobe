@@ -41,7 +41,7 @@ Requires Node.js 20.19 or newer and a PostgreSQL 16 database.
    ANTHROPIC_API_KEY=your-key-here
    ```
 
-4. Create the tables and load sample products (this replaces any existing products):
+4. Create the tables and load sample products. Do this once, on a new database: it replaces everything, and refuses to run once you have added your own items. Later updates use `npm run db:migrate` instead.
 
    ```bash
    npm run db:seed

@@ -1,6 +1,6 @@
 import "server-only";
 import { createHash, randomBytes } from "node:crypto";
-import { and, eq, gt, lt, ne, sql } from "drizzle-orm";
+import { and, eq, gt, inArray, like, lt, ne, or, sql } from "drizzle-orm";
 import { hashPassword, passwordProblem, verifyPassword } from "@/server/auth/password";
 import { getDb } from "@/server/db/client";
 import { adminSessions, adminUsers, loginAttempts } from "@/server/db/schema";
@@ -20,7 +20,10 @@ export const SESSION_IDLE_MS = 7 * 24 * 60 * 60 * 1000;
 export const SESSION_MAX_MS = 30 * 24 * 60 * 60 * 1000;
 
 const ATTEMPT_WINDOW_MS = 15 * 60 * 1000;
-const MAX_FAILURES_PER_EMAIL = 5;
+/** Wrong passwords for one email from one address before that address is locked out of that email. */
+const MAX_FAILURES_PER_PAIR = 5;
+/** Across all addresses. Higher, so a stranger cannot lock the owner out with five wrong guesses. */
+const MAX_FAILURES_PER_EMAIL = 30;
 const MAX_FAILURES_PER_ADDRESS = 20;
 
 /** Used to spend the same time on an unknown email as on a wrong password. */
@@ -88,17 +91,18 @@ export type LoginResult =
   | { ok: false; reason: "invalid" | "locked" };
 
 /**
- * Checks an email and password. After too many wrong attempts for one email
- * or from one address, further attempts are refused for 15 minutes, even with
- * the right password.
+ * Checks an email and password. After too many wrong attempts, further
+ * attempts are refused for 15 minutes, even with the right password: 5 for
+ * one email from one address, 30 for one email from anywhere, 20 from one
+ * address for any emails.
  */
 export async function signIn(emailInput: string, password: string, address: string): Promise<LoginResult> {
   const db = getDb();
   const email = normalizeEmail(emailInput);
-  const subjects = [`email:${email}`, `ip:${address}`];
+  const subjects = [`pair:${email}|${address}`, `email:${email}`, `ip:${address}`];
 
-  const [byEmail, byAddress] = await Promise.all(subjects.map(recentFailures));
-  if (byEmail >= MAX_FAILURES_PER_EMAIL || byAddress >= MAX_FAILURES_PER_ADDRESS) {
+  const [byPair, byEmail, byAddress] = await Promise.all(subjects.map(recentFailures));
+  if (byPair >= MAX_FAILURES_PER_PAIR || byEmail >= MAX_FAILURES_PER_EMAIL || byAddress >= MAX_FAILURES_PER_ADDRESS) {
     return { ok: false, reason: "locked" };
   }
 
@@ -117,7 +121,7 @@ export async function signIn(emailInput: string, password: string, address: stri
   const expiresAt = new Date(Date.now() + SESSION_MAX_MS);
   await db.insert(adminSessions).values({ userId: user.id, tokenHash: hashToken(token), expiresAt });
   await db.update(adminUsers).set({ lastLoginAt: new Date() }).where(eq(adminUsers.id, user.id));
-  await db.delete(loginAttempts).where(eq(loginAttempts.subject, `email:${email}`));
+  await db.delete(loginAttempts).where(inArray(loginAttempts.subject, [`email:${email}`, `pair:${email}|${address}`]));
   await db.delete(adminSessions).where(lt(adminSessions.expiresAt, new Date()));
   await recordAudit({ adminUserId: user.id, action: "auth.login", summary: `${user.name} signed in` });
   return { ok: true, user: { id: user.id, email: user.email, name: user.name }, token, expiresAt };
@@ -174,4 +178,12 @@ export async function changePassword(
   await setAdminPassword(user.id, newPassword, sessionToken);
   await recordAudit({ adminUserId: user.id, action: "auth.password_changed", summary: `${user.name} changed their password` });
   return { ok: true };
+}
+
+/** Setup script only: forget failed sign-ins for an account, so a reset always lets the owner back in. */
+export async function clearLoginAttempts(email: string): Promise<void> {
+  const normalized = normalizeEmail(email).replace(/[\\%_]/g, "\\$&");
+  await getDb()
+    .delete(loginAttempts)
+    .where(or(eq(loginAttempts.subject, `email:${normalizeEmail(email)}`), like(loginAttempts.subject, `pair:${normalized}|%`)));
 }

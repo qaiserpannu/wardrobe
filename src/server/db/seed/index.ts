@@ -30,6 +30,16 @@ export async function seed() {
   }
   const db = getDb();
   await runMigrations();
+  // Sample data replaces everything. Never do that to a shop with real items in it.
+  const isTestDatabase = /_test(\?|$)/.test(process.env.DATABASE_URL ?? "");
+  if (!isTestDatabase && process.env.ALLOW_SEED !== "1") {
+    const [{ n }] = (await db.execute(sql`select count(*)::int as n from audit_log where action = 'product.create'`)) as unknown as { n: number }[];
+    if (n > 0) {
+      throw new Error(
+        "This database has items that were added in the admin portal. Loading sample data would delete them and their photos, so nothing was changed. To update the database without losing anything, run: npm run db:migrate",
+      );
+    }
+  }
 
   await db.execute(sql`truncate table notifications, escalations, leads, messages, conversations, customers, ai_knowledge, product_images, products, categories, site_settings restart identity cascade`);
   await db.execute(sql`alter sequence product_code_seq restart with 1`);
@@ -155,7 +165,7 @@ if (process.argv[1]?.endsWith("index.ts")) {
   seed()
     .then((r) => console.log(`Seeded ${r.products} products in ${r.categories} categories.`))
     .catch((err) => {
-      console.error(err);
+      console.error(err instanceof Error && err.message.startsWith("This database has items") ? `\n${err.message}\n` : err);
       process.exitCode = 1;
     })
     .finally(closeDb);

@@ -984,3 +984,58 @@ cryptography:
   record); the deleted text is kept in the audit log.
 - Whether an AI key is configured is shown, but the key itself is only ever
   an environment variable and cannot be seen or set in the portal.
+
+## D40 — Security review of the admin portal (Milestone 5 part 5, 2026-11-13)
+
+**Status:** Done. Reviewed by reading every admin code path and by tests;
+not an independent audit.
+
+What was checked, and how it is kept true:
+
+| Area | Finding | Kept true by |
+| --- | --- | --- |
+| Who can get in | No sign-up route; accounts only from the setup command | `admin-guards` test (no register/signup file, `createAdmin` not imported by the website) |
+| Passwords | Salted scrypt hashes; 12+ characters; never logged | `admin-auth` tests |
+| Sessions | Random 256-bit value; only its fingerprint stored; httpOnly, same-site, secure in production; idle and absolute expiry; ended on sign-out and (other browsers) on password change | `admin-auth` tests, `admin.spec` |
+| Every admin page, action and API checks the sign-in itself | All did. Now a test fails if a new one does not | `admin-guards` test (verified by removing a check: the test failed) |
+| Running an admin action without signing in | Captured a real request and replayed it with no cookie, an invented cookie, and from another website: refused each time, nothing changed | `admin-security.spec` |
+| Uploads | Content-checked, re-encoded, size-limited, signed-in only, same-site only | `admin-products` tests |
+| Secrets in the browser | Pages, scripts and data sent to a visitor contain no hashes, keys, hold details or admin email | `admin-security.spec` |
+| Hold details | Never in public data, the assistant's tools, the preview or the audit log | `admin-products` tests |
+| Record of changes | Add-only: the service has no edit or delete | `audit-and-seed` test |
+| Libraries | `npm audit --omit=dev`: 0 known problems in what runs on the live site; 12 moderate advisories in development tools only (code checker) | Re-run before each deployment |
+
+Changes made as a result of the review:
+
+- **Lockout reworked.** Before, five wrong passwords for the owner's email
+  from anywhere locked the owner out, so a stranger who knew the email could
+  keep the owner locked out. Now: five wrong guesses lock that network
+  address out of that account; thirty across all addresses lock the account;
+  twenty from one address lock that address. Resetting the password with the
+  setup command clears the locks.
+- **Sample-data command made safe.** `npm run db:seed` now refuses to run on
+  a database that has items added in the admin portal (it would have deleted
+  them and their photos). The test database is exempt; `ALLOW_SEED=1`
+  overrides.
+- **Headers added** on every response: `Strict-Transport-Security`,
+  `Permissions-Policy`, and a `Content-Security-Policy` limited to
+  `frame-ancestors`, `base-uri`, `form-action` and `object-src`.
+- **`/robots.txt`** added: search engines are told to stay out of `/admin`
+  and `/api/`.
+
+Known limits, accepted for now:
+
+- No two-step sign-in and no email password reset (D36).
+- The Content-Security-Policy does not restrict scripts. A script-restricting
+  policy needs per-request nonces, which would stop pages being prepared
+  ahead of time; revisit at deployment.
+- The address used for lockouts comes from the `X-Forwarded-For` header,
+  which is only trustworthy behind the hosting provider's proxy. On
+  unproxied hosting an attacker could vary it; the thirty-per-account limit
+  still applies.
+- Photos are public files with unguessable names. A draft item's photo can
+  be opened by someone who has its exact address, though nothing links to it.
+- Rate limits and the hold-expiry timer are per server process; on hosting
+  that runs several processes they are looser than stated (the database
+  lockout counts are shared and exact).
+- Not done: an independent penetration test; testing on real hosting.

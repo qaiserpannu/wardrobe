@@ -6,6 +6,7 @@ import { closeDb, getDb } from "@/server/db/client";
 import { adminSessions, adminUsers, auditLog } from "@/server/db/schema";
 import {
   changePassword,
+  clearLoginAttempts,
   createAdmin,
   getSessionUser,
   SESSION_IDLE_MS,
@@ -77,10 +78,22 @@ describe("signing in", () => {
     expect(await signIn(newEmail(), PASSWORD, newAddress())).toEqual({ ok: false, reason: "invalid" });
   });
 
-  it("locks an email after five wrong passwords, even for the right one", async () => {
+  it("locks an address out of an account after five wrong passwords, even for the right one", async () => {
     const admin = await newAdmin();
-    for (let i = 0; i < 5; i++) await signIn(admin.email, "wrong-password-123", newAddress());
+    const address = newAddress();
+    for (let i = 0; i < 5; i++) await signIn(admin.email, "wrong-password-123", address);
+    expect(await signIn(admin.email, PASSWORD, address)).toEqual({ ok: false, reason: "locked" });
+    // The owner, signing in from somewhere else, is not locked out by a stranger's five guesses.
+    expect((await signIn(admin.email, PASSWORD, newAddress())).ok).toBe(true);
+  });
+
+  it("locks an account everywhere after thirty wrong passwords from many addresses", async () => {
+    const admin = await newAdmin();
+    for (let i = 0; i < 30; i++) await signIn(admin.email, "wrong-password-123", newAddress());
     expect(await signIn(admin.email, PASSWORD, newAddress())).toEqual({ ok: false, reason: "locked" });
+    // Resetting the password with the setup command always lets the owner back in.
+    await clearLoginAttempts(admin.email);
+    expect((await signIn(admin.email, PASSWORD, newAddress())).ok).toBe(true);
   });
 
   it("locks an address after twenty wrong attempts across different emails", async () => {

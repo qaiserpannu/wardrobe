@@ -227,10 +227,11 @@ Steps:
    message, FAQs and policies. (Built in part 4.) [ ] Notification
    preferences: not built; there is nothing to choose between until email or
    WhatsApp alerts exist.
-10. Audit log of inventory, status and settings changes.
-11. Security review and tests: access restrictions, upload validation, and
+10. [x] Audit log of inventory, status and settings changes. (Recorded since
+    part 1; Activity page built in part 5.)
+11. [x] Security review and tests: access restrictions, upload validation, and
     that admin changes appear immediately on the public site and in the
-    agent's answers.
+    agent's answers. (Part 5, D40.)
 
 Completion criteria: every item in the Milestone 5 verification list in the
 owner's brief passes, plus status/hold behaviour and the inbox; owner approval.

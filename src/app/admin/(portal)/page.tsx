@@ -103,7 +103,12 @@ async function Dashboard() {
         </section>
 
         <section className={`${cardClass} xl:col-span-2`} data-testid="recent-activity">
-          <h2 className="font-display text-2xl font-medium">Recent activity</h2>
+          <h2 className="font-display text-2xl font-medium">
+            Recent activity{" "}
+            <Link href="/admin/activity" className="font-sans text-sm text-accent underline-offset-4 hover:underline">
+              See all
+            </Link>
+          </h2>
           {changes.length === 0 ? (
             <p className={emptyClass}>Nothing recorded yet.</p>
           ) : (

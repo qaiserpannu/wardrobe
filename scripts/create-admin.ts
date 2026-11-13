@@ -36,7 +36,7 @@ async function ask(question: string, hidden = false): Promise<string> {
 
 async function main() {
   const { closeDb } = await import("@/server/db/client");
-  const { createAdmin, findAdminByEmail, setAdminPassword } = await import("@/server/services/admin-auth");
+  const { clearLoginAttempts, createAdmin, findAdminByEmail, setAdminPassword } = await import("@/server/services/admin-auth");
   const { passwordProblem } = await import("@/server/auth/password");
   const { recordAudit } = await import("@/server/services/audit");
 
@@ -66,6 +66,7 @@ async function main() {
 
     if (existing) {
       await setAdminPassword(existing.id, password);
+      await clearLoginAttempts(existing.email);
       await recordAudit({
         adminUserId: existing.id,
         action: "auth.password_reset",

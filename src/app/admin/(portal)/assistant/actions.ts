@@ -23,10 +23,10 @@ async function run(task: (admin: AdminUser) => Promise<unknown>, success: string
 const str = (value: unknown) => (typeof value === "string" ? value.slice(0, 5000) : "");
 
 export async function saveKnowledgeAction(_previous: KnowledgeState, formData: FormData): Promise<KnowledgeState> {
+  await requireAdmin();
   const values = { kind: str(formData.get("kind")), title: str(formData.get("title")), content: str(formData.get("content")) };
   const parsed = knowledgeInputSchema.safeParse(values);
   if (!parsed.success) {
-    await requireAdmin();
     return { error: parsed.error.issues[0]?.message ?? "Please check the entry.", values };
   }
   const id = str(formData.get("id"));
