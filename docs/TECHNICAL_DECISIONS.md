@@ -813,3 +813,19 @@ lowest-cost model: Roman Urdu was understandable and correct on facts but
 wordy; the Urdu-script reply ended with a garbled sentence. The owner
 should judge whether that is acceptable or whether a larger model is worth
 the cost.
+
+Fifth evaluation run (2026-11-13): 102 of 104 checks; about 1.6 cents,
+2.1 seconds per reply. The double greeting and repeated name question are
+gone. Faults still seen and addressed afterwards (not yet re-run):
+
+- Twice across runs the model "corrected" an earlier message that was
+  right, once adding that it "hadn't checked the earlier items properly".
+  Likely cause: only the text of earlier turns is replayed (D32), so the
+  model sees its own earlier product statements without the look-ups that
+  backed them, and the instructions forbid stating facts from memory. The
+  instructions now say earlier messages were checked at the time. If this
+  persists, replay tool results in history instead.
+- It answered "Walaikum Assalam" to "Hi" and to a non-greeting; greetings
+  are now returned in kind and only to greetings.
+- The Urdu-script reply was fluent this time but began with a Latin-script
+  greeting; it is now asked to match the script.
