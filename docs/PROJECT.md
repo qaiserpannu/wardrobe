@@ -150,15 +150,17 @@ src/
     page.tsx             Homepage
     shop/                Catalog and product pages
     media/               Serves locally stored images (development)
+    api/chat/            Website chat channel for the AI agent
   components/
     ui/                  Generic building blocks (buttons, icons, container)
     layout/              Header, mobile menu, footer
     home/                Homepage pieces
     catalog/             Product card, grid, filters, gallery, pagination
-    chat/                Floating chat button (WhatsApp click-to-chat)
+    chat/                Floating chat button: AI assistant panel, WhatsApp fallback
   server/                Server-only code
     db/                  Schema, client, migrations, sample data
     services/            Business logic; the only layer that touches the database
+    agent/               AI sales agent: core, rules, tools, notifications, providers
     storage/             Image storage interface (local driver so far)
   integrations/
     whatsapp/            Click-to-chat link builder
@@ -179,3 +181,4 @@ Folders for AI (`src/server/ai`), auth
 | `/` | Homepage: hero, featured, categories, recently added, how it works |
 | `/shop` | Catalog with search, filters, sorting and paging (all state in the URL) |
 | `/shop/<name>-<product id>` | Product details with gallery and WhatsApp inquiry |
+| `/api/chat` | Not a page: the chat widget talks to the AI agent here |

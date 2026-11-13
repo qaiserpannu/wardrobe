@@ -83,7 +83,7 @@ on `search_vector`.
 
 | Column | Type | Notes |
 | --- | --- | --- |
-| key | text, primary key | Built: `branding`, `shop`, `contact`, `whatsapp`, `social`, `seo`, `homepage`, `chat_widget` (on/off, title, greeting, corner). Later: `ai_assistant` |
+| key | text, primary key | Built: `branding`, `shop`, `contact`, `whatsapp`, `social`, `seo`, `homepage`, `chat_widget` (on/off, title, greeting, corner), `ai_assistant` (on/off, name, greeting, tone guidance, handoff message, notification email, daily message limit) |
 | value | jsonb | Validated against a schema per key in code |
 | updated_at | timestamp | |
 
@@ -94,7 +94,7 @@ Grouping settings as a few validated JSON documents means new settings do not
 need database changes. Secrets (API keys) are never stored here — they stay in
 environment variables.
 
-## ai_knowledge — Milestone 4
+## ai_knowledge — Milestone 4 (built)
 
 Approved business information the assistant may quote.
 
@@ -150,7 +150,11 @@ note. History is never deleted.
 Kept in its own table, outside `products`, so public queries and the AI agent
 cannot reach it.
 
-### conversations, messages, leads, escalations — Milestone 4
+### conversations, messages, leads, escalations — Milestone 4 (built)
+
+Migration `0004_agent_conversations.sql`. `messages.product_codes` stores only
+product IDs; cards are re-read from inventory whenever they are shown.
+`notifications.dedupe_key` is unique, which is what stops duplicates.
 
 | Table | Purpose |
 | --- | --- |

@@ -34,14 +34,16 @@ test.describe("chat widget", () => {
     });
   }
 
-  test("opens with a greeting and a general WhatsApp message, then closes", async ({ page }) => {
+  test("opens with a greeting and a WhatsApp link to a person, then closes", async ({ page }) => {
     await page.goto("/");
     await launcher(page).click();
     await expect(panel(page)).toBeVisible();
     await expect(launcher(page)).toHaveAttribute("aria-expanded", "true");
-    await expect(panel(page)).toContainText("Chat with us");
-    await expect(panel(page)).toContainText("Send us a message on WhatsApp");
-    await expect(startLink(page)).toHaveText(/start chat on whatsapp/i);
+    await expect(panel(page)).toHaveAttribute("data-mode", "assistant");
+    await expect(panel(page)).toContainText("Shop assistant");
+    await expect(panel(page)).toContainText("I'm the shop's AI assistant");
+    await expect(page.getByTestId("chat-disclosure")).toContainText("You are chatting with an AI assistant");
+    await expect(startLink(page)).toHaveText(/talk to a person on whatsapp/i);
     await expect(startLink(page)).toHaveAttribute("target", "_blank");
     await expect(startLink(page)).toHaveAttribute("rel", /noopener/);
     expect(await message(page)).toBe("Hi! I have a question about Pre-Loved Wardrobe.");
@@ -63,7 +65,7 @@ test.describe("chat widget", () => {
     await launcher(page).focus();
     await page.keyboard.press("Enter");
     await expect(panel(page)).toBeVisible();
-    await expect(startLink(page)).toBeFocused();
+    await expect(page.getByTestId("chat-input")).toBeFocused();
     await page.keyboard.press("Escape");
     await expect(panel(page)).toHaveCount(0);
     await expect(launcher(page)).toBeFocused();
@@ -73,7 +75,7 @@ test.describe("chat widget", () => {
     await page.goto("/");
     await launcher(page).click();
     await expect(panel(page)).toBeVisible();
-    await page.getByRole("heading", { level: 1 }).click();
+    await page.mouse.click(8, 8); // the top corner of the page, outside the panel
     await expect(panel(page)).toHaveCount(0);
   });
 
@@ -83,7 +85,6 @@ test.describe("chat widget", () => {
     await launcher(page).click();
     await expect(page.getByTestId("chat-product")).toContainText("Teal Embroidered Lawn Suit");
     await expect(page.getByTestId("chat-product")).toContainText("PLW-0001");
-    await expect(startLink(page)).toHaveText(/ask about this item on whatsapp/i);
     const text = await message(page);
     expect(text).toContain("Teal Embroidered Lawn Suit");
     expect(text).toContain("ID: PLW-0001");

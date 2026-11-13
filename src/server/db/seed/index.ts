@@ -10,7 +10,7 @@ import { normalizeWhatsAppNumber } from "@/integrations/whatsapp";
 import { slugify } from "@/lib/slug";
 import { closeDb, getDb } from "../client";
 import { runMigrations } from "../migrate";
-import { categories, productImages, products, siteSettings } from "../schema";
+import { aiKnowledge, categories, productImages, products, siteSettings } from "../schema";
 import { clearLocalFolder, localStorageDriver } from "../../storage/local";
 import { renderHeroImage, renderProductImage } from "./artwork";
 import { seedCategoryGroups, seedProducts } from "./data";
@@ -31,7 +31,7 @@ export async function seed() {
   const db = getDb();
   await runMigrations();
 
-  await db.execute(sql`truncate table product_images, products, categories, site_settings restart identity cascade`);
+  await db.execute(sql`truncate table notifications, escalations, leads, messages, conversations, customers, ai_knowledge, product_images, products, categories, site_settings restart identity cascade`);
   await db.execute(sql`alter sequence product_code_seq restart with 1`);
 
   await clearLocalFolder("seed");
@@ -105,6 +105,30 @@ export async function seed() {
     { key: "whatsapp", value: { number: normalizeWhatsAppNumber(process.env.SEED_WHATSAPP_NUMBER ?? "") } },
     { key: "contact", value: { email: "hello@example.com", location: "" } },
     { key: "social", value: { instagram: "https://instagram.com/", facebook: "https://facebook.com/" } },
+  ]);
+
+  // Approved business facts the AI assistant may quote. These come from the owner (D31).
+  await db.insert(aiKnowledge).values([
+    {
+      kind: "policy",
+      title: "Where we are and how to get an item",
+      content:
+        "We are a local shop in Tampa, Florida (United States). Items are collected in person in the Tampa area. Pickup time and place are arranged directly with the owner.",
+      sortOrder: 1,
+    },
+    {
+      kind: "policy",
+      title: "Payment",
+      content: "Payment is by Zelle, Cash App, or cash at the time of pickup. There is no online payment on the website.",
+      sortOrder: 2,
+    },
+    {
+      kind: "policy",
+      title: "How buying works",
+      content:
+        "Choose an item, then tell us you would like it. The owner confirms availability and arranges pickup and payment with you directly. An item is only yours once the owner has confirmed it.",
+      sortOrder: 3,
+    },
   ]);
 
   return { products: seedProducts.length, categories: categoryId.size };

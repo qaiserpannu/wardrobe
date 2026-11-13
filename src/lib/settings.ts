@@ -44,6 +44,25 @@ export const settingsSchemas = {
     /** Which bottom corner the button sits in. */
     position: z.enum(["right", "left"]).default("right"),
   }),
+  /** The AI sales assistant in the chat. Its facts come only from inventory and approved knowledge. */
+  ai_assistant: z.object({
+    enabled: z.boolean().default(true),
+    name: z.string().default("Shop assistant"),
+    greeting: z
+      .string()
+      .default(
+        "Hello! I'm the shop's AI assistant. Tell me what you're looking for - an occasion, a size, a colour or a budget - and I'll show you what we have.",
+      ),
+    /** Extra guidance from the owner about tone or emphasis. Never a source of facts. */
+    instructions: z.string().default(""),
+    handoffMessage: z
+      .string()
+      .default("I've let the owner know. For the quickest reply you can also message us directly on WhatsApp."),
+    /** Where owner notifications are emailed. Empty means they are only recorded. */
+    notifyEmail: z.string().default(""),
+    /** Ceiling on customer messages answered per day across the whole site, to cap AI cost. */
+    dailyMessageLimit: z.number().int().min(0).max(100000).default(500),
+  }),
   social: z.object({
     instagram: z.string().default(""),
     facebook: z.string().default(""),

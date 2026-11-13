@@ -71,7 +71,12 @@ WhatsApp; there is no online checkout.
 - Notify the owner only for: serious buying interest, a question the agent
   cannot answer, or a request for a human (D27).
 - The agent always identifies itself as an AI and offers a human handoff.
-- All model calls go through the provider interface.
+- All model calls go through the provider interface
+  (`src/server/agent/providers`). The core never imports a vendor SDK.
+- Rules the business depends on are enforced in code (`core.ts`,
+  `tools.ts`), not only in the instructions; see D32. Add a test in
+  `tests/integration/agent.test.ts` for every new guardrail.
+- `AI_PROVIDER=test` is a fixed-rule stand-in for browser tests only.
 - WhatsApp: official Cloud API only; never unofficial automation libraries.
   Respect the 24-hour reply window and template rules (D28).
 

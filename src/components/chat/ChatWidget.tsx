@@ -1,9 +1,21 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
+import {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { CloseIcon, WhatsAppIcon } from "@/components/ui/icons";
 import { buildChatLink, type ChatLinkConfig } from "@/integrations/whatsapp";
-import { getChatProduct, getServerChatProduct, subscribeChatProduct } from "./chat-product-store";
+import { AssistantPanel } from "./AssistantPanel";
+import {
+  getChatProduct,
+  getServerChatProduct,
+  subscribeChatProduct,
+} from "./chat-product-store";
+import { useAssistantChat } from "./use-assistant-chat";
 
 type Props = {
   siteName: string;
@@ -11,20 +23,38 @@ type Props = {
   greeting: string;
   position: "right" | "left";
   whatsapp: ChatLinkConfig;
+  /** Present when the AI assistant is switched on and set up; otherwise the panel is WhatsApp-only. */
+  assistant: { name: string; greeting: string } | null;
 };
 
 /**
- * Floating chat button. Opens a small panel with a greeting and a button that
- * starts a WhatsApp conversation (official click-to-chat link). On a product
- * page the pre-filled message names that product and its ID.
+ * Floating chat button. With the AI assistant on, the panel is a conversation
+ * with it, with a WhatsApp link to a person always visible. Without it, the
+ * panel is a greeting and a button that starts a WhatsApp conversation
+ * (official click-to-chat link). On a product page both know which item the
+ * visitor is looking at.
  */
-export function ChatWidget({ siteName, title, greeting, position, whatsapp }: Props) {
+export function ChatWidget({
+  siteName,
+  title,
+  greeting,
+  position,
+  whatsapp,
+  assistant,
+}: Props) {
   const [open, setOpen] = useState(false);
-  const product = useSyncExternalStore(subscribeChatProduct, getChatProduct, getServerChatProduct);
+  const product = useSyncExternalStore(
+    subscribeChatProduct,
+    getChatProduct,
+    getServerChatProduct,
+  );
   const panelId = useId();
   const launcher = useRef<HTMLButtonElement>(null);
   const start = useRef<HTMLAnchorElement>(null);
   const root = useRef<HTMLDivElement>(null);
+  const input = useRef<HTMLTextAreaElement>(null);
+  const chat = useAssistantChat();
+  const loadHistory = chat.loadHistory;
 
   const link = buildChatLink(whatsapp, product);
 
@@ -35,12 +65,18 @@ export function ChatWidget({ siteName, title, greeting, position, whatsapp }: Pr
 
   useEffect(() => {
     if (!open) return;
-    start.current?.focus();
+    if (assistant) {
+      input.current?.focus();
+      void loadHistory();
+    } else {
+      start.current?.focus();
+    }
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") close(true);
     };
     const onPointer = (e: PointerEvent) => {
-      if (root.current && !root.current.contains(e.target as Node)) close(false);
+      if (root.current && !root.current.contains(e.target as Node))
+        close(false);
     };
     document.addEventListener("keydown", onKey);
     document.addEventListener("pointerdown", onPointer);
@@ -48,11 +84,14 @@ export function ChatWidget({ siteName, title, greeting, position, whatsapp }: Pr
       document.removeEventListener("keydown", onKey);
       document.removeEventListener("pointerdown", onPointer);
     };
-  }, [open]);
+  }, [open, assistant, loadHistory]);
 
   if (!link) return null;
 
-  const side = position === "left" ? "left-4 sm:left-6 items-start" : "right-4 sm:right-6 items-end";
+  const side =
+    position === "left"
+      ? "left-4 sm:left-6 items-start"
+      : "right-4 sm:right-6 items-end";
 
   return (
     <div
@@ -66,12 +105,20 @@ export function ChatWidget({ siteName, title, greeting, position, whatsapp }: Pr
           role="dialog"
           aria-label={title}
           data-testid="chat-panel"
-          className="w-[min(22rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-line bg-surface shadow-xl"
+          data-mode={assistant ? "assistant" : "whatsapp"}
+          className={`flex w-[min(23rem,calc(100vw-2rem))] flex-col overflow-hidden rounded-2xl border border-line bg-surface shadow-xl ${
+            assistant ? "h-[min(36rem,calc(100dvh-7.5rem))]" : ""
+          }`}
         >
-          <header className="flex items-start justify-between gap-3 bg-accent px-5 py-4 text-white">
+          <header className="flex shrink-0 items-start justify-between gap-3 bg-accent px-5 py-4 text-white">
             <div>
-              <p className="font-display text-xl leading-tight font-medium">{title}</p>
-              <p className="mt-0.5 text-xs text-white/80">{siteName} · replies on WhatsApp</p>
+              <p className="font-display text-xl leading-tight font-medium">
+                {assistant ? assistant.name : title}
+              </p>
+              <p className="mt-0.5 text-xs text-white/80">
+                {siteName} ·{" "}
+                {assistant ? "AI assistant" : "replies on WhatsApp"}
+              </p>
             </div>
             <button
               type="button"
@@ -82,26 +129,52 @@ export function ChatWidget({ siteName, title, greeting, position, whatsapp }: Pr
               <CloseIcon className="size-5" />
             </button>
           </header>
-          <div className="space-y-4 p-5">
-            <p className="rounded-2xl rounded-tl-sm bg-sand px-4 py-3 text-sm leading-relaxed">{greeting}</p>
-            {product && (
-              <p className="text-xs leading-relaxed text-muted" data-testid="chat-product">
-                Your message will mention <strong className="font-medium text-ink">{product.name}</strong> (ID:{" "}
-                {product.code}).
+          {assistant ? (
+            <AssistantPanel
+              greeting={assistant.greeting}
+              messages={chat.messages}
+              sending={chat.sending}
+              handoff={chat.handoff}
+              product={product}
+              whatsappLink={link}
+              inputRef={input}
+              onSend={(text) => void chat.send(text, product?.code)}
+            />
+          ) : (
+            <div className="space-y-4 p-5">
+              <p className="rounded-2xl rounded-tl-sm bg-sand px-4 py-3 text-sm leading-relaxed">
+                {greeting}
               </p>
-            )}
-            <a
-              ref={start}
-              href={link}
-              target="_blank"
-              rel="noopener noreferrer"
-              data-testid="chat-start"
-              className="flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-whatsapp px-6 text-sm font-medium tracking-wide text-white transition-colors hover:bg-whatsapp-dark"
-            >
-              <WhatsAppIcon /> {product ? "Ask about this item on WhatsApp" : "Start chat on WhatsApp"}
-            </a>
-            <p className="text-center text-xs text-muted">Opens WhatsApp in a new tab or in the app.</p>
-          </div>
+              {product && (
+                <p
+                  className="text-xs leading-relaxed text-muted"
+                  data-testid="chat-product"
+                >
+                  Your message will mention{" "}
+                  <strong className="font-medium text-ink">
+                    {product.name}
+                  </strong>{" "}
+                  (ID: {product.code}).
+                </p>
+              )}
+              <a
+                ref={start}
+                href={link}
+                target="_blank"
+                rel="noopener noreferrer"
+                data-testid="chat-start"
+                className="flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-whatsapp px-6 text-sm font-medium tracking-wide text-white transition-colors hover:bg-whatsapp-dark"
+              >
+                <WhatsAppIcon />{" "}
+                {product
+                  ? "Ask about this item on WhatsApp"
+                  : "Start chat on WhatsApp"}
+              </a>
+              <p className="text-center text-xs text-muted">
+                Opens WhatsApp in a new tab or in the app.
+              </p>
+            </div>
+          )}
         </section>
       )}
       <button
@@ -114,7 +187,11 @@ export function ChatWidget({ siteName, title, greeting, position, whatsapp }: Pr
         data-testid="chat-launcher"
         className="flex size-14 items-center justify-center rounded-full bg-whatsapp text-white shadow-lg ring-1 ring-black/5 transition-colors hover:bg-whatsapp-dark"
       >
-        {open ? <CloseIcon className="size-6" /> : <WhatsAppIcon className="size-7" />}
+        {open ? (
+          <CloseIcon className="size-6" />
+        ) : (
+          <WhatsAppIcon className="size-7" />
+        )}
       </button>
     </div>
   );

@@ -30,6 +30,8 @@ export default defineConfig({
       DATABASE_URL: TEST_DATABASE_URL,
       STORAGE_LOCAL_DIR: "./storage/test",
       SEED_WHATSAPP_NUMBER: "15555550100",
+      // A fixed-rule stand-in for the AI model, so chat tests are repeatable and free.
+      AI_PROVIDER: "test",
       NEXT_PUBLIC_SITE_URL: `http://localhost:${PORT}`,
     },
   },

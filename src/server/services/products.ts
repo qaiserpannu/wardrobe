@@ -208,6 +208,16 @@ export async function getProductBySlug(slug: string): Promise<PublicProduct | nu
   return (await withImages(rows))[0] ?? null;
 }
 
+/** Look up one public product by its product ID (PLW-0001). Case does not matter. */
+export async function getProductByCode(code: string): Promise<PublicProduct | null> {
+  const normalized = code.trim().toUpperCase();
+  if (!/^PLW-\d{1,9}$/.test(normalized)) return null;
+  const rows = await baseQuery()
+    .where(and(isPublic, eq(products.code, normalized)))
+    .limit(1);
+  return (await withImages(rows))[0] ?? null;
+}
+
 /** Featured items for the homepage. Only items that can actually be bought. */
 export async function getFeaturedProducts(limit = 4): Promise<PublicProduct[]> {
   const rows = await baseQuery()

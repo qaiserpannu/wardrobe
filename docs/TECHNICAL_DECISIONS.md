@@ -650,3 +650,62 @@ enough for an AI reply.
 - **PENDING status:** built in Milestone 2 (public side). Shown as "On hold";
   ordering is available, on hold, sold; no inquiry button; search-engine data
   says out of stock; the "hide" filter leaves only available items.
+
+## D32 — How the AI sales agent is built (Milestone 4)
+
+**Status:** Built; real-model evaluation still to be run (needs the owner's AI key)
+
+- **Layers.** `src/app/api/chat` is the website channel adapter (anonymous
+  visitor cookie, input checks, card shaping). `src/server/agent/core.ts` is
+  the channel-neutral core. `src/server/agent/providers` holds the AI
+  provider behind one small interface (`AgentModel.runTurn`); the provider
+  owns the tool-calling loop because each vendor formats it differently.
+- **Provider and model.** Anthropic Claude through the official SDK
+  (`@anthropic-ai/sdk`). Model from `AI_MODEL` (default `claude-opus-5-5`),
+  effort from `AI_EFFORT` (default `low`, suited to short chat turns). The
+  owner may choose a cheaper model; that is a cost/quality decision for the
+  owner, to be made after the evaluation. Instructions and tool list are
+  identical on every request so the provider caches them. Refusals fall back
+  through the API's server-side fallback.
+- **Tools.** Read-only: `search_products`, `get_product`, `list_categories`
+  (all through the public services). Record-keeping only:
+  `record_purchase_interest`, `escalate_question`, `request_human`. Tool
+  input is validated with zod; anything else is an error result.
+- **Approved knowledge** (`ai_knowledge` table) is placed in the
+  instructions. Seeded with what the owner has said: Tampa pickup; Zelle,
+  Cash App or cash; the owner confirms every sale.
+- **Guardrails enforced in code, not left to the model:**
+  - Every product ID in a reply is checked against the public inventory. If
+    one does not exist the whole reply is replaced by a safe message.
+  - Product cards are built by our code from current records for the IDs
+    mentioned; stored messages keep only the IDs, so an item sold later
+    shows as sold in old messages.
+  - A purchase request for an item that is not `available` is rejected by
+    the tool. No tool can change a product.
+  - Hold details are not in any table the agent's code path reads.
+  - Limits: 1,000 characters per message; 8 messages a minute and 120 a day
+    per visitor; 30 requests a minute per network address; a site-wide daily
+    ceiling (`ai_assistant.dailyMessageLimit`, default 500) to cap cost.
+  - Same-origin check on the chat API; visitor ID in an httpOnly cookie.
+  - Any provider failure, refusal or empty answer gives a fixed fallback
+    reply and highlights the WhatsApp route.
+- **Conversation memory.** Messages are stored as text per customer per
+  channel; the last 30 are replayed to the model as plain text each turn.
+  A conversation idle for 30 days is closed and a new one starts.
+- **Notifications.** Recorded in `notifications` with a de-duplication key
+  (one per conversation + product + request type; one per distinct question;
+  one human request per conversation per day). Emailed through Resend only
+  if `RESEND_API_KEY`, `NOTIFY_EMAIL_FROM` and the `notifyEmail` setting are
+  present; otherwise recorded for the Milestone 5 inbox. The email path has
+  not been run against the real service.
+- **States.** B and C move the conversation to `waiting_for_owner`. Until
+  the admin inbox exists (M5) the agent keeps answering; the owner replies
+  to the customer outside the system (WhatsApp or the contact they gave).
+- **Switching off.** The assistant panel shows only when
+  `ai_assistant.enabled` is true and a provider is configured; otherwise the
+  widget is the Milestone 3 WhatsApp panel. The provider check happens when
+  the site is built, so adding or removing the key needs a redeploy; the
+  on/off setting takes effect within a minute.
+- **Testing.** `AI_PROVIDER=test` selects a fixed-rule stand-in used only by
+  the browser tests. Database tests inject scripted models. Neither proves
+  how the real model behaves; that needs an evaluation run with a key.

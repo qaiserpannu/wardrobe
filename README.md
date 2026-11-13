@@ -34,6 +34,13 @@ Requires Node.js 20.19 or newer and a PostgreSQL 16 database.
    Without a number the site hides them. Run step 4 again after every
    `git pull` so database changes are applied.
 
+   Optional: to turn the chat button into the AI assistant, also add an
+   Anthropic API key to `.env.local`. Without it the button opens WhatsApp.
+
+   ```bash
+   ANTHROPIC_API_KEY=your-key-here
+   ```
+
 4. Create the tables and load sample products (this replaces any existing products):
 
    ```bash

@@ -4,11 +4,33 @@ Update this file at the end of every working session.
 
 ## Current milestone
 
-**Milestone 3 — WhatsApp chat widget: built and tested, awaiting owner
-approval.** Milestone 2 was approved on 2026-11-12. Do not start Milestone 4
-until the owner approves.
+**Milestone 4 — AI sales agent on the website chat: built and tested with
+stand-in models; NOT yet run against the real AI (no key available).**
+Milestone 3 was approved on 2026-11-13. Do not start Milestone 5 until the
+owner approves Milestone 4.
 
 ## Completed
+
+### Milestone 4 (2026-11-13) — AI sales agent, website chat (see D32)
+
+- The chat button now opens a conversation with an AI assistant when an AI
+  key is configured; otherwise it is the WhatsApp panel from Milestone 3.
+- Agent core, six tools (three read inventory, three record interest /
+  questions / human requests), approved shop information, conversation
+  history per visitor, product cards from live records, owner notifications
+  for scenarios A, B and C only.
+- Safeguards enforced in code: invented product IDs are never shown; sold and
+  on-hold items cannot be requested; no tool can change stock; message, rate
+  and daily limits; safe fallback with the WhatsApp route on any failure.
+- New tables (fifth migration): customers, conversations, messages, leads,
+  escalations, notifications, ai_knowledge.
+- New dependency: `@anthropic-ai/sdk` (the official library for the AI).
+- Tests: 68 logic/database tests (20 new for the agent); 164 browser runs
+  passed across desktop, tablet and phone (7 size-specific skips); lint,
+  type-check, build; visual check of both panels at desktop and phone sizes.
+- NOT tested: the real AI model's behaviour (needs a key); sending
+  notification emails (needs an email account). Until then, notifications
+  are only stored in the database.
 
 ### Milestone 3 (2026-11-12) — floating WhatsApp chat button
 
@@ -152,14 +174,16 @@ Stack selection, Next.js scaffold, folder structure, project memory documents.
 
 ## Outstanding — waiting on the owner
 
-1. Approval of Milestone 3, and a check on a real phone that the chat
-   button opens WhatsApp with the right number and message.
-2. Milestone 6: use +1 813 990 7900 for the AI agent, or a new dedicated
+1. An Anthropic API key (console.anthropic.com), so the agent can be run and
+   evaluated for real. Choice of model after the evaluation (cost vs quality).
+2. Returns policy and any other standing answers (anything missing is
+   escalated to the owner, never guessed).
+3. Notification email address, and whether to set up Resend (free tier) for
+   sending, or wait for the admin inbox in Milestone 5.
+4. Milestone 6: use +1 813 990 7900 for the AI agent, or a new dedicated
    number (D28, D31).
-3. Later: Meta business portfolio, Facebook Page, Instagram professional
-   account, Commerce Manager, domain; AI provider account; notification
-   email; hosting choice (D9); proposed services (D4, D6, D7, D8); wording
-   of pickup/returns policies for the agent.
+5. Later: Meta accounts, domain, hosting choice (D9), proposed services
+   (D4, D6, D7).
 
 ## Known issues and limitations
 
@@ -178,6 +202,11 @@ Stack selection, Next.js scaffold, folder structure, project memory documents.
 - Settings and category names can take up to a minute to update after a direct
   database change, and up to 5 minutes for a visitor who keeps browsing without
   reloading (D14). Product data is immediate.
+- Website visitors are anonymous: unless they give a phone number in the
+  chat or use the WhatsApp button, the owner cannot reply to an escalated
+  question. The agent is instructed to ask or point to WhatsApp.
+- Notifications are stored but not shown anywhere until the admin inbox
+  (Milestone 5), unless email sending is configured.
 - Only local image storage exists; cloud storage arrives with Milestone 5.
 - `docker-compose.yml` is provided for local setup but was not run in the
   cloud development environment (no Docker there); the database was tested
@@ -188,6 +217,6 @@ Stack selection, Next.js scaffold, folder structure, project memory documents.
 
 ## Next steps
 
-1. On Milestone 3 approval: Milestone 4, the AI sales agent on the website
-   chat. Needs from the owner first: AI provider choice/account, wording of
-   pickup and returns policies, notification email address.
+1. When the owner provides an AI key: run the evaluation scenarios against
+   the real model, tune the instructions, report results and cost per chat.
+2. On Milestone 4 approval: Milestone 5, the admin portal.

@@ -126,9 +126,8 @@ Completion criteria:
 - [x] Correct pre-filled message with and without product context; sold and
   on-hold items never get a "buy" message.
 - [x] Number and widget texts come from settings only, no code change needed.
-- [ ] Owner confirms a real conversation opens on phone and desktop (can only
-  be checked on a deployed or locally run copy).
-- [ ] Owner approval.
+- [x] Owner confirms a real conversation opens on phone and desktop.
+- [x] Owner approval (2026-11-13, "move to the next step").
 
 WhatsApp number: provided (D31), already in the sample data.
 
@@ -161,9 +160,19 @@ Steps:
    injection attempts, purchase intent vs browsing, unanswerable question,
    human request, returning visitor with history.
 
-Completion criteria: every evaluation scenario passes with no invented
-details; notifications fire only for A, B and C; the agent can be switched off
-and the widget falls back to WhatsApp click-to-chat; owner approval.
+Completion criteria:
+
+- [x] Agent core, tools, guardrails, conversation history, chat panel with
+  product cards (D32).
+- [x] Guardrails proven with scripted models: no invented products shown,
+  sold/on-hold never offered for purchase, notifications only for A, B, C
+  with no duplicates, limits, safe fallback on failure.
+- [x] With no provider or with the assistant switched off, the widget is the
+  WhatsApp click-to-chat panel.
+- [ ] Evaluation against the real AI model (the scenario list in step 8).
+  Not run: no AI key was available in the development environment.
+- [ ] Email delivery of notifications checked with a real email account.
+- [ ] Owner approval.
 
 Known so far (D31): local pickup in Tampa, Florida; payment by Zelle, Cash
 App or cash at pickup. The exact wording the agent may use is still to be

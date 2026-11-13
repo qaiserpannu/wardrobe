@@ -139,3 +139,127 @@ export const siteSettings = pgTable("site_settings", {
     .defaultNow()
     .$onUpdate(() => new Date()),
 });
+
+/* ------------------------------------------------------------------ */
+/* AI sales agent: conversations, leads, escalations (Milestone 4)     */
+/* ------------------------------------------------------------------ */
+
+export const channel = pgEnum("channel", ["web", "whatsapp"]);
+export const conversationState = pgEnum("conversation_state", ["agent", "waiting_for_owner", "owner", "closed"]);
+export const messageSender = pgEnum("message_sender", ["customer", "agent", "owner", "system"]);
+export const leadStage = pgEnum("lead_stage", ["inquiry", "purchase_request", "reservation_request", "completed"]);
+export const escalationReason = pgEnum("escalation_reason", ["cannot_answer", "human_requested", "purchase_request"]);
+export const knowledgeKind = pgEnum("knowledge_kind", ["faq", "policy"]);
+
+/** One person on one channel: an anonymous browser ID on the website, a phone number on WhatsApp. */
+export const customers = pgTable(
+  "customers",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    channel: channel("channel").notNull(),
+    channelIdentity: text("channel_identity").notNull(),
+    name: text("name"),
+    contact: text("contact"),
+    ...timestamps,
+  },
+  (t) => [index("customers_identity_idx").on(t.channel, t.channelIdentity)],
+);
+
+export const conversations = pgTable(
+  "conversations",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    customerId: uuid("customer_id")
+      .notNull()
+      .references(() => customers.id, { onDelete: "cascade" }),
+    channel: channel("channel").notNull(),
+    state: conversationState("state").notNull().default("agent"),
+    lastMessageAt: timestamp("last_message_at", { withTimezone: true }).notNull().defaultNow(),
+    ...timestamps,
+  },
+  (t) => [index("conversations_customer_idx").on(t.customerId, t.lastMessageAt)],
+);
+
+export const messages = pgTable(
+  "messages",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    conversationId: uuid("conversation_id")
+      .notNull()
+      .references(() => conversations.id, { onDelete: "cascade" }),
+    sender: messageSender("sender").notNull(),
+    body: text("body").notNull(),
+    /** Product codes shown with this message. Cards are always re-read from inventory when displayed. */
+    productCodes: jsonb("product_codes").$type<string[]>().notNull().default([]),
+    /** The channel's own message ID, for ignoring duplicates (WhatsApp, Milestone 6). */
+    channelMessageId: text("channel_message_id"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("messages_conversation_idx").on(t.conversationId, t.createdAt)],
+);
+
+export const leads = pgTable(
+  "leads",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    conversationId: uuid("conversation_id")
+      .notNull()
+      .references(() => conversations.id, { onDelete: "cascade" }),
+    productId: uuid("product_id")
+      .notNull()
+      .references(() => products.id),
+    stage: leadStage("stage").notNull(),
+    summary: text("summary").notNull(),
+    customerRequest: text("customer_request").notNull().default(""),
+    ...timestamps,
+  },
+  (t) => [index("leads_conversation_idx").on(t.conversationId)],
+);
+
+export const escalations = pgTable(
+  "escalations",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    conversationId: uuid("conversation_id")
+      .notNull()
+      .references(() => conversations.id, { onDelete: "cascade" }),
+    reason: escalationReason("reason").notNull(),
+    question: text("question").notNull(),
+    ownerAnswer: text("owner_answer"),
+    resolvedAt: timestamp("resolved_at", { withTimezone: true }),
+    ...timestamps,
+  },
+  (t) => [index("escalations_conversation_idx").on(t.conversationId)],
+);
+
+/** What the owner was told, by which route, and whether it went out. Also prevents duplicates. */
+export const notifications = pgTable(
+  "notifications",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    conversationId: uuid("conversation_id")
+      .notNull()
+      .references(() => conversations.id, { onDelete: "cascade" }),
+    kind: escalationReason("kind").notNull(),
+    /** Same key = same event; a second one is not sent. */
+    dedupeKey: text("dedupe_key").notNull().unique(),
+    subject: text("subject").notNull(),
+    body: text("body").notNull(),
+    route: text("route").notNull(),
+    delivered: boolean("delivered").notNull().default(false),
+    error: text("error"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("notifications_conversation_idx").on(t.conversationId)],
+);
+
+/** Approved business information the agent may quote. Nothing outside this (and the inventory) is ever stated. */
+export const aiKnowledge = pgTable("ai_knowledge", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  kind: knowledgeKind("kind").notNull(),
+  title: text("title").notNull(),
+  content: text("content").notNull(),
+  isActive: boolean("is_active").notNull().default(true),
+  sortOrder: integer("sort_order").notNull().default(0),
+  ...timestamps,
+});
