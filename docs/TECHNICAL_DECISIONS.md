@@ -751,3 +751,14 @@ Changes made from reading the transcripts (not yet re-run):
 - For an on-hold item it offered to "pass your interest"; clarified that
   only a question can be passed, not a purchase request.
 - Lists of several items were long; asked for one short line each.
+
+Second run (2026-11-13, after the wording fixes): 73 of 74 checks passed;
+the one failure was again the check (it did not recognise "Neither the
+brand nor the size is recorded"). Cost and speed unchanged. One real fault
+was found by reading the transcript: asked to buy the on-hold sage green
+saree, the model first said no such saree existed, "not even sold or on
+hold", then corrected itself on the next message. Cause: a normal search
+returned only available items, so the model could not see the item. Fixed
+in code rather than by instruction: every search now also lists matching
+items that are on hold or sold, by name and status
+(`matching_items_not_available`). Test and evaluation check added.

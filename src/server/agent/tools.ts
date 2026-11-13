@@ -107,7 +107,7 @@ export const AGENT_TOOLS: AgentTool[] = [
   {
     name: "search_products",
     description:
-      "Search the shop's current inventory. Returns up to 8 items with all recorded details. By default only available items are returned. Use one or two plain keywords (for example 'lehenga' or 'green silk') plus the filters; long phrases match nothing. Call list_categories first if you need the category names.",
+      "Search the shop's current inventory. Returns up to 8 items with all recorded details. By default full details are returned only for available items; matching items that are on hold or sold are listed by name and status so you can tell the customer the truth about them. Use one or two plain keywords (for example 'lehenga' or 'green silk') plus the filters; long phrases match nothing. Call list_categories first if you need the category names.",
     inputSchema: {
       type: "object",
       properties: {
@@ -204,8 +204,7 @@ export async function runAgentTool(ctx: ToolContext, name: string, rawInput: unk
       const parsed = searchInput.safeParse(rawInput ?? {});
       if (!parsed.success) return fail("Invalid search input. Check the field names and values.");
       const f = parsed.data;
-      const { items, total } = await listProducts(
-        {
+      const filters = {
           q: f.keywords ?? "",
           category: f.category ?? null,
           sizes: f.size ? [f.size] : [],
@@ -214,15 +213,27 @@ export async function runAgentTool(ctx: ToolContext, name: string, rawInput: unk
           conditions: f.condition ? [f.condition] : [],
           minPriceCents: f.min_price != null ? Math.round(f.min_price * 100) : null,
           maxPriceCents: f.max_price != null ? Math.round(f.max_price * 100) : null,
-          hideSold: !f.include_unavailable,
-        },
-        8,
-      );
+      };
+      const { items, total } = await listProducts({ ...filters, hideSold: !f.include_unavailable }, 8);
+      // A search for things to buy must still reveal that a matching item exists but is on hold or
+      // sold, otherwise the customer is wrongly told the shop has never had it.
+      const unavailable = f.include_unavailable
+        ? []
+        : (await listProducts({ ...filters, hideSold: false }, 40)).items
+            .filter((p) => p.status !== "available")
+            .slice(0, 5)
+            .map((p) => ({ product_id: p.code, name: p.name, status: STATUS_WORDS[p.status] }));
       return json({
         total_matches: total,
         showing: items.length,
-        note: total === 0 ? "Nothing in the inventory matches these conditions." : undefined,
+        note:
+          total > 0
+            ? undefined
+            : unavailable.length
+              ? "Nothing AVAILABLE matches, but see matching_items_not_available: those items exist and are on hold or sold."
+              : "Nothing in the inventory matches these conditions.",
         products: items.map((p) => describe(p, settings, false)),
+        matching_items_not_available: unavailable.length ? unavailable : undefined,
       });
     }
 

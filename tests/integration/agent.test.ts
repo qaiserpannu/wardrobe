@@ -57,6 +57,12 @@ describe("inventory tools", () => {
       }),
     );
     expect(result!.data.total_matches).toBe(2);
+    // Items that match but cannot be bought are named with their status, never hidden.
+    expect(result!.data.matching_items_not_available).toEqual([
+      { product_id: "PLW-0031", name: "Sage Green Organza Saree", status: "on hold" },
+      { product_id: "PLW-0016", name: "Purple Kanjivaram Saree", status: "sold" },
+    ]);
+    expect(withAll!.data.matching_items_not_available).toBeUndefined();
     expect(result!.data.products.every((p: { status: string }) => p.status === "available")).toBe(true);
     expect(withAll!.data.products.map((p: { status: string }) => p.status).sort()).toEqual([
       "available",
@@ -76,6 +82,10 @@ describe("inventory tools", () => {
         const none = await tool(req, "search_products", { keywords: "tuxedo" });
         expect(none.data.total_matches).toBe(0);
         expect(none.data.note).toContain("Nothing in the inventory matches");
+        const held = await tool(req, "search_products", { keywords: "sage green organza saree" });
+        expect(held.data.total_matches).toBe(0);
+        expect(held.data.note).toContain("on hold or sold");
+        expect(held.data.matching_items_not_available[0]).toMatchObject({ product_id: "PLW-0031", status: "on hold" });
         return "ok";
       }),
     );
