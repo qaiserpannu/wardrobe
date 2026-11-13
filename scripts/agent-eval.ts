@@ -219,6 +219,13 @@ async function main() {
     const checks: Check[] = [];
     for (const turn of scenario.turns) {
       const result = await handleMessage({ channel: "web", identity, text: turn.say, viewingProductCode: turn.viewing }, model);
+      if (result.limited === "error" && usage.turns === 0) {
+        console.error(
+          "\nThe AI did not answer the very first message, so the run was stopped. The reason is on the line starting with [agent] above (for example: no credit on the account, or a wrong key).",
+        );
+        await closeDb();
+        process.exit(2);
+      }
       const reply: Reply = {
         text: result.reply,
         codes: result.products.map((p) => p.code),
