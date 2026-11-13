@@ -7,6 +7,7 @@ import type { ChatProduct } from "./chat-product-store";
 import { ChatProductCard } from "./ChatProductCard";
 
 type Props = {
+  name: string;
   greeting: string;
   messages: ChatMessage[];
   sending: boolean;
@@ -22,6 +23,7 @@ function Bubble({ message }: { message: ChatMessage }) {
   return (
     <li className={`flex flex-col gap-2 ${mine ? "items-end" : "items-start"}`} data-testid={`chat-message-${message.from}`}>
       <p
+        dir="auto"
         className={`max-w-[88%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-line ${
           mine ? "rounded-br-sm bg-accent text-white" : "rounded-tl-sm bg-sand"
         }`}
@@ -42,7 +44,7 @@ function Bubble({ message }: { message: ChatMessage }) {
 }
 
 /** The conversation with the AI assistant, plus a route to a person at all times. */
-export function AssistantPanel({ greeting, messages, sending, handoff, product, whatsappLink, inputRef, onSend }: Props) {
+export function AssistantPanel({ name, greeting, messages, sending, handoff, product, whatsappLink, inputRef, onSend }: Props) {
   const [draft, setDraft] = useState("");
   const end = useRef<HTMLDivElement>(null);
 
@@ -106,6 +108,7 @@ export function AssistantPanel({ greeting, messages, sending, handoff, product, 
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={onKeyDown}
             rows={1}
+            dir="auto"
             maxLength={CHAT_MAX_LENGTH}
             placeholder="Type your message"
             data-testid="chat-input"
@@ -134,7 +137,7 @@ export function AssistantPanel({ greeting, messages, sending, handoff, product, 
           <WhatsAppIcon /> Talk to a person on WhatsApp
         </a>
         <p className="mt-2 text-center text-[0.7rem] leading-snug text-muted" data-testid="chat-disclosure">
-          You are chatting with an AI assistant. It can make mistakes; the owner confirms every sale.
+          {name} is the shop&apos;s virtual AI assistant and can make mistakes. The owner confirms every sale.
         </p>
       </div>
     </>

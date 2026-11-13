@@ -39,10 +39,10 @@ test.afterEach(async ({ page }) => {
 });
 
 test.describe("AI assistant chat", () => {
-  test("says it is an AI and always offers a person", async ({ page }) => {
+  test("greets as Skyra, is honest that it is a virtual assistant, and always offers a person", async ({ page }) => {
     await open(page);
-    await expect(replies(page).first()).toContainText("I'm the shop's AI assistant");
-    await expect(page.getByTestId("chat-disclosure")).toContainText("AI assistant");
+    await expect(replies(page).first()).toContainText("Assalam o Alaikum! I'm Skyra. May I know your name?");
+    await expect(page.getByTestId("chat-disclosure")).toContainText("Skyra is the shop's virtual AI assistant");
     await expect(page.getByTestId("chat-start")).toHaveAttribute("href", /^https:\/\/wa\.me\/15555550100/);
   });
 

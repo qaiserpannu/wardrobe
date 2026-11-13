@@ -117,7 +117,7 @@ export function ChatWidget({
               </p>
               <p className="mt-0.5 text-xs text-white/80">
                 {siteName} ·{" "}
-                {assistant ? "AI assistant" : "replies on WhatsApp"}
+                {assistant ? "here to help you find a piece" : "replies on WhatsApp"}
               </p>
             </div>
             <button
@@ -131,6 +131,7 @@ export function ChatWidget({
           </header>
           {assistant ? (
             <AssistantPanel
+              name={assistant.name}
               greeting={assistant.greeting}
               messages={chat.messages}
               sending={chat.sending}

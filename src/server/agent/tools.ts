@@ -19,8 +19,9 @@ import type { AgentTool, ToolOutcome } from "./types";
 
 /**
  * Everything the agent can do. Inventory tools only read, through the same
- * public service functions the website uses. The three record-keeping tools
- * write conversation records and nothing else.
+ * public service functions the website uses. The record-keeping tools write
+ * conversation records (the customer's name, interest, questions, requests
+ * for a person) and nothing else.
  */
 
 export type ToolContext = {
@@ -101,6 +102,8 @@ const humanInput = z.object({
   customer_contact: text(120).optional(),
 });
 
+const nameInput = z.object({ name: text(120).min(1) });
+
 const optionalString = { type: "string" } as const;
 
 export const AGENT_TOOLS: AgentTool[] = [
@@ -140,6 +143,16 @@ export const AGENT_TOOLS: AgentTool[] = [
     name: "list_categories",
     description: "List the shop's categories and groups with how many items are available in each.",
     inputSchema: { type: "object", properties: {} },
+  },
+  {
+    name: "save_customer_name",
+    description:
+      "Remember the customer's name once they have told you it, so they are greeted by name next time. Only a name the customer gave for themselves.",
+    inputSchema: {
+      type: "object",
+      properties: { name: { type: "string" } },
+      required: ["name"],
+    },
   },
   {
     name: "record_purchase_interest",
@@ -255,6 +268,13 @@ export async function runAgentTool(ctx: ToolContext, name: string, rawInput: unk
           categories: g.children.map((c) => ({ name: c.name, slug: c.slug, available_items: c.availableCount })),
         })),
       );
+    }
+
+    case "save_customer_name": {
+      const parsed = nameInput.safeParse(rawInput);
+      if (!parsed.success) return fail("A name is required.");
+      await updateCustomerDetails(ctx.customerId, { name: parsed.data.name });
+      return json({ saved: true });
     }
 
     case "record_purchase_interest": {

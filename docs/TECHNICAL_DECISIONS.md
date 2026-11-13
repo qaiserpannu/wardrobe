@@ -771,3 +771,31 @@ once asked "Would you like to reserve it?" (instruction and check added
 afterwards, not re-run), and once said it was "correcting" an earlier
 message that was already correct. If these bother the owner, the next
 model up (`AI_MODEL=claude-sonnet-5-5`) costs about 20 times more.
+
+## D35 — The assistant's persona: Skyra (2026-11-13)
+
+**Status:** Decided by the owner, with one limit kept (below)
+
+- The assistant is called Skyra, opens with "Assalam o Alaikum", asks the
+  customer's name once and uses it, and asks what they are looking for
+  (specific or browsing, occasion, size, colour, budget) one or two
+  questions at a time.
+- It replies in the customer's language and script: English, Roman Urdu or
+  Hindi (in English letters), or Urdu script. Inventory stays in English;
+  the model translates search words. Names, IDs, sizes and prices are kept
+  as recorded.
+- A fourth record-keeping tool, `save_customer_name`, stores the name on the
+  customer record; a returning customer's name is given to the model in a
+  per-turn context note. It writes nothing else.
+- **Limit kept:** the owner asked that it not say it is an AI assistant. It
+  no longer announces this, and the header no longer says "AI assistant".
+  But it never claims to be a person or the owner, it answers truthfully if
+  a customer sincerely asks whether they are talking to a real person, and a
+  small line under the chat says Skyra is the shop's virtual AI assistant.
+  Reasons: the owner's own earlier rule ("should not pretend to be a human
+  seller"); customers arrange money and pickup on what it says; WhatsApp
+  (Milestone 6) and some US state laws expect automated chat to be
+  identifiable. The owner can change the wording of that line but it should
+  not be removed without a decision recorded here.
+- Not yet run against the real model; three evaluation conversations were
+  added (greeting and name, Roman Urdu, Urdu script).

@@ -120,12 +120,15 @@ export async function handleMessage(incoming: IncomingMessage, model?: AgentMode
 
   const history = toHistory(await listMessages(conversation.id, HISTORY_MESSAGES));
   const viewing = incoming.viewingProductCode ? await getProductByCode(incoming.viewingProductCode) : null;
-  if (viewing && history.length) {
-    // A note for this turn only; it is not stored as something the customer said.
+  // Notes for this turn only; they are not stored as something the customer said.
+  const notes: string[] = [];
+  if (customer.name) notes.push(`the customer's name on record is ${customer.name}`);
+  if (viewing) notes.push(`they are currently on the page of product ${viewing.code}`);
+  if (notes.length && history.length) {
     const last = history[history.length - 1];
     history[history.length - 1] = {
       ...last,
-      text: `${last.text}\n\n[Website context, not written by the customer: they are currently on the page of product ${viewing.code}.]`,
+      text: `${last.text}\n\n[Context from the shop's system, not written by the customer: ${notes.join("; ")}.]`,
     };
   }
 

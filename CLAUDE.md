@@ -57,8 +57,8 @@ WhatsApp; there is no online checkout.
 - One agent core serves every channel (website chat, WhatsApp). Channel code
   lives in adapters; never put channel-specific logic in the core (D24).
 - Inventory and settings are read-only for the agent. Its only writes are
-  conversation records through three narrow tools: record purchase interest,
-  escalate a question, request a human. It never changes a product's status
+  conversation records through four narrow tools: save the customer's name,
+  record purchase interest, escalate a question, request a human. It never changes a product's status
   and never confirms a sale or a hold (D26).
 - Product facts shown to customers come from tool results, not from model
   text. Product cards are rendered by our code from database records.
@@ -70,7 +70,11 @@ WhatsApp; there is no online checkout.
   public or agent code paths (D25).
 - Notify the owner only for: serious buying interest, a question the agent
   cannot answer, or a request for a human (D27).
-- The agent always identifies itself as an AI and offers a human handoff.
+- The agent is "Skyra". It does not announce that it is an AI, but it never
+  claims to be a person or the owner, tells the truth when sincerely asked,
+  and the chat panel carries a small disclosure line (D35). It always
+  offers a human handoff. It replies in the customer's language (English,
+  Roman Urdu, Urdu).
 - All model calls go through the provider interface
   (`src/server/agent/providers`). The core never imports a vendor SDK.
 - Rules the business depends on are enforced in code (`core.ts`,

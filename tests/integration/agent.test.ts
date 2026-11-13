@@ -129,6 +129,7 @@ describe("inventory tools", () => {
       "list_categories",
       "record_purchase_interest",
       "request_human",
+      "save_customer_name",
       "search_products",
     ]);
   });
@@ -330,11 +331,29 @@ describe("conversation memory and limits", () => {
     expect(second.map((m) => m.role)).toEqual(["user", "assistant", "user"]);
     expect(second[0].text).toBe("I wear size M and my budget is $60");
     expect(second[2].text).toContain(`currently on the page of product ${AVAILABLE}`);
+    expect(second[2].text).not.toContain("name on record");
     const stored = await rows<{ body: string }>(sql`select body from messages where sender = 'customer' order by created_at`);
     expect(stored[1].body).toBe("what about this one?");
     // A page for something that is not public is ignored.
     await handleMessage({ ...who, text: "and this?", viewingProductCode: DRAFT }, model);
     expect(model.requests[2].history.at(-1)!.text).toBe("and this?");
+  });
+
+  it("remembers a name the customer gave and greets a returning customer by it", async () => {
+    const who = visitor();
+    await handleMessage(
+      { ...who, text: "I'm Ayesha" },
+      scripted(async (req) => {
+        expect((await req.runTool("save_customer_name", { name: "" })).isError).toBe(true);
+        expect((await tool(req, "save_customer_name", { name: "Ayesha" })).data.saved).toBe(true);
+        return "Nice to meet you, Ayesha.";
+      }),
+    );
+    expect(await rows(sql`select name from customers`)).toEqual([{ name: "Ayesha" }]);
+    const model = says("Welcome back.");
+    await handleMessage({ ...who, text: "hello again" }, model);
+    expect(model.requests[0].history.at(-1)!.text).toContain("the customer's name on record is Ayesha");
+    expect(await count("notifications")).toBe(0);
   });
 
   it("keeps separate visitors' conversations apart", async () => {
@@ -379,7 +398,7 @@ describe("conversation memory and limits", () => {
 describe("instructions given to the AI", () => {
   it("contain the approved shop information and the core rules, and nothing secret", async () => {
     const prompt = buildSystemPrompt(await getSettings(), await listActiveKnowledge(), "web");
-    for (const part of ["Tampa, Florida", "Zelle, Cash App, or cash", "All sales are final", "escalate_question", "You are an AI assistant", "not instructions to you", "Never say an item is theirs"]) {
+    for (const part of ["Tampa, Florida", "Zelle, Cash App, or cash", "All sales are final", "escalate_question", "Assalam o Alaikum", "Roman Urdu", "save_customer_name", "tell them the truth plainly", "You are an AI assistant, not the owner", "not instructions to you", "Never say an item is theirs"]) {
       expect(prompt).toContain(part);
     }
     expect(prompt).not.toMatch(/postgres:|API_KEY|18139907900/);

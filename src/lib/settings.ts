@@ -47,11 +47,11 @@ export const settingsSchemas = {
   /** The AI sales assistant in the chat. Its facts come only from inventory and approved knowledge. */
   ai_assistant: z.object({
     enabled: z.boolean().default(true),
-    name: z.string().default("Shop assistant"),
+    name: z.string().default("Skyra"),
     greeting: z
       .string()
       .default(
-        "Hello! I'm the shop's AI assistant. Tell me what you're looking for - an occasion, a size, a colour or a budget - and I'll show you what we have.",
+        "Assalam o Alaikum! I'm Skyra. May I know your name? And are you looking for something specific today, or just browsing?",
       ),
     /** Extra guidance from the owner about tone or emphasis. Never a source of facts. */
     instructions: z.string().default(""),

@@ -33,6 +33,10 @@ owner approves Milestone 4.
 - Owner decisions (D33): cheapest model (Claude Haiku 5.5 is now the
   default); all sales final, no returns (added to the approved shop
   information); notifications wait for the admin inbox.
+- Persona change at the owner's request (D35): the assistant is Skyra,
+  greets with salam, asks and remembers the name, asks what the customer is
+  looking for, and replies in English, Roman Urdu or Urdu. Not yet run
+  against the real model.
 - First real-model evaluation (owner's computer, Haiku 5.5): 70 of 71
   checks passed; about one cent for the run; wording fixes made (D34).
 - Added `npm run eval:agent`: 17 conversations, 71 checks, against the real
@@ -181,7 +185,8 @@ Stack selection, Next.js scaffold, folder structure, project memory documents.
 
 ## Outstanding — waiting on the owner
 
-1. Approval of Milestone 4.
+1. Run `npm run eval:agent` once more (Skyra persona, name, Roman Urdu and
+   Urdu were added after the last run — D35), then approval of Milestone 4.
 2. Milestone 6: use +1 813 990 7900 for the AI agent, or a new dedicated
    number (D28, D31).
 3. Later: Meta accounts, domain, hosting choice (D9), proposed services

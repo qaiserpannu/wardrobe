@@ -40,9 +40,9 @@ test.describe("chat widget", () => {
     await expect(panel(page)).toBeVisible();
     await expect(launcher(page)).toHaveAttribute("aria-expanded", "true");
     await expect(panel(page)).toHaveAttribute("data-mode", "assistant");
-    await expect(panel(page)).toContainText("Shop assistant");
-    await expect(panel(page)).toContainText("I'm the shop's AI assistant");
-    await expect(page.getByTestId("chat-disclosure")).toContainText("You are chatting with an AI assistant");
+    await expect(panel(page)).toContainText("Skyra");
+    await expect(panel(page)).toContainText("Assalam o Alaikum");
+    await expect(page.getByTestId("chat-disclosure")).toContainText("virtual AI assistant");
     await expect(startLink(page)).toHaveText(/talk to a person on whatsapp/i);
     await expect(startLink(page)).toHaveAttribute("target", "_blank");
     await expect(startLink(page)).toHaveAttribute("rel", /noopener/);
