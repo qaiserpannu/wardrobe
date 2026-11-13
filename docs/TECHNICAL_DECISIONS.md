@@ -93,7 +93,7 @@ storage key per image, not a full URL.
 
 ## D7 — Better Auth for admin login (confirm at Milestone 5)
 
-**Status:** Proposed
+**Status:** Replaced by D36
 
 Email and password login, with user and session records in our own database.
 Public sign-up disabled. The first admin is created by a one-time command-line
@@ -836,3 +836,40 @@ kind and in script, Roman Urdu and Urdu replies fluent. The two misses were
 over-strict checks (offering sherwanis when asked for a tuxedo; "still
 available" said about a different item), since corrected. The assistant is
 considered ready on Claude Haiku 5.5.
+
+## D36 — Admin login is our own small implementation (2026-11-13)
+
+**Status:** Decided at the start of Milestone 5 (replaces D7). Flagged to the
+owner in the part 1 report.
+
+D7 proposed the Better Auth library and asked for a re-check when Milestone 5
+began. On re-checking, the need is one owner signing in with an email and
+password, and that is small enough to build directly on Node.js's built-in
+cryptography:
+
+- Passwords: scrypt with a random salt per password (`src/server/auth/password.ts`).
+  At least 12 characters.
+- Sessions: a random 256-bit value in an httpOnly, same-site cookie
+  (`plw_admin`); the database keeps only its SHA-256 fingerprint. Ends after
+  7 days without use, 30 days at most, on sign-out, and (for other browsers)
+  on a password change.
+- Guessing protection: 5 wrong passwords for an email, or 20 from one
+  address, within 15 minutes locks further attempts. Unknown emails take the
+  same time and give the same message as wrong passwords.
+- No sign-up page or sign-up function reachable from the web. Accounts are
+  created, and forgotten passwords reset, only by `npm run admin:create` on
+  the server. The password is typed there, hidden, and never written down.
+- Every admin page, action and API calls `requireAdmin()`, which checks the
+  database. `src/proxy.ts` is only a first quick redirect for visitors with
+  no cookie; it is not the security check.
+- Cross-site request forgery: all changes go through Server Actions, which
+  Next.js restricts to the site's own origin, and the cookie is same-site.
+
+- Why not the library: it would be the project's largest dependency for a
+  one-user login, has its own stream of security updates to follow, and its
+  fit with this Next.js version was unproven. The code we own is about 250
+  lines and is covered by 16 tests.
+- Trade-off: no email-based "forgot password", no two-step sign-in, no
+  multiple roles. If more staff or two-step sign-in are wanted later,
+  moving to a library is a contained change (two tables, one service file).
+- `AUTH_SECRET` is not needed and was removed from `.env.example`.

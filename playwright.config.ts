@@ -22,7 +22,7 @@ export default defineConfig({
     { name: "mobile", use: { ...devices["Pixel 7"] } },
   ],
   webServer: {
-    command: `npm run db:seed && npx next build && npx next start -p ${PORT}`,
+    command: `npm run db:seed && npx tsx --conditions=react-server tests/support/create-test-admin.ts && npx next build && npx next start -p ${PORT}`,
     url: `http://localhost:${PORT}`,
     timeout: 240_000,
     reuseExistingServer: false,

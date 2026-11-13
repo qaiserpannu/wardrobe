@@ -4,13 +4,40 @@ Update this file at the end of every working session.
 
 ## Current milestone
 
-**Milestone 4 — AI sales agent on the website chat: built, tested, and
-evaluated against the real AI on the owner's computer (75 of 75 checks,
-D34). Awaiting owner approval.**
-Milestone 3 was approved on 2026-11-13. Do not start Milestone 5 until the
-owner approves Milestone 4.
+**Milestone 5 — Admin portal: in progress, built and shown in parts.**
+Milestone 4 was approved on 2026-11-13.
+
+| Part | What | State |
+| --- | --- | --- |
+| 1 | Secure sign-in, setup command, dashboard, account page | Built and tested; shown to the owner |
+| 2 | Products: add, edit, photos, status changes, holds with 72-hour expiry | Not started |
+| 3 | Categories and settings | Not started |
+| 4 | Inbox (conversations, requests, replies) and AI management | Not started |
+| 5 | Audit log page, security review, full verification | Not started |
 
 ## Completed
+
+### Milestone 5, part 1 (2026-11-13) — admin sign-in and dashboard (see D36)
+
+- `/admin` is a separate area with its own frame; the shop header, footer
+  and chat button are not part of it. Public pages moved into the `(site)`
+  route group; addresses did not change.
+- Sign-in with email and password. No sign-up page exists. The account is
+  created only by `npm run admin:create`, which asks for the details in the
+  terminal (password hidden) and also resets a forgotten password.
+- Passwords stored as salted scrypt hashes; sessions are random values held
+  in an httpOnly, same-site cookie with only a fingerprint in the database;
+  7 days idle / 30 days maximum; lockout after 5 wrong passwords per email
+  or 20 per address in 15 minutes.
+- Dashboard: counts by status, customer requests waiting, recently changed
+  items, recent activity. Account page: change password (signs out other
+  browsers).
+- New tables (sixth migration): admin_users, admin_sessions, login_attempts,
+  audit_log. No new dependency.
+- Tests: 85 logic/database tests (16 new); 21 new browser runs for the admin
+  area across desktop, tablet and phone.
+- NOT tested: typing the password into the setup command on Windows (tested
+  on Linux, in a real terminal and with piped answers).
 
 ### Milestone 4 (2026-11-13) — AI sales agent, website chat (see D32)
 
@@ -185,7 +212,7 @@ Stack selection, Next.js scaffold, folder structure, project memory documents.
 
 ## Outstanding — waiting on the owner
 
-1. Approval of Milestone 4.
+1. Feedback on Milestone 5 part 1; go-ahead for part 2 (products).
 2. Milestone 6: use +1 813 990 7900 for the AI agent, or a new dedicated
    number (D28, D31).
 3. Later: Meta accounts, domain, hosting choice (D9), proposed services
@@ -223,4 +250,4 @@ Stack selection, Next.js scaffold, folder structure, project memory documents.
 
 ## Next steps
 
-1. On Milestone 4 approval: Milestone 5, the admin portal.
+1. Milestone 5 part 2: product management, photos, status changes, holds.

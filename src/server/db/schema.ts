@@ -263,3 +263,67 @@ export const aiKnowledge = pgTable("ai_knowledge", {
   sortOrder: integer("sort_order").notNull().default(0),
   ...timestamps,
 });
+
+/* ------------------------------------------------------------------ */
+/* Admin portal: login, sessions, audit log (Milestone 5)              */
+/* ------------------------------------------------------------------ */
+
+/** People who may sign in to /admin. Created only by the setup script; there is no sign-up page. */
+export const adminUsers = pgTable("admin_users", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  /** Always stored in lower case. */
+  email: text("email").notNull().unique(),
+  name: text("name").notNull(),
+  /** A salted scrypt hash. The password itself is never stored. */
+  passwordHash: text("password_hash").notNull(),
+  lastLoginAt: timestamp("last_login_at", { withTimezone: true }),
+  ...timestamps,
+});
+
+/** One signed-in browser. Only a fingerprint of the cookie value is stored. */
+export const adminSessions = pgTable(
+  "admin_sessions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => adminUsers.id, { onDelete: "cascade" }),
+    tokenHash: text("token_hash").notNull().unique(),
+    /** Hard limit, however active the session is. */
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    lastSeenAt: timestamp("last_seen_at", { withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("admin_sessions_user_idx").on(t.userId)],
+);
+
+/** Failed sign-in attempts, kept briefly to slow down password guessing. */
+export const loginAttempts = pgTable(
+  "login_attempts",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    /** "email:someone@example.com" or "ip:203.0.113.5". */
+    subject: text("subject").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("login_attempts_subject_idx").on(t.subject, t.createdAt)],
+);
+
+/** Who changed what, and when. Rows are only ever added. */
+export const auditLog = pgTable(
+  "audit_log",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    /** Null for automatic changes (for example a hold expiring) or a failed sign-in. */
+    adminUserId: uuid("admin_user_id").references(() => adminUsers.id, { onDelete: "set null" }),
+    /** Short machine name, e.g. "auth.login", "product.status". */
+    action: text("action").notNull(),
+    entityType: text("entity_type"),
+    entityId: text("entity_id"),
+    /** One plain-language line shown in the admin portal. */
+    summary: text("summary").notNull(),
+    details: jsonb("details").$type<Record<string, unknown>>(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("audit_log_created_idx").on(t.createdAt), index("audit_log_entity_idx").on(t.entityType, t.entityId)],
+);

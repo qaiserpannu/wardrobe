@@ -11,6 +11,7 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx --conditions=react-server --env-file-if-exists=.env.local src/server/db/migrate.ts",
     "db:seed": "tsx --conditions=react-server --env-file-if-exists=.env.local src/server/db/seed/index.ts",
+    "admin:create": "tsx --conditions=react-server --env-file-if-exists=.env.local scripts/create-admin.ts",
     "test": "vitest run",
     "eval:agent": "tsx --conditions=react-server --env-file-if-exists=.env.local scripts/agent-eval.ts",
     "test:e2e": "playwright test"

@@ -50,7 +50,16 @@ WhatsApp; there is no online checkout.
   only for items that can be bought (`available`).
 - Validate all external input (forms, query strings, API bodies, uploads) on
   the server.
-- Every admin page and admin API checks authentication on the server.
+- Every admin page, Server Action and admin API calls `requireAdmin()`
+  (`src/server/auth/session.ts`) itself; a layout or `src/proxy.ts` is not
+  enough. Admin pages read the session inside `<Suspense>`.
+- There is no sign-up route. Admin accounts come only from
+  `npm run admin:create` (D36). Never add credentials to code, seed data or
+  environment files.
+- Admin-only services are named `admin-*.ts`; never import them from public
+  pages, the chat API or the agent.
+- Public pages live in `src/app/(site)`; the admin portal in `src/app/admin`.
+- Record every admin change with `recordAudit` (no secrets in it).
 
 ## AI agent rules (Milestone 4 onward)
 
@@ -113,6 +122,7 @@ WhatsApp; there is no online checkout.
 - `npm run typecheck` — regenerate route types, then TypeScript checks
 - `npm run build` — production build (needs `DATABASE_URL`; settings are read at build time)
 - `npm run db:seed` — migrate and reset the database to sample data
+- `npm run admin:create` — create the administrator, or reset the password (interactive)
 - `npm run db:generate` — create a migration after changing `src/server/db/schema.ts`
 - `npm test` — Vitest unit and database tests against `wardrobe_test`
 - `npm run test:e2e` — Playwright; seeds the test database, builds, serves on port 3100

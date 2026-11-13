@@ -47,7 +47,16 @@ Requires Node.js 20.19 or newer and a PostgreSQL 16 database.
    npm run db:seed
    ```
 
-5. Start the site, then open http://localhost:3000:
+5. Create your administrator account (once). It asks for your email, name
+   and a password of at least 12 characters; the password is not shown while
+   you type. Run it again later if you forget the password.
+
+   ```bash
+   npm run admin:create
+   ```
+
+6. Start the site, then open http://localhost:3000. The admin portal is at
+   http://localhost:3000/admin.
 
    ```bash
    npm run dev
@@ -61,6 +70,7 @@ Requires Node.js 20.19 or newer and a PostgreSQL 16 database.
 | `npm run build` then `npm run start` | Build and run the production version |
 | `npm run db:migrate` | Apply database changes |
 | `npm run db:seed` | Reset the database to the sample data |
+| `npm run admin:create` | Create the administrator account, or reset its password |
 | `npm run db:generate` | Create a migration after editing the schema |
 | `npm run lint` / `npm run typecheck` | Code checks |
 | `npm run eval:agent` | Test conversations against the real AI (needs the key; small cost) |

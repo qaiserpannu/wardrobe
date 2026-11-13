@@ -190,10 +190,11 @@ notification email address.
 
 Steps:
 
-1. Authentication: login, logout, change password, protected routes and APIs,
+1. [x] Authentication: login, logout, change password, protected routes and APIs,
    one-time setup script for the first admin. No public registration.
-2. Dashboard: product counts by status (draft, available, pending, sold),
-   recent items, recent changes, open escalations.
+   (Built in part 1; own implementation, D36.)
+2. [x] Dashboard: product counts by status (draft, available, pending, sold),
+   recent items, recent changes, open escalations. (Built in part 1.)
 3. Product management: create, edit, draft, preview, publish, archive; all
    product details including fabric, pieces, stitching, occasion and
    imperfections; multi-photo upload with reordering.

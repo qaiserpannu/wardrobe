@@ -107,23 +107,51 @@ Approved business information the assistant may quote.
 | is_active | boolean | |
 | sort_order | integer | |
 
-## Admin users and sessions — Milestone 5
+## admin_users — Milestone 5 (built)
 
-Tables for users, sessions and credentials are created and managed by the
-authentication library (see `TECHNICAL_DECISIONS.md` D7). Users have a `role`
-column (`admin` initially) to allow more roles later. Passwords are stored only
-as salted hashes.
-
-## audit_log — Milestone 5
+Created only by the setup command (`npm run admin:create`); see D36.
 
 | Column | Type | Notes |
 | --- | --- | --- |
 | id | uuid, primary key | |
-| admin_user_id | → admin user | |
-| action | text | e.g. `product.create`, `product.mark_sold`, `settings.update` |
-| entity_type | text | `product`, `category`, `settings` |
-| entity_id | text | |
-| changes | jsonb | Before/after values of changed fields |
+| email | text, unique | Lower case |
+| name | text | Shown in the portal and the audit log |
+| password_hash | text | Salted scrypt hash; the password is never stored |
+| last_login_at | timestamp | |
+| created_at, updated_at | timestamp | |
+
+## admin_sessions — Milestone 5 (built)
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| id | uuid, primary key | |
+| user_id | → admin_users | Deleted with the user |
+| token_hash | text, unique | SHA-256 of the cookie value; the value itself is not stored |
+| expires_at | timestamp | 30 days after sign-in |
+| last_seen_at | timestamp | A session unused for 7 days is no longer accepted |
+| created_at | timestamp | |
+
+## login_attempts — Milestone 5 (built)
+
+Failed sign-ins, kept for a day, used to lock out password guessing.
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| id | uuid, primary key | |
+| subject | text | `email:…` or `ip:…` |
+| created_at | timestamp | |
+
+## audit_log — Milestone 5 (built)
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| id | uuid, primary key | |
+| admin_user_id | → admin_users, nullable | Null for automatic changes and unknown sign-in attempts |
+| action | text | e.g. `auth.login`, `product.status`, `settings.update` |
+| entity_type | text, nullable | `product`, `category`, `settings` |
+| entity_id | text, nullable | |
+| summary | text | One plain-language line shown in the portal |
+| details | jsonb, nullable | Before/after values; never passwords or secrets |
 | created_at | timestamp | No `updated_at`; entries are never edited |
 
 ## Planned for the expanded roadmap (not built)
