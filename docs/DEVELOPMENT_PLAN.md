@@ -169,9 +169,10 @@ Completion criteria:
   with no duplicates, limits, safe fallback on failure.
 - [x] With no provider or with the assistant switched off, the widget is the
   WhatsApp click-to-chat panel.
-- [ ] Evaluation against the real AI model (the scenario list in step 8).
-  Not run: no AI key was available in the development environment.
-- [ ] Email delivery of notifications checked with a real email account.
+- [ ] Evaluation against the real AI model: `npm run eval:agent` (D33).
+  Written and self-checked, but not run with the real model; it has to be
+  run on the owner's computer, where the key is.
+- Email delivery is deferred: the owner chose to wait for the admin inbox.
 - [ ] Owner approval.
 
 Known so far (D31): local pickup in Tampa, Florida; payment by Zelle, Cash

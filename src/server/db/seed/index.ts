@@ -129,6 +129,13 @@ export async function seed() {
         "Choose an item, then tell us you would like it. The owner confirms availability and arranges pickup and payment with you directly. An item is only yours once the owner has confirmed it.",
       sortOrder: 3,
     },
+    {
+      kind: "policy",
+      title: "Returns",
+      content:
+        "All sales are final. There are no returns, refunds or exchanges. Please check the description, size, photos and recorded imperfections, and ask any questions, before you buy.",
+      sortOrder: 4,
+    },
   ]);
 
   return { products: seedProducts.length, categories: categoryId.size };

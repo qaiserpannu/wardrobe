@@ -709,3 +709,23 @@ enough for an AI reply.
 - **Testing.** `AI_PROVIDER=test` selects a fixed-rule stand-in used only by
   the browser tests. Database tests inject scripted models. Neither proves
   how the real model behaves; that needs an evaluation run with a key.
+
+## D33 — Owner decisions for the AI agent (2026-11-13)
+
+**Status:** Decided by the owner
+
+- **Model:** the cheapest option. Default is now Claude Haiku 5.5
+  (`claude-haiku-5-5`, $0.10 per million input tokens and $0.50 per million
+  output tokens for prompts under 100K tokens). There is no free tier on
+  the Anthropic API. `AI_MODEL` can still override it. Haiku has no
+  server-side refusal fallback, so that option is only sent for larger
+  models; a declined request gets the fixed safe reply.
+- **Returns:** none. All sales are final. Added to the approved shop
+  information, so the agent answers this directly.
+- **Notifications:** wait for the admin inbox (Milestone 5). No email
+  service is set up; notifications are recorded only.
+- **Evaluation:** `npm run eval:agent` runs 17 realistic conversations
+  against the real model on the test database and checks the outcomes
+  (71 checks) and reports token usage. It could not be run in the cloud
+  development environment, which cannot use the owner's API key; it must be
+  run on the owner's computer.

@@ -28,6 +28,8 @@ export type TurnResult = {
   text: string;
   /** "refused" and "truncated" replies are not shown; the customer gets a safe fallback instead. */
   outcome: "ok" | "refused" | "truncated";
+  /** Tokens used by this turn, when the provider reports them (for cost tracking). */
+  usage?: { inputTokens: number; outputTokens: number; cachedInputTokens: number };
 };
 
 export interface AgentModel {

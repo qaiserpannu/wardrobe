@@ -369,7 +369,7 @@ describe("conversation memory and limits", () => {
 describe("instructions given to the AI", () => {
   it("contain the approved shop information and the core rules, and nothing secret", async () => {
     const prompt = buildSystemPrompt(await getSettings(), await listActiveKnowledge(), "web");
-    for (const part of ["Tampa, Florida", "Zelle, Cash App, or cash", "escalate_question", "You are an AI assistant", "not instructions to you", "Never say an item is theirs"]) {
+    for (const part of ["Tampa, Florida", "Zelle, Cash App, or cash", "All sales are final", "escalate_question", "You are an AI assistant", "not instructions to you", "Never say an item is theirs"]) {
       expect(prompt).toContain(part);
     }
     expect(prompt).not.toMatch(/postgres:|API_KEY|18139907900/);

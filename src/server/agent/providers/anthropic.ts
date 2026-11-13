@@ -2,7 +2,8 @@ import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
 import type { AgentModel, TurnRequest, TurnResult } from "../types";
 
-const DEFAULT_MODEL = "claude-opus-5-5";
+/** The lowest-cost current Claude model, chosen by the owner (D33). Override with AI_MODEL. */
+const DEFAULT_MODEL = "claude-haiku-5-5";
 const EFFORTS = ["low", "medium", "high", "xhigh", "max"] as const;
 type Effort = (typeof EFFORTS)[number];
 
@@ -22,6 +23,12 @@ export function createAnthropicModel(): AgentModel {
   const client = new Anthropic({ timeout: 60_000, maxRetries: 2 });
   const model = process.env.AI_MODEL?.trim() || DEFAULT_MODEL;
 
+  // Larger models can have the API retry a wrongly declined request on a fallback
+  // model. Haiku has no such fallback; a declined request gets our safe reply instead.
+  const fallback = model.includes("haiku")
+    ? {}
+    : { betas: ["server-side-fallback-2026-07-01" as const], fallbacks: "default" as const };
+
   return {
     async runTurn(request: TurnRequest): Promise<TurnResult> {
       const tools: Anthropic.Beta.BetaTool[] = request.tools.map((t) => ({
@@ -34,13 +41,13 @@ export function createAnthropicModel(): AgentModel {
         content: m.text,
       }));
 
+      const usage = { inputTokens: 0, outputTokens: 0, cachedInputTokens: 0 };
+
       for (let step = 0; step < MAX_STEPS; step++) {
         const response = await client.beta.messages.create({
           model,
           max_tokens: 16000,
-          // If a safety check declines a harmless request, let the API retry it on its fallback model.
-          betas: ["server-side-fallback-2026-07-01"],
-          fallbacks: "default",
+          ...fallback,
           system: request.system,
           tools,
           messages,
@@ -50,8 +57,12 @@ export function createAnthropicModel(): AgentModel {
           cache_control: { type: "ephemeral" },
         });
 
-        if (response.stop_reason === "refusal") return { text: "", outcome: "refused" };
-        if (response.stop_reason === "max_tokens") return { text: "", outcome: "truncated" };
+        usage.inputTokens += response.usage.input_tokens + (response.usage.cache_creation_input_tokens ?? 0);
+        usage.cachedInputTokens += response.usage.cache_read_input_tokens ?? 0;
+        usage.outputTokens += response.usage.output_tokens;
+
+        if (response.stop_reason === "refusal") return { text: "", outcome: "refused", usage };
+        if (response.stop_reason === "max_tokens") return { text: "", outcome: "truncated", usage };
 
         if (response.stop_reason === "pause_turn") {
           messages.push({ role: "assistant", content: response.content });
@@ -68,7 +79,7 @@ export function createAnthropicModel(): AgentModel {
             .map((b) => b.text)
             .join("\n")
             .trim();
-          return { text, outcome: "ok" };
+          return { text, outcome: "ok", usage };
         }
 
         // Pass the assistant turn back unchanged, then answer every tool call in one message.
@@ -87,7 +98,7 @@ export function createAnthropicModel(): AgentModel {
         messages.push({ role: "user", content: results });
       }
 
-      return { text: "", outcome: "truncated" };
+      return { text: "", outcome: "truncated", usage };
     },
   };
 }

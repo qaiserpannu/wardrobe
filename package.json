@@ -12,6 +12,7 @@
     "db:migrate": "tsx --conditions=react-server --env-file-if-exists=.env.local src/server/db/migrate.ts",
     "db:seed": "tsx --conditions=react-server --env-file-if-exists=.env.local src/server/db/seed/index.ts",
     "test": "vitest run",
+    "eval:agent": "tsx --conditions=react-server --env-file-if-exists=.env.local scripts/agent-eval.ts",
     "test:e2e": "playwright test"
   },
   "dependencies": {

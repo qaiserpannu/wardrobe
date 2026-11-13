@@ -28,9 +28,13 @@ owner approves Milestone 4.
 - Tests: 68 logic/database tests (20 new for the agent); 164 browser runs
   passed across desktop, tablet and phone (7 size-specific skips); lint,
   type-check, build; visual check of both panels at desktop and phone sizes.
-- NOT tested: the real AI model's behaviour (needs a key); sending
-  notification emails (needs an email account). Until then, notifications
-  are only stored in the database.
+- NOT tested: the real AI model's behaviour; sending notification emails.
+- Owner decisions (D33): cheapest model (Claude Haiku 5.5 is now the
+  default); all sales final, no returns (added to the approved shop
+  information); notifications wait for the admin inbox.
+- Added `npm run eval:agent`: 17 conversations, 71 checks, against the real
+  model. The cloud environment cannot use the owner's key, so it has not
+  been run for real.
 
 ### Milestone 3 (2026-11-12) — floating WhatsApp chat button
 
@@ -174,15 +178,12 @@ Stack selection, Next.js scaffold, folder structure, project memory documents.
 
 ## Outstanding — waiting on the owner
 
-1. An Anthropic API key (console.anthropic.com), so the agent can be run and
-   evaluated for real. Choice of model after the evaluation (cost vs quality).
-2. Returns policy and any other standing answers (anything missing is
-   escalated to the owner, never guessed).
-3. Notification email address, and whether to set up Resend (free tier) for
-   sending, or wait for the admin inbox in Milestone 5.
-4. Milestone 6: use +1 813 990 7900 for the AI agent, or a new dedicated
+1. Run `npm run eval:agent` on the owner's computer (the key is there) and
+   send back the output, so the instructions can be tuned against the real
+   model (Claude Haiku 5.5, the owner's choice — D33).
+2. Milestone 6: use +1 813 990 7900 for the AI agent, or a new dedicated
    number (D28, D31).
-5. Later: Meta accounts, domain, hosting choice (D9), proposed services
+3. Later: Meta accounts, domain, hosting choice (D9), proposed services
    (D4, D6, D7).
 
 ## Known issues and limitations
@@ -217,6 +218,5 @@ Stack selection, Next.js scaffold, folder structure, project memory documents.
 
 ## Next steps
 
-1. When the owner provides an AI key: run the evaluation scenarios against
-   the real model, tune the instructions, report results and cost per chat.
+1. With the owner's evaluation output: fix whatever fails, re-run, report.
 2. On Milestone 4 approval: Milestone 5, the admin portal.

@@ -63,6 +63,7 @@ Requires Node.js 20.19 or newer and a PostgreSQL 16 database.
 | `npm run db:seed` | Reset the database to the sample data |
 | `npm run db:generate` | Create a migration after editing the schema |
 | `npm run lint` / `npm run typecheck` | Code checks |
+| `npm run eval:agent` | Test conversations against the real AI (needs the key; small cost) |
 | `npm test` | Logic and database tests (uses the `wardrobe_test` database) |
 | `npm run test:e2e` | Browser tests at desktop, tablet and phone sizes |
 
