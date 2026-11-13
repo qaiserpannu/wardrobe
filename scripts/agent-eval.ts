@@ -41,6 +41,7 @@ const scenarios: Scenario[] = [
         say: "Hi, do you have a lehenga for a party, under $100?",
         expect: (r) => [
           { name: "recommends the peach party lehenga", pass: r.codes.includes("PLW-0012"), detail: r.codes.join(",") },
+          lacks("does not offer to reserve it itself", r.text, /would you like (me )?to (reserve|hold)|i can (reserve|hold)/i),
           allAvailable(r),
           lacks("does not offer the $320 bridal lehenga as within budget", r.text, /PLW-0011[^.]*under/i),
         ],

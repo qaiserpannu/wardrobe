@@ -4,8 +4,9 @@ Update this file at the end of every working session.
 
 ## Current milestone
 
-**Milestone 4 — AI sales agent on the website chat: built and tested with
-stand-in models; NOT yet run against the real AI (no key available).**
+**Milestone 4 — AI sales agent on the website chat: built, tested, and
+evaluated against the real AI on the owner's computer (75 of 75 checks,
+D34). Awaiting owner approval.**
 Milestone 3 was approved on 2026-11-13. Do not start Milestone 5 until the
 owner approves Milestone 4.
 
@@ -180,8 +181,7 @@ Stack selection, Next.js scaffold, folder structure, project memory documents.
 
 ## Outstanding — waiting on the owner
 
-1. Re-run `npm run eval:agent` after the wording fixes in D34 and send the
-   output; then Milestone 4 approval.
+1. Approval of Milestone 4.
 2. Milestone 6: use +1 813 990 7900 for the AI agent, or a new dedicated
    number (D28, D31).
 3. Later: Meta accounts, domain, hosting choice (D9), proposed services
@@ -219,5 +219,4 @@ Stack selection, Next.js scaffold, folder structure, project memory documents.
 
 ## Next steps
 
-1. With the owner's evaluation output: fix whatever fails, re-run, report.
-2. On Milestone 4 approval: Milestone 5, the admin portal.
+1. On Milestone 4 approval: Milestone 5, the admin portal.

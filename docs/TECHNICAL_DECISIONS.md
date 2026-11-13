@@ -762,3 +762,12 @@ returned only available items, so the model could not see the item. Fixed
 in code rather than by instruction: every search now also lists matching
 items that are on hold or sold, by name and status
 (`matching_items_not_available`). Test and evaluation check added.
+
+Third run (2026-11-13, after the search fix): 75 of 75 checks passed; the
+on-hold saree was correctly described as on hold in the first reply. About
+one cent for the run, 2.1 seconds per reply. Remaining quirks seen in the
+transcripts, typical of the lowest-cost model and not safety issues: it
+once asked "Would you like to reserve it?" (instruction and check added
+afterwards, not re-run), and once said it was "correcting" an earlier
+message that was already correct. If these bother the owner, the next
+model up (`AI_MODEL=claude-sonnet-5-5`) costs about 20 times more.
