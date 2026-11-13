@@ -5,6 +5,7 @@ import { PAGE_SIZE, type CatalogFilters } from "@/lib/catalog-params";
 import { getDb } from "@/server/db/client";
 import { categories, productImages, products } from "@/server/db/schema";
 import { getStorage } from "@/server/storage";
+import { ensureHoldsCurrent } from "./hold-expiry";
 import type { CatalogFacets, ProductListResult, PublicImage, PublicProduct } from "./types";
 
 /** The group a category sits in, joined alongside it in every query. */
@@ -171,6 +172,7 @@ export async function listProducts(
   filters: Partial<CatalogFilters> = {},
   pageSize: number = PAGE_SIZE,
 ): Promise<ProductListResult> {
+  await ensureHoldsCurrent();
   const where = filterConditions(filters);
 
   const [{ total }] = await getDb()
@@ -201,6 +203,7 @@ export async function listProducts(
 }
 
 export async function getProductBySlug(slug: string): Promise<PublicProduct | null> {
+  await ensureHoldsCurrent();
   if (!/^[a-z0-9-]{1,200}$/.test(slug)) return null;
   const rows = await baseQuery()
     .where(and(isPublic, eq(products.slug, slug)))
@@ -210,6 +213,7 @@ export async function getProductBySlug(slug: string): Promise<PublicProduct | nu
 
 /** Look up one public product by its product ID (PLW-0001). Case does not matter. */
 export async function getProductByCode(code: string): Promise<PublicProduct | null> {
+  await ensureHoldsCurrent();
   const normalized = code.trim().toUpperCase();
   if (!/^PLW-\d{1,9}$/.test(normalized)) return null;
   const rows = await baseQuery()
@@ -220,6 +224,7 @@ export async function getProductByCode(code: string): Promise<PublicProduct | nu
 
 /** Featured items for the homepage. Only items that can actually be bought. */
 export async function getFeaturedProducts(limit = 4): Promise<PublicProduct[]> {
+  await ensureHoldsCurrent();
   const rows = await baseQuery()
     .where(and(isPublic, eq(products.status, "available"), eq(products.isFeatured, true)))
     .orderBy(sql`${products.publishedAt} desc nulls last`, asc(products.code))
@@ -228,6 +233,7 @@ export async function getFeaturedProducts(limit = 4): Promise<PublicProduct[]> {
 }
 
 export async function getRecentProducts(limit = 8): Promise<PublicProduct[]> {
+  await ensureHoldsCurrent();
   const rows = await baseQuery()
     .where(and(isPublic, eq(products.status, "available")))
     .orderBy(sql`${products.publishedAt} desc nulls last`, asc(products.code))
@@ -237,6 +243,7 @@ export async function getRecentProducts(limit = 8): Promise<PublicProduct[]> {
 
 /** Other available items from the same category. */
 export async function getRelatedProducts(product: PublicProduct, limit = 4): Promise<PublicProduct[]> {
+  await ensureHoldsCurrent();
   const rows = await baseQuery()
     .where(
       and(
@@ -253,6 +260,7 @@ export async function getRelatedProducts(product: PublicProduct, limit = 4): Pro
 
 /** The sizes, brands and price range that exist among public products, for building filter controls. */
 export async function getCatalogFacets(): Promise<CatalogFacets> {
+  await ensureHoldsCurrent();
   const db = getDb();
   const join = (col: typeof products.size | typeof products.brand | typeof products.fabric) =>
     db

@@ -10,12 +10,36 @@ Milestone 4 was approved on 2026-11-13.
 | Part | What | State |
 | --- | --- | --- |
 | 1 | Secure sign-in, setup command, dashboard, account page | Built and tested; shown to the owner |
-| 2 | Products: add, edit, photos, status changes, holds with 72-hour expiry | Not started |
+| 2 | Products: add, edit, photos, status changes, holds with 72-hour expiry | Built and tested; shown to the owner |
 | 3 | Categories and settings | Not started |
 | 4 | Inbox (conversations, requests, replies) and AI management | Not started |
 | 5 | Audit log page, security review, full verification | Not started |
 
 ## Completed
+
+### Milestone 5, part 2 (2026-11-13) — items, photos, status and holds (see D37)
+
+- Items list in admin with status tabs, search and paging, including drafts
+  and archived items.
+- Add and edit an item with every detail; suggestions from values used
+  before; a failed save keeps what was typed. New items start as drafts.
+- Photos: upload several at once, reorder, remove; first photo is the cover.
+  Files are checked by content, re-encoded, shrunk, and stripped of location
+  data.
+- Preview of any item as customers would see it.
+- Status box: publish, put on hold (who, contact, private note, length),
+  edit or extend a hold, end a hold, mark sold, undo a sale, archive,
+  restore. Full history per item.
+- Holds end by themselves after 72 hours (the `holds` setting) and the item
+  becomes available again.
+- Changes show on the website and to the assistant immediately.
+- New tables (seventh migration): product_holds, product_status_events.
+  `sharp` listed as a direct dependency.
+- Tests: 112 logic/database tests (27 new); 12 new browser runs covering the
+  whole life of an item at desktop, tablet and phone sizes.
+- NOT built: photo clean-up and photo-based pre-fill (waiting for real
+  photos to trial, D23); cloud image storage (waits for hosting).
+- NOT tested: uploading from a real phone (HEIC conversion, camera photos).
 
 ### Milestone 5, part 1 (2026-11-13) — admin sign-in and dashboard (see D36)
 
@@ -212,7 +236,8 @@ Stack selection, Next.js scaffold, folder structure, project memory documents.
 
 ## Outstanding — waiting on the owner
 
-1. Feedback on Milestone 5 part 1; go-ahead for part 2 (products).
+1. Feedback on Milestone 5 part 2; go-ahead for part 3 (categories and
+   settings). A few real product photos, to trial photo clean-up (D23).
 2. Milestone 6: use +1 813 990 7900 for the AI agent, or a new dedicated
    number (D28, D31).
 3. Later: Meta accounts, domain, hosting choice (D9), proposed services
@@ -226,10 +251,8 @@ Stack selection, Next.js scaffold, folder structure, project memory documents.
   (not committed); a fresh environment must set it to `18139907900` before
   seeding, otherwise the product page shows a "quote this product ID" note.
   Tests use a fictional number.
-- Status can only be changed in the database until the admin portal (M5);
-  hold details and the 72-hour expiry do not exist yet.
-- Products and settings can only be changed by editing the sample data or the
-  database until the admin portal (Milestone 5).
+- Settings and categories can only be changed in the database until
+  Milestone 5 part 3.
 - A non-existent product address shows the not-found page with response code
   200 plus "noindex" instead of 404 (see D14).
 - Settings and category names can take up to a minute to update after a direct
@@ -240,7 +263,8 @@ Stack selection, Next.js scaffold, folder structure, project memory documents.
   question. The agent is instructed to ask or point to WhatsApp.
 - Notifications are stored but not shown anywhere until the admin inbox
   (Milestone 5), unless email sending is configured.
-- Only local image storage exists; cloud storage arrives with Milestone 5.
+- Only local image storage exists (photos are files in the `storage`
+  folder); cloud storage is added at deployment.
 - `docker-compose.yml` is provided for local setup but was not run in the
   cloud development environment (no Docker there); the database was tested
   with a directly installed PostgreSQL 16.
@@ -250,4 +274,4 @@ Stack selection, Next.js scaffold, folder structure, project memory documents.
 
 ## Next steps
 
-1. Milestone 5 part 2: product management, photos, status changes, holds.
+1. Milestone 5 part 3: category management and settings screens.

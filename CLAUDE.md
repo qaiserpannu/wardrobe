@@ -59,7 +59,14 @@ WhatsApp; there is no online checkout.
 - Admin-only services are named `admin-*.ts`; never import them from public
   pages, the chat API or the agent.
 - Public pages live in `src/app/(site)`; the admin portal in `src/app/admin`.
-- Record every admin change with `recordAudit` (no secrets in it).
+- Record every admin change with `recordAudit` (no secrets, and no hold or
+  customer details, in it).
+- A product's status changes only through `changeProductStatus`
+  (`admin-products.ts`), which keeps holds and history in step (D37).
+- Uploaded photos go only through `addProductPhoto` /
+  `processProductPhoto`, which check the content and re-encode it.
+- Every public product read starts with `ensureHoldsCurrent()` so expired
+  holds are released first.
 
 ## AI agent rules (Milestone 4 onward)
 

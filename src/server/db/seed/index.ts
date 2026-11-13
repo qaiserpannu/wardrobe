@@ -10,7 +10,7 @@ import { normalizeWhatsAppNumber } from "@/integrations/whatsapp";
 import { slugify } from "@/lib/slug";
 import { closeDb, getDb } from "../client";
 import { runMigrations } from "../migrate";
-import { aiKnowledge, categories, productImages, products, siteSettings } from "../schema";
+import { aiKnowledge, categories, productHolds, productImages, products, siteSettings } from "../schema";
 import { clearLocalFolder, localStorageDriver } from "../../storage/local";
 import { renderHeroImage, renderProductImage } from "./artwork";
 import { seedCategoryGroups, seedProducts } from "./data";
@@ -77,6 +77,16 @@ export async function seed() {
         soldAt: p.status === "sold" ? new Date() : null,
       })
       .returning({ id: products.id, code: products.code });
+
+    if (p.status === "pending") {
+      // A sample hold, ending after the usual 72 hours like a real one.
+      await db.insert(productHolds).values({
+        productId: row.id,
+        customerName: "Sample customer",
+        note: "Sample hold created with the sample data.",
+        expiresAt: new Date(Date.now() + 72 * 60 * 60 * 1000),
+      });
+    }
 
     const slug = `${slugify(p.name)}-${row.code.toLowerCase()}`;
     await db.update(products).set({ slug }).where(sql`${products.id} = ${row.id}`);

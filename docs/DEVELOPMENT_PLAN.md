@@ -195,19 +195,23 @@ Steps:
    (Built in part 1; own implementation, D36.)
 2. [x] Dashboard: product counts by status (draft, available, pending, sold),
    recent items, recent changes, open escalations. (Built in part 1.)
-3. Product management: create, edit, draft, preview, publish, archive; all
+3. [x] Product management: create, edit, draft, preview, publish, archive; all
    product details including fabric, pieces, stitching, occasion and
-   imperfections; multi-photo upload with reordering.
-   - Photo clean-up and listing pre-fill using free methods only (D23);
-     start with a trial on real product photos before building.
-4. Status changes (D25): available ⇄ pending, pending → sold, available →
+   imperfections; multi-photo upload with reordering. (Built in part 2.)
+   - [ ] Photo clean-up and listing pre-fill using free methods only (D23);
+     start with a trial on real product photos before building. NOT built:
+     waiting for a few real product photos from the owner. The form already
+     suggests brands, sizes, colours and fabrics used before.
+4. [x] Status changes (D25): available ⇄ pending, pending → sold, available →
    sold, sold → available (undo). Hold details (customer name, hold date,
    expected expiry, internal notes) visible only in admin. Nothing is
    permanently deleted; status history is kept. Automatic hold expiry
    (approved, D31): a hold ends after 72 hours and the item returns to
    available; the period is a setting; the owner can extend or end a hold.
-5. Image storage: production storage implementation; file type, size and
-   content validation.
+   (Built in part 2; the setting's edit screen comes with part 3.)
+5. Image storage: [x] file type, size and content validation (part 2).
+   [ ] Production storage implementation: deferred to deployment, needs the
+   owner's hosting/storage account (D6).
 6. Category management: add, rename, reorder, hide, and move categories
    between groups (D22).
 7. Settings: branding, logo, byline, WhatsApp number, contact, social links,

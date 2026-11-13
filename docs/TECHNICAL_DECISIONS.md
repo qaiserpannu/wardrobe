@@ -873,3 +873,43 @@ cryptography:
   multiple roles. If more staff or two-step sign-in are wanted later,
   moving to a library is a contained change (two tables, one service file).
 - `AUTH_SECRET` is not needed and was removed from `.env.example`.
+
+## D37 — Product management, photos and holds (Milestone 5 part 2, 2026-11-13)
+
+**Status:** Built.
+
+- **Photos are checked by content and always re-encoded.** The upload
+  endpoint accepts one file per request from a signed-in administrator. The
+  `sharp` library (already installed as part of Next.js; now listed as a
+  direct dependency) must be able to decode the file as JPEG, PNG or WebP;
+  the file name and claimed type are ignored. Every photo is turned upright,
+  shrunk to at most 2000×2500, and saved as WebP, which also strips hidden
+  data such as the phone's GPS location. Limits: 15 MB per file, at least
+  400 pixels per side, 12 photos per item. Stored as
+  `products/<code>/<fingerprint>.webp` (D19).
+- iPhone HEIC photos are not decoded by the server. iPhones convert to JPEG
+  automatically when a web page asks for JPEG/PNG/WebP, which the upload
+  button does. To be confirmed on the owner's phone.
+- The original upload is not kept, only the processed copy. If photo
+  clean-up (D21/D23) is built later, originals will need storing from then on.
+- **New items are always drafts.** Publishing needs at least one photo. An
+  item on the website cannot lose its last photo.
+- **The web address of an item is fixed once it has been published**, even if
+  it is renamed, so links already shared on WhatsApp keep working.
+- **Status moves** are exactly D25, plus archived → draft to restore.
+  `changeProductStatus` is the only code that changes a status; it locks the
+  row, closes or opens the hold record, and writes the history.
+- **Hold expiry without a background job.** `ensureHoldsCurrent()` runs at
+  the start of every product read (shop, assistant, admin), at most once
+  per 30 seconds per server process, and releases holds whose time is up.
+  So nobody can see an expired hold as still on hold, and no scheduler is
+  needed (D30 stays unbuilt). Trade-off: the release is recorded when the
+  next visitor arrives, not on the dot; and the header's category counts can
+  lag by up to a minute after an automatic release.
+- Hold length choices in the form are relative ("3 days from now") to avoid
+  time-zone mistakes. Admin dates are shown in the `shop.timeZone` setting
+  (default US Eastern).
+- Hold details appear only in `product_holds` and admin screens; the audit
+  line for a status change deliberately leaves the customer out.
+- A failed form save hands the typed values back, because React clears forms
+  after every submission.

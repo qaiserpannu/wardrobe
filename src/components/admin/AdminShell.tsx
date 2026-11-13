@@ -28,7 +28,10 @@ export function AdminShell({ children }: { children: ReactNode }) {
               <SignedInAs />
             </Suspense>
           </div>
-          <AdminNav />
+          {/* The current address is only known per request (dynamic item pages), so the menu streams in. */}
+          <Suspense fallback={<div className="h-10 lg:h-36" />}>
+            <AdminNav />
+          </Suspense>
           <div className="flex items-center gap-4 text-sm lg:flex-col lg:items-start lg:gap-3 lg:border-t lg:border-line lg:pt-5">
             <a href="/" target="_blank" rel="noopener noreferrer" className="text-muted underline-offset-4 hover:text-accent hover:underline">
               View the website

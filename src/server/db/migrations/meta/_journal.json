@@ -43,6 +43,13 @@
       "when": 1794568399296,
       "tag": "0005_admin_auth",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1794590083396,
+      "tag": "0006_holds_status_history",
+      "breakpoints": true
     }
   ]
 }

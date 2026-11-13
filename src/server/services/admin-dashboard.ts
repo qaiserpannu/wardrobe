@@ -1,11 +1,11 @@
 import "server-only";
+import type { ProductStatus } from "@/lib/product-form";
 import { desc, eq, isNull, sql } from "drizzle-orm";
 import { getDb } from "@/server/db/client";
 import { categories, conversations, customers, escalations, products } from "@/server/db/schema";
 
 /** Admin only: includes drafts and archived items. Never call from public pages or the agent. */
 
-export type ProductStatus = (typeof products.status.enumValues)[number];
 
 export async function countProductsByStatus(): Promise<Record<ProductStatus, number>> {
   const rows = await getDb()

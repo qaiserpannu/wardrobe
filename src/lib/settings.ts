@@ -18,6 +18,14 @@ export const settingsSchemas = {
   shop: z.object({
     currency: z.string().length(3).default("USD"),
     locale: z.string().default("en-US"),
+    /** Dates and times in the admin portal are shown in this time zone (Tampa is US Eastern). */
+    timeZone: z.string().default("America/New_York"),
+  }),
+  /** Items put "on hold" for a customer. */
+  holds: z.object({
+    /** A hold ends by itself after this many hours and the item becomes available again. */
+    expiryHours: z.number().int().min(1).max(24 * 30).default(72),
+    autoExpire: z.boolean().default(true),
   }),
   contact: z.object({
     email: z.string().default(""),

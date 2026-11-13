@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Suspense } from "react";
 import { PageHeading } from "@/components/admin/PageHeading";
-import { STATUS_LABELS, StatusPill } from "@/components/admin/StatusPill";
+import { StatusPill } from "@/components/admin/StatusPill";
 import { formatPrice } from "@/lib/money";
+import { STATUS_LABELS } from "@/lib/product-form";
 import { requireAdmin } from "@/server/auth/session";
 import {
   countProductsByStatus,
@@ -89,7 +91,9 @@ async function Dashboard() {
               {recent.map((item) => (
                 <li key={item.id} className="flex items-center justify-between gap-3 py-3">
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-medium">{item.name}</p>
+                    <Link href={`/admin/products/${item.id}`} className="block truncate text-sm font-medium hover:text-accent">
+                      {item.name}
+                    </Link>
                     <p className="text-xs text-muted">
                       {item.code} · {item.category} · {formatPrice(item.priceCents, currency, locale)}
                     </p>

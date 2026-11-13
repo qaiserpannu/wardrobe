@@ -12,6 +12,7 @@ import {
   smallint,
   text,
   timestamp,
+  uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
 
@@ -326,4 +327,57 @@ export const auditLog = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("audit_log_created_idx").on(t.createdAt), index("audit_log_entity_idx").on(t.entityType, t.entityId)],
+);
+
+/* ------------------------------------------------------------------ */
+/* Admin portal: holds and status history (Milestone 5, part 2)        */
+/* ------------------------------------------------------------------ */
+
+export const holdEndReason = pgEnum("hold_end_reason", ["sold", "released", "expired", "archived"]);
+
+/**
+ * Who an item is being held for. ADMIN ONLY: nothing in here is ever part of
+ * public product data or reachable by the AI agent (D25).
+ */
+export const productHolds = pgTable(
+  "product_holds",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    productId: uuid("product_id")
+      .notNull()
+      .references(() => products.id, { onDelete: "cascade" }),
+    customerName: text("customer_name").notNull(),
+    customerContact: text("customer_contact"),
+    note: text("note"),
+    heldAt: timestamp("held_at", { withTimezone: true }).notNull().defaultNow(),
+    /** When the item goes back to available by itself. Null = until the owner ends it. */
+    expiresAt: timestamp("expires_at", { withTimezone: true }),
+    /** Null while the hold is active. */
+    endedAt: timestamp("ended_at", { withTimezone: true }),
+    endReason: holdEndReason("end_reason"),
+    createdBy: uuid("created_by").references(() => adminUsers.id, { onDelete: "set null" }),
+    ...timestamps,
+  },
+  (t) => [
+    index("product_holds_product_idx").on(t.productId),
+    uniqueIndex("product_holds_one_active_idx").on(t.productId).where(sql`${t.endedAt} is null`),
+  ],
+);
+
+/** Every status change, kept for good. */
+export const productStatusEvents = pgTable(
+  "product_status_events",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    productId: uuid("product_id")
+      .notNull()
+      .references(() => products.id, { onDelete: "cascade" }),
+    fromStatus: productStatus("from_status"),
+    toStatus: productStatus("to_status").notNull(),
+    /** Null when the system did it (a hold expiring). */
+    adminUserId: uuid("admin_user_id").references(() => adminUsers.id, { onDelete: "set null" }),
+    note: text("note"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("product_status_events_product_idx").on(t.productId, t.createdAt)],
 );

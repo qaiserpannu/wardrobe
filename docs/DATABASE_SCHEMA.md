@@ -159,21 +159,30 @@ Failed sign-ins, kept for a day, used to lock out password guessing.
 Designed now so later milestones add tables rather than change existing ones.
 Column lists are indicative and will be finalised in each milestone.
 
-### product_status_events — Milestone 5
+### product_status_events — Milestone 5 (built)
 
-One row per status change: product, from, to, admin user, time, optional
-note. History is never deleted.
-
-### product_holds — Milestone 5 (admin only)
+One row per status change. History is never deleted.
 
 | Column | Notes |
 | --- | --- |
 | product_id | → products.id |
-| customer_name, customer_contact | Internal only |
-| held_at, expires_at | Default expiry 72 hours after the hold starts (setting); a scheduled job returns the item to available (D31) |
-| notes | Internal only |
-| ended_at, outcome | `sold`, `released`, `expired` |
-| lead_id | Optional link to the conversation lead that led to the hold |
+| from_status, to_status | `from_status` is null for "created" |
+| admin_user_id | Null when the system did it (a hold expiring) |
+| note | Optional |
+| created_at | |
+
+### product_holds — Milestone 5 (built, admin only)
+
+| Column | Notes |
+| --- | --- |
+| product_id | → products.id; at most one active hold per product (unique index) |
+| customer_name, customer_contact, note | Internal only |
+| held_at, expires_at | Expiry defaults to the `holds.expiryHours` setting (72) after the hold starts; null = no automatic end |
+| ended_at, end_reason | Null while active; then `sold`, `released`, `expired` or `archived` |
+| created_by | → admin_users |
+
+Expired holds are released by `hold-expiry.ts` whenever products are read (at
+most twice a minute), not by a scheduled job (D37).
 
 Kept in its own table, outside `products`, so public queries and the AI agent
 cannot reach it.

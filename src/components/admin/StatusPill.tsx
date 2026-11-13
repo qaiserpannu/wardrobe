@@ -1,12 +1,4 @@
-import type { ProductStatus } from "@/server/services/admin-dashboard";
-
-export const STATUS_LABELS: Record<ProductStatus, string> = {
-  draft: "Draft",
-  available: "Available",
-  pending: "On hold",
-  sold: "Sold",
-  archived: "Archived",
-};
+import { type ProductStatus, STATUS_LABELS } from "@/lib/product-form";
 
 const STYLES: Record<ProductStatus, string> = {
   draft: "bg-sand text-ink",
