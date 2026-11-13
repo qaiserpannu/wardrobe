@@ -212,11 +212,13 @@ Steps:
 5. Image storage: [x] file type, size and content validation (part 2).
    [ ] Production storage implementation: deferred to deployment, needs the
    owner's hosting/storage account (D6).
-6. Category management: add, rename, reorder, hide, and move categories
-   between groups (D22).
-7. Settings: branding, logo, byline, WhatsApp number, contact, social links,
-   featured products, description, SEO, chat widget. Saving takes effect
-   immediately, with no redeployment.
+6. [x] Category management: add, rename, reorder, hide, and move categories
+   between groups (D22). (Built in part 3.)
+7. [x] Settings: branding, byline, WhatsApp number, contact, social links,
+   description, SEO, chat widget, hold length, homepage text and picture.
+   Saving takes effect immediately, with no redeployment. (Built in part 3.
+   Featured products are chosen per item, on the item's own page. A logo
+   picture is not built: the header shows the shop name as text.)
 8. Conversation inbox: list conversations and leads; read history; reply as
    the owner; hand a conversation back to the agent; answer an escalated
    question so the agent can resume (D27).

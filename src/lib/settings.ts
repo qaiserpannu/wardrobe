@@ -3,7 +3,7 @@ import { z } from "zod";
 /**
  * Site settings are stored in the database as one JSON document per key.
  * Every field has a default, so the site works before anything is configured.
- * The admin portal (Milestone 5) will edit these.
+ * The admin portal edits these (see settings-form.ts).
  */
 export const settingsSchemas = {
   branding: z.object({

@@ -65,6 +65,9 @@ WhatsApp; there is no online checkout.
   (`admin-products.ts`), which keeps holds and history in step (D37).
 - Uploaded photos go only through `addProductPhoto` /
   `processProductPhoto`, which check the content and re-encode it.
+- Settings are written only by `admin-settings.ts`. To put a setting on the
+  Settings page, add it to `src/lib/settings-form.ts` (D38). Categories are
+  hidden, never deleted; their slug never changes.
 - Every public product read starts with `ensureHoldsCurrent()` so expired
   holds are released first.
 

@@ -913,3 +913,35 @@ cryptography:
   line for a status change deliberately leaves the customer out.
 - A failed form save hands the typed values back, because React clears forms
   after every submission.
+
+## D38 — Settings and category screens (Milestone 5 part 3, 2026-11-13)
+
+**Status:** Built.
+
+- **Settings screens are described as data** (`src/lib/settings-form.ts`):
+  one list of sections and boxes draws the forms and checks what comes back.
+  Adding a setting to the portal is one line there. A section's save starts
+  from the stored value and changes only the boxes that section shows, so
+  values with no box (stored picture names, the assistant's settings) cannot
+  be altered or lost through another section's form.
+- `admin-settings.ts` is the only code that writes settings. After a save
+  the `settings` cache tag is cleared, so the website follows at once.
+- WhatsApp number: a 10-digit entry is taken as a US number and stored with
+  the country code 1 (the shop is in Tampa, D31). Other lengths are taken as
+  already international.
+- Social links must be web addresses; `https://` is added when missing, and
+  anything that is not a web address (including `javascript:`) is refused.
+- The homepage picture is uploaded through its own endpoint and checked and
+  re-encoded exactly like a product photo.
+- **Categories are never deleted**, only hidden, because items point at
+  them. A category's web address (slug) is fixed when it is created and does
+  not change on rename, so existing links and (later) Meta catalog entries
+  keep working.
+- Two levels only. Items live in categories that contain nothing; a
+  top-level category with items directly in it cannot be given categories,
+  and a group that contains categories cannot be moved inside another.
+- Category names are unique across the whole shop (an existing database
+  rule), even in different groups.
+- Not built, deliberately: logo picture upload (nothing displays one yet),
+  and boxes for currency, language and time zone (changing them casually
+  would mis-state prices).

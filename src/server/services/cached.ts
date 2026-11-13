@@ -8,8 +8,8 @@ import { getSettings } from "./settings";
  * they are cached briefly. Product data is never cached: availability must
  * always be current.
  *
- * The admin portal (Milestone 5) will clear these tags when it saves, so edits
- * show up immediately. Until then a change made directly in the database
+ * The admin portal clears these tags when it saves, so edits
+ * show up immediately. A change made directly in the database
  * appears within a minute.
  */
 export const CACHE_TAGS = { settings: "settings", categories: "categories" } as const;

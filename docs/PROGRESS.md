@@ -11,11 +11,29 @@ Milestone 4 was approved on 2026-11-13.
 | --- | --- | --- |
 | 1 | Secure sign-in, setup command, dashboard, account page | Built and tested; shown to the owner |
 | 2 | Products: add, edit, photos, status changes, holds with 72-hour expiry | Built and tested; shown to the owner |
-| 3 | Categories and settings | Not started |
+| 3 | Categories and settings | Built and tested; shown to the owner |
 | 4 | Inbox (conversations, requests, replies) and AI management | Not started |
 | 5 | Audit log page, security review, full verification | Not started |
 
 ## Completed
+
+### Milestone 5, part 3 (2026-11-13) — categories and settings (see D38)
+
+- Settings page: WhatsApp number and messages, shop name and header strip,
+  homepage text and picture, contact details, social links, chat button,
+  usual hold length, search-engine description. Each section saves on its
+  own and the website changes immediately.
+- A 10-digit US WhatsApp number gets the country code added; links get
+  `https://` added; bad values are explained and what was typed is kept.
+- Categories page: add groups and categories, rename (the web address stays
+  the same), reorder, hide/show, move between groups. Nothing is deleted.
+  Hiding a category takes its items off the website and away from the
+  assistant.
+- No database change. No new dependency.
+- Tests: 129 logic/database tests (17 new); 9 new browser runs.
+- NOT built: a logo picture (the header uses the shop name as text; no page
+  shows a logo image yet); currency, language and time zone boxes (fixed at
+  US dollars / US English / US Eastern); the assistant's settings (part 4).
 
 ### Milestone 5, part 2 (2026-11-13) — items, photos, status and holds (see D37)
 
@@ -236,8 +254,8 @@ Stack selection, Next.js scaffold, folder structure, project memory documents.
 
 ## Outstanding — waiting on the owner
 
-1. Feedback on Milestone 5 part 2; go-ahead for part 3 (categories and
-   settings). A few real product photos, to trial photo clean-up (D23).
+1. Feedback on Milestone 5 part 3; go-ahead for part 4 (inbox and AI
+   management). A few real product photos, to trial photo clean-up (D23).
 2. Milestone 6: use +1 813 990 7900 for the AI agent, or a new dedicated
    number (D28, D31).
 3. Later: Meta accounts, domain, hosting choice (D9), proposed services
@@ -251,8 +269,6 @@ Stack selection, Next.js scaffold, folder structure, project memory documents.
   (not committed); a fresh environment must set it to `18139907900` before
   seeding, otherwise the product page shows a "quote this product ID" note.
   Tests use a fictional number.
-- Settings and categories can only be changed in the database until
-  Milestone 5 part 3.
 - A non-existent product address shows the not-found page with response code
   200 plus "noindex" instead of 404 (see D14).
 - Settings and category names can take up to a minute to update after a direct
@@ -274,4 +290,4 @@ Stack selection, Next.js scaffold, folder structure, project memory documents.
 
 ## Next steps
 
-1. Milestone 5 part 3: category management and settings screens.
+1. Milestone 5 part 4: conversation inbox, notifications, AI management.

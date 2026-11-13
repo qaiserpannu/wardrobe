@@ -57,6 +57,8 @@ test("the owner lists, filters and searches items, including hidden ones", async
   await expect(page.getByTestId("admin-product").first()).toContainText("Held for Sample customer");
 
   await page.getByTestId("status-tabs").getByRole("link", { name: /^All/ }).click();
+  // Wait for the full list before searching, or the search would still be limited to "On hold".
+  await expect(page.getByTestId("admin-result-count")).toHaveText("32 items");
   await page.getByLabel("Search items").fill("PLW-0020");
   await page.getByRole("button", { name: "Search" }).click();
   await expect(page.getByTestId("admin-result-count")).toHaveText("1 item");
