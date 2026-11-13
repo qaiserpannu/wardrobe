@@ -772,6 +772,17 @@ afterwards, not re-run), and once said it was "correcting" an earlier
 message that was already correct. If these bother the owner, the next
 model up (`AI_MODEL=claude-sonnet-5-5`) costs about 20 times more.
 
+- **Seventh run (2026-11-13, after Milestone 5):** 130 of 133 on Haiku 5.5;
+  about 1.6 cents. All three misses were one real fault: asked about returns
+  in Roman Urdu ("Kya wapsi ho sakti hai agar fit na aaye?") the assistant
+  did not connect "wapsi" with the English returns policy, said it had no
+  information, passed the question to the owner, and answered in English.
+  The same question in English was answered correctly. Fixed in the
+  instructions: work out what a question means in English and read the
+  approved information before escalating, and keep to the customer's
+  language when relaying a tool's wording. Nothing unsafe happened (it
+  escalated rather than guessed). Needs an eighth run to confirm.
+
 ## D35 — The assistant's persona: Skyra (2026-11-13)
 
 **Status:** Decided by the owner, with one limit kept (below)
