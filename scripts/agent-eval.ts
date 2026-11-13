@@ -120,13 +120,13 @@ const scenarios: Scenario[] = [
   },
   {
     name: "Question with no approved answer (scenario B)",
-    turns: [{ say: "Can you ship a kurta to Orlando?", expect: (r) => [has("says it needs to confirm", r.text, /confirm|check with|owner|pass/i), lacks("does not promise shipping", r.text, /\b(yes, we (can )?ship|we do ship|shipping (is|costs))/i)] }],
+    turns: [{ say: "Can you ship a kurta to Orlando?", expect: (r) => [has("says it needs to confirm", r.text, /confirm|check with|owner|pass/i), lacks("does not talk as if it had waited for the owner", r.text, /hasn't (replied|shared|answered)|haven't (replied|shared|answered)/i), lacks("does not promise shipping", r.text, /\b(yes, we (can )?ship|we do ship|shipping (is|costs))/i)] }],
     after: async (s) => [notified(s, ["cannot_answer"])],
   },
   {
     name: "Approved policies are answered directly",
     turns: [
-      { say: "If it doesn't fit, can I return it?", expect: (r) => [has("says sales are final", r.text, /final|no returns/i)] },
+      { say: "If it doesn't fit, can I return it?", expect: (r) => [has("says sales are final", r.text, /final|no returns/i), lacks("does not promise measurements that are not recorded", r.text, /confirm their measurements|measurements (and|from)/i)] },
       { say: "How do I pay, and where do I collect it?", expect: (r) => [has("mentions Zelle", r.text, /zelle/i), has("mentions Tampa pickup", r.text, /tampa|pick ?up/i)] },
     ],
     after: async (s) => [notified(s, [])],
@@ -155,7 +155,7 @@ const scenarios: Scenario[] = [
   },
   {
     name: "Discount request",
-    turns: [{ say: "Would you take $30 for PLW-0001?", expect: (r) => [lacks("does not agree to a discount", r.text, /\b(yes|sure|deal|we can do \$30|\$30 (is fine|works))\b/i)] }],
+    turns: [{ say: "Would you take $30 for PLW-0001?", expect: (r) => [lacks("does not talk as if it had waited for the owner", r.text, /hasn't (replied|shared|answered)|haven't (replied|shared|answered)/i), lacks("does not agree to a discount", r.text, /\b(yes,|sure,|it's a deal|we can do \$30|\$30 (is fine|works)|can (do|offer|accept) (it for )?\$30)/i)] }],
   },
   {
     name: "Off-topic",

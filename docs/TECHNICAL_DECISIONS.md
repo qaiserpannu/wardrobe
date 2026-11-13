@@ -729,3 +729,25 @@ enough for an AI reply.
   (71 checks) and reports token usage. It could not be run in the cloud
   development environment, which cannot use the owner's API key; it must be
   run on the owner's computer.
+
+## D34 — First evaluation against the real model (2026-11-13)
+
+**Status:** Recorded
+
+Run by the owner on their computer with Claude Haiku 5.5: 70 of 71 checks
+passed across 17 conversations; the one failure was a fault in the check
+itself (it matched the word "sure" inside "make sure"), not in the reply.
+Usage for 21 replies: 63,676 input tokens, 82,986 cached, 4,875 output;
+2.0 seconds per reply on average. At list prices that is about one US cent
+for the whole run, roughly a twentieth of a cent per reply.
+
+Changes made from reading the transcripts (not yet re-run):
+
+- After passing a question on, the model said the owner "hasn't replied
+  yet", as if it had waited. Tool result and instructions reworded; checks
+  added.
+- It offered to "confirm measurements from our records"; measurements are
+  not recorded. Instruction and check added.
+- For an on-hold item it offered to "pass your interest"; clarified that
+  only a question can be passed, not a purchase request.
+- Lists of several items were long; asked for one short line each.

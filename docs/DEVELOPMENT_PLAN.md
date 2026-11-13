@@ -169,9 +169,9 @@ Completion criteria:
   with no duplicates, limits, safe fallback on failure.
 - [x] With no provider or with the assistant switched off, the widget is the
   WhatsApp click-to-chat panel.
-- [ ] Evaluation against the real AI model: `npm run eval:agent` (D33).
-  Written and self-checked, but not run with the real model; it has to be
-  run on the owner's computer, where the key is.
+- [x] Evaluation against the real AI model: `npm run eval:agent`. First
+  run by the owner: 70 of 71 checks passed (D34).
+- [ ] Re-run after the wording fixes in D34.
 - Email delivery is deferred: the owner chose to wait for the admin inbox.
 - [ ] Owner approval.
 

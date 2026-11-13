@@ -329,7 +329,7 @@ export async function runAgentTool(ctx: ToolContext, name: string, rawInput: unk
       return json({
         recorded: true,
         tell_the_customer:
-          "You need to confirm this with the owner and have passed the question on. If they have not shared a phone or WhatsApp number, the owner cannot reply to them here, so suggest the WhatsApp button in the chat or ask for a number.",
+          "Say that you don't have that information, so you have just passed their question to the owner. The owner answers later and cannot write into this chat, so they need a way to reach the customer: if no phone or WhatsApp number has been shared, ask for one or suggest the WhatsApp button. Do not speak as though you waited for the owner or as though a reply is overdue.",
         contact_given: Boolean(input.customer_contact?.trim()),
       });
     }

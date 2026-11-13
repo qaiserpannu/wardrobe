@@ -32,6 +32,8 @@ owner approves Milestone 4.
 - Owner decisions (D33): cheapest model (Claude Haiku 5.5 is now the
   default); all sales final, no returns (added to the approved shop
   information); notifications wait for the admin inbox.
+- First real-model evaluation (owner's computer, Haiku 5.5): 70 of 71
+  checks passed; about one cent for the run; wording fixes made (D34).
 - Added `npm run eval:agent`: 17 conversations, 71 checks, against the real
   model. The cloud environment cannot use the owner's key, so it has not
   been run for real.
@@ -178,9 +180,8 @@ Stack selection, Next.js scaffold, folder structure, project memory documents.
 
 ## Outstanding — waiting on the owner
 
-1. Run `npm run eval:agent` on the owner's computer (the key is there) and
-   send back the output, so the instructions can be tuned against the real
-   model (Claude Haiku 5.5, the owner's choice — D33).
+1. Re-run `npm run eval:agent` after the wording fixes in D34 and send the
+   output; then Milestone 4 approval.
 2. Milestone 6: use +1 813 990 7900 for the AI agent, or a new dedicated
    number (D28, D31).
 3. Later: Meta accounts, domain, hosting choice (D9), proposed services
