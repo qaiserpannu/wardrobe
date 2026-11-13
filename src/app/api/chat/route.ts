@@ -2,11 +2,11 @@ import { randomUUID } from "node:crypto";
 import { cookies } from "next/headers";
 import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
-import { CHAT_MAX_LENGTH, type ChatMessage, type ChatProductCard, type ChatReply } from "@/lib/chat";
+import { CHAT_MAX_LENGTH, type ChatHistory, type ChatMessage, type ChatProductCard, type ChatReply } from "@/lib/chat";
 import { CONDITION_LABELS } from "@/lib/conditions";
 import { formatPrice } from "@/lib/money";
 import type { SiteSettings } from "@/lib/settings";
-import { handleMessage, loadHistory } from "@/server/agent/core";
+import { handleMessage, isAwaitingOwner, loadHistory } from "@/server/agent/core";
 import { isAgentConfigured } from "@/server/agent/providers";
 import { getSettings } from "@/server/services/settings";
 import type { PublicProduct } from "@/server/services/types";
@@ -75,7 +75,7 @@ export async function GET() {
   const settings = await getSettings();
   if (!(await agentEnabled(settings))) return NextResponse.json({ error: "unavailable" }, { status: 503 });
   const visitor = (await cookies()).get(VISITOR_COOKIE)?.value;
-  if (!visitor || !ID_PATTERN.test(visitor)) return NextResponse.json({ messages: [] });
+  if (!visitor || !ID_PATTERN.test(visitor)) return NextResponse.json({ messages: [], awaitingOwner: false } satisfies ChatHistory);
   const history = await loadHistory("web", visitor);
   const messages: ChatMessage[] = history.map((m) => ({
     id: m.id,
@@ -83,7 +83,8 @@ export async function GET() {
     text: m.text,
     products: m.products.map((p) => toCard(p, settings.shop)),
   }));
-  return NextResponse.json({ messages }, { headers: { "Cache-Control": "no-store" } });
+  const body: ChatHistory = { messages, awaitingOwner: await isAwaitingOwner("web", visitor) };
+  return NextResponse.json(body, { headers: { "Cache-Control": "no-store" } });
 }
 
 export async function POST(request: NextRequest) {
@@ -134,6 +135,7 @@ export async function POST(request: NextRequest) {
       products: result.products.map((p) => toCard(p, settings.shop)),
     },
     handoff: result.handoff,
+    awaitingOwner: result.awaitingOwner,
   };
   return NextResponse.json(reply, { headers: { "Cache-Control": "no-store" } });
 }

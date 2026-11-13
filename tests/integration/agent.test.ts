@@ -227,6 +227,11 @@ describe("buying interest (scenario A)", () => {
       expect(sent[0].body).toContain(part);
     }
     expect(await rows(sql`select stage from leads`)).toEqual([{ stage: "purchase_request" }]);
+    // One entry in the owner's inbox as waiting, however often the customer repeats it.
+    const waiting = await rows<{ reason: string; question: string }>(sql`select reason, question from escalations where resolved_at is null`);
+    expect(waiting).toHaveLength(1);
+    expect(waiting[0].reason).toBe("purchase_request");
+    expect(waiting[0].question).toContain(`Wants to buy ${AVAILABLE}`);
     expect(await rows(sql`select name, contact from customers`)).toEqual([{ name: "Aisha", contact: "813-555-0100" }]);
     expect(await rows(sql`select status from products where code = ${AVAILABLE}`)).toEqual([{ status: "available" }]);
   });

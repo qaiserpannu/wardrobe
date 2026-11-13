@@ -94,6 +94,9 @@ WhatsApp; there is no online checkout.
   and the chat panel carries a small disclosure line (D35). It always
   offers a human handoff. It replies in the customer's language (English,
   Roman Urdu, Urdu).
+- While a conversation's state is `owner`, the core makes no model call
+  (D39). Every scenario that should reach the owner creates an escalation,
+  which is what the inbox lists as waiting.
 - All model calls go through the provider interface
   (`src/server/agent/providers`). The core never imports a vendor SDK.
 - Rules the business depends on are enforced in code (`core.ts`,

@@ -12,10 +12,38 @@ Milestone 4 was approved on 2026-11-13.
 | 1 | Secure sign-in, setup command, dashboard, account page | Built and tested; shown to the owner |
 | 2 | Products: add, edit, photos, status changes, holds with 72-hour expiry | Built and tested; shown to the owner |
 | 3 | Categories and settings | Built and tested; shown to the owner |
-| 4 | Inbox (conversations, requests, replies) and AI management | Not started |
+| 4 | Inbox (conversations, requests, replies) and AI management | Built and tested; shown to the owner |
 | 5 | Audit log page, security review, full verification | Not started |
 
 ## Completed
+
+### Milestone 5, part 4 (2026-11-13) — inbox and assistant management (see D39)
+
+- Inbox: "Waiting for you" and "All conversations"; a count beside Inbox in
+  the menu; the dashboard's waiting list links to each conversation.
+- Conversation page: the full thread, what is waiting, items the customer
+  asked about (linked to the item), reply box, "Hand back", "Mark as dealt
+  with".
+- Owner replies appear in the customer's website chat marked "From the shop
+  owner", within about 10 seconds if the chat is open, otherwise when they
+  next open it. While the owner is handling a conversation the assistant
+  stays silent (no AI call); it returns when handed back, or by itself 24
+  hours after the owner's last message.
+- Fix found while testing: a buy request now also creates a "waiting" entry
+  (before, it was recorded and notified but would not have been listed as
+  waiting).
+- Assistant page: status and today's usage, on/off, name, greeting, tone
+  guidance, handoff message, daily message limit, and the shop information
+  she may quote (add, edit, switch off, delete).
+- No database change. No new dependency.
+- Tests: 142 logic/database tests (13 new); 12 new browser runs with two
+  browsers (customer and owner).
+- NOT built: replying to WhatsApp conversations from the inbox (Milestone
+  6); email or push alerts when someone is waiting (the owner must look at
+  the inbox); notification preferences.
+- NOT tested against the real AI model: nothing here changes what the model
+  is told except the owner-written settings, but the evaluation
+  (`npm run eval:agent`) has not been re-run since this part.
 
 ### Milestone 5, part 3 (2026-11-13) — categories and settings (see D38)
 
@@ -254,8 +282,8 @@ Stack selection, Next.js scaffold, folder structure, project memory documents.
 
 ## Outstanding — waiting on the owner
 
-1. Feedback on Milestone 5 part 3; go-ahead for part 4 (inbox and AI
-   management). A few real product photos, to trial photo clean-up (D23).
+1. Feedback on Milestone 5 part 4; go-ahead for part 5 (audit log page,
+   security review, full verification). A few real product photos, to trial photo clean-up (D23).
 2. Milestone 6: use +1 813 990 7900 for the AI agent, or a new dedicated
    number (D28, D31).
 3. Later: Meta accounts, domain, hosting choice (D9), proposed services
@@ -277,8 +305,9 @@ Stack selection, Next.js scaffold, folder structure, project memory documents.
 - Website visitors are anonymous: unless they give a phone number in the
   chat or use the WhatsApp button, the owner cannot reply to an escalated
   question. The agent is instructed to ask or point to WhatsApp.
-- Notifications are stored but not shown anywhere until the admin inbox
-  (Milestone 5), unless email sending is configured.
+- The owner is not alerted when a customer is waiting; the inbox and
+  dashboard must be checked (email needs a sending service; WhatsApp alerts
+  come with Milestone 6).
 - Only local image storage exists (photos are files in the `storage`
   folder); cloud storage is added at deployment.
 - `docker-compose.yml` is provided for local setup but was not run in the
@@ -290,4 +319,5 @@ Stack selection, Next.js scaffold, folder structure, project memory documents.
 
 ## Next steps
 
-1. Milestone 5 part 4: conversation inbox, notifications, AI management.
+1. Milestone 5 part 5: audit log page, security review, full Milestone 5
+   verification, then owner approval of the milestone.

@@ -22,6 +22,7 @@ function Bubble({ message }: { message: ChatMessage }) {
   const mine = message.from === "customer";
   return (
     <li className={`flex flex-col gap-2 ${mine ? "items-end" : "items-start"}`} data-testid={`chat-message-${message.from}`}>
+      {message.from === "owner" && <span className="text-xs font-medium text-accent">From the shop owner</span>}
       <p
         dir="auto"
         className={`max-w-[88%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-line ${

@@ -298,7 +298,7 @@ export async function runAgentTool(ctx: ToolContext, name: string, rawInput: unk
       });
       const p = describe(product, settings, false);
       const wants = input.request_type === "reservation_request" ? "asks to reserve" : "wants to buy";
-      await notifyOwner(
+      const isNewRequest = await notifyOwner(
         {
           conversationId: ctx.conversationId,
           kind: "purchase_request",
@@ -323,6 +323,14 @@ export async function runAgentTool(ctx: ToolContext, name: string, rawInput: unk
         },
         settings.ai_assistant.notifyEmail,
       );
+      // Shows in the owner's inbox as waiting, once per item and request.
+      if (isNewRequest) {
+        await createEscalation({
+          conversationId: ctx.conversationId,
+          reason: "purchase_request",
+          question: `${wants === "asks to reserve" ? "Asks to reserve" : "Wants to buy"} ${product.code} ${product.name}: ${input.customer_request}`.slice(0, 600),
+        });
+      }
       return json({
         recorded: true,
         tell_the_customer:

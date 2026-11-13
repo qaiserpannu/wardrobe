@@ -39,6 +39,7 @@ export async function listWaitingRequests(limit = 6) {
   return getDb()
     .select({
       id: escalations.id,
+      conversationId: escalations.conversationId,
       reason: escalations.reason,
       question: escalations.question,
       createdAt: escalations.createdAt,

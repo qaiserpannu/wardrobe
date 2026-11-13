@@ -219,11 +219,14 @@ Steps:
    Saving takes effect immediately, with no redeployment. (Built in part 3.
    Featured products are chosen per item, on the item's own page. A logo
    picture is not built: the header shows the shop name as text.)
-8. Conversation inbox: list conversations and leads; read history; reply as
+8. [x] Conversation inbox: list conversations and leads; read history; reply as
    the owner; hand a conversation back to the agent; answer an escalated
-   question so the agent can resume (D27).
-9. AI management: enable/disable, greeting, behaviour instructions, handoff
-   message, FAQs and policies, notification preferences.
+   question so the agent can resume (D27). (Built in part 4, website chats;
+   WhatsApp replies come with Milestone 6.)
+9. [x] AI management: enable/disable, greeting, behaviour instructions, handoff
+   message, FAQs and policies. (Built in part 4.) [ ] Notification
+   preferences: not built; there is nothing to choose between until email or
+   WhatsApp alerts exist.
 10. Audit log of inventory, status and settings changes.
 11. Security review and tests: access restrictions, upload validation, and
     that admin changes appear immediately on the public site and in the

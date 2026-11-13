@@ -25,6 +25,8 @@ export type SettingsSection = {
   key: SettingsKey;
   title: string;
   intro?: string;
+  /** Which admin page shows this section. Default: the Settings page. */
+  page?: "assistant";
   fields: SettingsField[];
 };
 
@@ -167,6 +169,36 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
     ],
   },
 ];
+
+SETTINGS_SECTIONS.push({
+  id: "assistant",
+  key: "ai_assistant",
+  title: "How the assistant behaves",
+  page: "assistant",
+  fields: [
+    {
+      path: "enabled",
+      label: "Assistant switched on",
+      kind: "toggle",
+      hint: "When off, the chat button opens the plain WhatsApp panel instead.",
+    },
+    text("name", "Name", 30, { required: true }),
+    area("greeting", "First message customers see", 400, { required: true }),
+    area("instructions", "Extra guidance on tone", 1500, {
+      hint: "For example: “Keep replies short” or “Mention new arrivals on Fridays”. This shapes how she speaks only. Facts such as prices, policies and payment belong in the shop information below, never here.",
+    }),
+    area("handoffMessage", "What she says when passing a customer to you", 400, { required: true }),
+    {
+      path: "dailyMessageLimit",
+      label: "Most customer messages answered per day",
+      kind: "number",
+      min: 0,
+      max: 100000,
+      required: true,
+      hint: "A ceiling on AI cost. After this many in 24 hours, customers are pointed to WhatsApp. 0 pauses the assistant.",
+    },
+  ],
+});
 
 export const fieldName = (section: SettingsSection, field: SettingsField) => `${section.id}__${field.path}`;
 

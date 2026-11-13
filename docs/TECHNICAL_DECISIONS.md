@@ -945,3 +945,42 @@ cryptography:
 - Not built, deliberately: logo picture upload (nothing displays one yet),
   and boxes for currency, language and time zone (changing them casually
   would mis-state prices).
+
+## D39 — Inbox, owner replies and assistant management (Milestone 5 part 4, 2026-11-13)
+
+**Status:** Built.
+
+- **"Waiting for you" is the list of unresolved escalations.** All three
+  notification scenarios (D27) create one: a question the assistant cannot
+  answer, a request for a person, and (added in this part) a buy or reserve
+  request, once per item and request type.
+- **The owner replying takes the conversation over.** The reply is stored as
+  an `owner` message, the state becomes `owner`, and open requests are
+  marked resolved with the reply as the answer. "Mark as dealt with" resolves
+  them without a message (handled on WhatsApp or in person).
+- **While the state is `owner` the agent core makes no model call.** The
+  customer's message is stored and they get one fixed line saying the owner
+  has it. This is enforced in `core.ts`, not in the instructions. The
+  assistant returns when the owner clicks "Hand back", or automatically when
+  the customer writes and the owner's last message is more than 24 hours
+  old, so a forgotten conversation does not stay silent for ever.
+- After a hand-back the assistant sees the owner's messages in the history
+  (as earlier replies), so it can continue from what the owner said.
+- **Delivery to the website chat is by polling.** While a visitor's
+  conversation is waiting on the owner, the open chat panel asks the server
+  every 10 seconds (not when the tab is hidden) and adds owner messages it
+  has not shown. No push service or socket is needed. A visitor who has left
+  sees the reply when they next open the chat on the same browser; the site
+  cannot reach them otherwise, since website visitors are anonymous.
+- Owner replies to WhatsApp conversations are refused here until Milestone 6
+  (delivery and the 24-hour rule belong to that channel).
+- The audit log records that the owner replied, never the text.
+- **Assistant settings** reuse the settings description (D38) with one more
+  section shown on the Assistant page. "Extra guidance on tone" is passed to
+  the model as tone only; the page tells the owner that facts belong in shop
+  information.
+- **Shop information** (`ai_knowledge`) can be added, edited, switched off
+  and deleted. Deleting is allowed (it is text the owner wrote, not a
+  record); the deleted text is kept in the audit log.
+- Whether an AI key is configured is shown, but the key itself is only ever
+  an environment variable and cannot be seen or set in the portal.

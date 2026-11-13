@@ -13,11 +13,19 @@ export type ChatProductCard = {
 
 export type ChatMessage = {
   id: string;
-  from: "customer" | "assistant";
+  /** "owner" is the shop owner writing in person from the admin inbox. */
+  from: "customer" | "assistant" | "owner";
   text: string;
   products: ChatProductCard[];
 };
 
-export type ChatReply = { message: ChatMessage; handoff: boolean };
+export type ChatReply = {
+  message: ChatMessage;
+  handoff: boolean;
+  /** The customer is waiting for the owner; the widget checks back for the owner's reply. */
+  awaitingOwner: boolean;
+};
+
+export type ChatHistory = { messages: ChatMessage[]; awaitingOwner: boolean };
 
 export const CHAT_MAX_LENGTH = 1000;

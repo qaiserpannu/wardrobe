@@ -81,6 +81,22 @@ export async function getOrCreateConversation(customerId: string, channel: Chann
   return created;
 }
 
+export async function getConversationState(conversationId: string): Promise<ConversationState | null> {
+  const [row] = await getDb().select({ state: conversations.state }).from(conversations).where(eq(conversations.id, conversationId));
+  return row?.state ?? null;
+}
+
+/** When the owner last wrote in this conversation, or null if never. */
+export async function lastOwnerMessageAt(conversationId: string): Promise<Date | null> {
+  const [row] = await getDb()
+    .select({ at: messages.createdAt })
+    .from(messages)
+    .where(and(eq(messages.conversationId, conversationId), eq(messages.sender, "owner")))
+    .orderBy(desc(messages.createdAt))
+    .limit(1);
+  return row?.at ?? null;
+}
+
 export async function setConversationState(conversationId: string, state: ConversationState) {
   await getDb().update(conversations).set({ state }).where(eq(conversations.id, conversationId));
 }

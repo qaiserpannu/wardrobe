@@ -3,12 +3,13 @@ import { Suspense } from "react";
 import { HeroImageUploader } from "@/components/admin/HeroImageUploader";
 import { PageHeading } from "@/components/admin/PageHeading";
 import { SettingsSectionForm } from "@/components/admin/SettingsSectionForm";
-import { sectionFormValues, SETTINGS_SECTIONS } from "@/lib/settings-form";
+import { sectionFormValues, SETTINGS_SECTIONS as ALL_SECTIONS } from "@/lib/settings-form";
 import { requireAdmin } from "@/server/auth/session";
 import { getSettings, mediaUrl } from "@/server/services/settings";
 
 export const metadata: Metadata = { title: "Settings" };
 
+const SETTINGS_SECTIONS = ALL_SECTIONS.filter((section) => !section.page);
 const cardClass = "scroll-mt-6 rounded-2xl border border-line bg-surface p-5 sm:p-6";
 
 async function Settings() {

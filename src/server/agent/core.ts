@@ -5,9 +5,12 @@ import {
   countCustomerMessagesSince,
   findCustomer,
   findOpenConversation,
+  getConversationState,
   getOrCreateConversation,
   getOrCreateCustomer,
+  lastOwnerMessageAt,
   listMessages,
+  setConversationState,
   type Channel,
   type StoredMessage,
 } from "@/server/services/conversations";
@@ -30,6 +33,8 @@ const PER_MINUTE = 8;
 const PER_DAY = 120;
 const HISTORY_MESSAGES = 30;
 const MAX_CARDS = 4;
+/** If the owner took over a chat and then went quiet this long, the assistant answers again. */
+export const OWNER_QUIET_HOURS = 24;
 
 export const SAFE_REPLIES = {
   unavailable:
@@ -37,6 +42,8 @@ export const SAFE_REPLIES = {
   unverified:
     "Let me double-check that before I say anything wrong. Could you tell me again what you're looking for, or ask about a specific item?",
   tooFast: "You're sending messages faster than I can keep up. Please wait a moment and try again.",
+  ownerHandling:
+    "Thank you. The owner has your message and will reply here. You can also reach us on WhatsApp using the button below.",
   dailyLimit:
     "The assistant has reached its limit for today. Please message us on WhatsApp using the button below and we'll reply ourselves.",
 } as const;
@@ -48,7 +55,9 @@ export type AgentReply = {
   /** True when the customer asked for a person; the channel should make the human route obvious. */
   handoff: boolean;
   /** Why no AI answer was produced, if that is the case. */
-  limited?: "rate" | "daily" | "error";
+  limited?: "rate" | "daily" | "error" | "owner";
+  /** True while the customer is waiting for the owner, so the channel can watch for the owner's reply. */
+  awaitingOwner: boolean;
 };
 
 export type IncomingMessage = {
@@ -105,18 +114,29 @@ export async function handleMessage(incoming: IncomingMessage, model?: AgentMode
   // Limits come first so a flood cannot run up AI costs.
   const now = Date.now();
   if ((await countCustomerMessagesSince(customer.id, new Date(now - 60_000))) >= PER_MINUTE) {
-    return { reply: SAFE_REPLIES.tooFast, products: [], handoff: false, limited: "rate" };
+    return { reply: SAFE_REPLIES.tooFast, products: [], handoff: false, limited: "rate", awaitingOwner: false };
   }
   const dayAgo = new Date(now - 24 * 60 * 60 * 1000);
   if (
     (await countCustomerMessagesSince(customer.id, dayAgo)) >= PER_DAY ||
     (await countAllCustomerMessagesSince(dayAgo)) >= settings.ai_assistant.dailyMessageLimit
   ) {
-    return { reply: SAFE_REPLIES.dailyLimit, products: [], handoff: true, limited: "daily" };
+    return { reply: SAFE_REPLIES.dailyLimit, products: [], handoff: true, limited: "daily", awaitingOwner: false };
   }
 
   const conversation = await getOrCreateConversation(customer.id, incoming.channel);
   await addMessage(conversation.id, "customer", text);
+
+  // The owner has taken this conversation over: the assistant stays out of it
+  // (no model call), unless the owner has since gone quiet for a long time.
+  if (conversation.state === "owner") {
+    const lastOwner = await lastOwnerMessageAt(conversation.id);
+    if (lastOwner && now - lastOwner.getTime() < OWNER_QUIET_HOURS * 60 * 60 * 1000) {
+      await addMessage(conversation.id, "system", SAFE_REPLIES.ownerHandling);
+      return { reply: SAFE_REPLIES.ownerHandling, products: [], handoff: true, limited: "owner", awaitingOwner: true };
+    }
+    await setConversationState(conversation.id, "agent");
+  }
 
   const history = toHistory(await listMessages(conversation.id, HISTORY_MESSAGES));
   const viewing = incoming.viewingProductCode ? await getProductByCode(incoming.viewingProductCode) : null;
@@ -170,7 +190,21 @@ export async function handleMessage(incoming: IncomingMessage, model?: AgentMode
     reply,
     products.map((p) => p.code),
   );
-  return { reply, products, handoff: ctx.handoffRequested || limited === "error", limited };
+  const state = await getConversationState(conversation.id);
+  return {
+    reply,
+    products,
+    handoff: ctx.handoffRequested || limited === "error",
+    limited,
+    awaitingOwner: state === "waiting_for_owner" || state === "owner",
+  };
+}
+
+/** Whether this visitor's current conversation is waiting on the owner. */
+export async function isAwaitingOwner(channel: Channel, identity: string): Promise<boolean> {
+  const customer = await findCustomer(channel, identity);
+  const conversation = customer ? await findOpenConversation(customer.id) : null;
+  return conversation?.state === "waiting_for_owner" || conversation?.state === "owner";
 }
 
 /** Earlier messages for a returning customer, with cards read fresh from inventory. */
@@ -183,7 +217,7 @@ export async function loadHistory(channel: Channel, identity: string) {
   return Promise.all(
     stored.map(async (m) => ({
       id: m.id,
-      from: m.sender === "customer" ? ("customer" as const) : ("assistant" as const),
+      from: m.sender === "customer" ? ("customer" as const) : m.sender === "owner" ? ("owner" as const) : ("assistant" as const),
       text: m.body,
       products: m.productCodes.length ? await loadCards(m.productCodes) : [],
     })),

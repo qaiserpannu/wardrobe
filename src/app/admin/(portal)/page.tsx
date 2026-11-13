@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { PageHeading } from "@/components/admin/PageHeading";
 import { StatusPill } from "@/components/admin/StatusPill";
+import { REQUEST_LABELS } from "@/lib/inbox-labels";
 import { formatPrice } from "@/lib/money";
 import { STATUS_LABELS } from "@/lib/product-form";
 import { requireAdmin } from "@/server/auth/session";
@@ -16,12 +17,6 @@ import { listRecentAudit } from "@/server/services/audit";
 import { getSettings } from "@/server/services/settings";
 
 export const metadata: Metadata = { title: "Dashboard" };
-
-const REQUEST_LABELS = {
-  purchase_request: "Wants to buy",
-  cannot_answer: "Question for you",
-  human_requested: "Asked for a person",
-} as const;
 
 const COUNT_ORDER = ["available", "pending", "sold", "draft", "archived"] as const;
 
@@ -72,7 +67,9 @@ async function Dashboard() {
               {waiting.map((item) => (
                 <li key={item.id} className="py-3">
                   <p className="text-xs font-semibold tracking-wide text-accent uppercase">{REQUEST_LABELS[item.reason]}</p>
-                  <p className="mt-1 text-sm break-words">{item.question}</p>
+                  <Link href={`/admin/inbox/${item.conversationId}`} className="mt-1 block text-sm break-words hover:text-accent">
+                    {item.question}
+                  </Link>
                   <p className="mt-1 text-xs text-muted">
                     {item.customerName ?? "Visitor"} · {item.channel === "web" ? "Website chat" : "WhatsApp"} · {when(item.createdAt, locale)}
                   </p>

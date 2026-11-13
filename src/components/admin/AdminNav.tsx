@@ -5,13 +5,15 @@ import { usePathname } from "next/navigation";
 
 const LINKS = [
   { href: "/admin", label: "Dashboard" },
+  { href: "/admin/inbox", label: "Inbox" },
   { href: "/admin/products", label: "Items" },
   { href: "/admin/categories", label: "Categories" },
   { href: "/admin/settings", label: "Settings" },
+  { href: "/admin/assistant", label: "Assistant" },
   { href: "/admin/account", label: "Account" },
 ] as const;
 
-export function AdminNav() {
+export function AdminNav({ waiting = 0 }: { waiting?: number }) {
   const pathname = usePathname();
   return (
     <nav aria-label="Admin" className="flex gap-1 overflow-x-auto lg:flex-col" data-testid="admin-nav">
@@ -27,6 +29,15 @@ export function AdminNav() {
             }`}
           >
             {link.label}
+            {link.href === "/admin/inbox" && waiting > 0 && (
+              <span
+                className={`ml-2 inline-flex min-w-5 justify-center rounded-full px-1.5 text-xs font-semibold ${active ? "bg-white text-accent" : "bg-accent text-white"}`}
+                data-testid="inbox-badge"
+              >
+                {waiting}
+                <span className="sr-only"> waiting for you</span>
+              </span>
+            )}
           </Link>
         );
       })}
