@@ -18,10 +18,18 @@ M2 Public website (incl. PENDING status in the core data model)
 M3 WhatsApp click-to-chat widget, number from settings
 M4 AI sales agent — core, on the website chat
 M5 Admin portal (inventory, statuses and holds, settings, conversation inbox)
-M6 AI sales agent on WhatsApp (official Cloud API)
-M7 Facebook and Instagram catalog sync
-M8 End-to-end testing and production readiness
+M6 Put the shop online (hosting, database, photo storage, domain)   <- added 2026-11-14
+M7 AI sales agent on WhatsApp (official Cloud API)                  (was M6)
+M8 Facebook and Instagram catalog sync                              (was M7)
+M9 End-to-end testing and production readiness                      (was M8)
 ```
+
+**Re-ordered on 2026-11-14 at the owner's request (D41):** going live was
+brought forward from the last milestone into a new Milestone 6, so the shop
+can start selling with the website, the chat assistant and the plain
+WhatsApp button before the WhatsApp agent and Meta catalog are built. The
+later milestones each moved down one number. Documents written before this
+date use the old numbers.
 
 Why this order (it differs from the owner's suggested list in one way: the
 WhatsApp side of the AI agent is its own milestone, after the admin portal):
@@ -239,7 +247,46 @@ owner's brief passes, plus status/hold behaviour and the inbox; owner approval.
 Needed from the owner: admin email address; Supabase account (or agreed
 alternative) for production database and images.
 
-## Milestone 6 — AI sales agent on WhatsApp
+## Milestone 6 — Put the shop online
+
+Goal: the shop is reachable on the internet at the owner's own address, with
+the owner's real items, and can take enquiries. Nothing new for customers is
+built; this milestone moves what exists onto real hosting safely.
+
+Steps:
+
+1. Owner decisions and accounts: hosting provider (D9), database and photo
+   storage (D4, D6), domain name. Costs confirmed before anything is bought.
+2. Cloud photo storage: the production implementation behind the existing
+   storage interface (D6), with the same checks as local storage.
+3. Production configuration: environment variables, secure cookies over
+   HTTPS, trusted network address for sign-in lockouts, image settings,
+   database connection through the provider's pooler.
+4. Moving the owner's existing items and photos from their computer to the
+   live database and storage, without re-typing; verified by counts.
+5. First deployment to a private preview address; migrations; administrator
+   created with the setup command against the live database.
+6. Pages a public shop needs: privacy notice, terms (final sale, pickup,
+   payment), and a sitemap for search engines.
+7. Safety nets: database backups and one restore test; AI spending cap
+   confirmed; a simple "is the site up" check.
+8. Custom domain and HTTPS; the WhatsApp number and contact details checked.
+9. Real-device checks on the live address (phone photo upload, chat, admin).
+10. Owner's short guide: how to update the site, where things live, what to
+    do if something breaks.
+
+Completion criteria: the live site passes the browser tests that can run
+against it; the owner's items and photos are all present; backups exist and
+a restore has been tried; the owner can sign in and manage the shop from a
+phone; owner approval.
+
+Needed from the owner: choices in step 1; creating the accounts (they are in
+the owner's name and hold the owner's payment details); a domain name.
+
+Not in this milestone: WhatsApp agent, Meta catalog, monitoring dashboards,
+load testing (Milestone 9).
+
+## Milestone 7 — AI sales agent on WhatsApp
 
 The same agent from M4, connected to the official WhatsApp Business Platform
 (Cloud API) directly, with no third-party agent service (D28).
@@ -271,7 +318,7 @@ specified; nothing is sent outside Meta's rules; owner approval.
 
 Needed from the owner: decisions and accounts listed in D28.
 
-## Milestone 7 — Facebook and Instagram catalog sync
+## Milestone 8 — Facebook and Instagram catalog sync
 
 The website database stays the master. Products are pushed to one Meta
 catalog that feeds both Facebook and Instagram (D29).
@@ -308,18 +355,18 @@ without one; if not, the catalog is used without a Shop. Messages from
 Facebook and Instagram go to the owner in Messenger / Instagram; no AI agent
 there.
 
-## Milestone 8 — End-to-end testing and production readiness
+## Milestone 9 — End-to-end testing and production readiness
+
+Going live itself moved to Milestone 6 (D41). What remains here:
 
 - Full journeys across website, website chat, WhatsApp, admin and Meta
   catalog, including an item going available → pending → sold everywhere.
-- Hosting account, production database and storage, environment variables,
-  custom domain, HTTPS, scheduled jobs, backups and a restore test.
-- Security review, privacy policy and terms pages, cookie/consent notice where
-  required, data retention settings.
-- Monitoring and alerts for failed sync jobs, webhook errors and AI spend;
-  spending caps.
-- Performance and accessibility pass; real-device testing.
-- Owner handover guide.
+- Scheduled jobs for the WhatsApp and catalog work (D30).
+- Second security review covering the WhatsApp webhook and catalog sync;
+  cookie/consent notice where required; data retention settings.
+- Monitoring and alerts for failed sync jobs, webhook errors and AI spend.
+- Performance and accessibility pass.
+- Final owner handover guide.
 
 ## Later (not scheduled)
 

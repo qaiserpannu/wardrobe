@@ -1060,3 +1060,29 @@ Known limits, accepted for now:
   that runs several processes they are looser than stated (the database
   lockout counts are shared and exact).
 - Not done: an independent penetration test; testing on real hosting.
+
+## D41 — Milestone 5 approved; going live brought forward (2026-11-14)
+
+**Status:** Decided by owner.
+
+- The owner approved Milestone 5 on 2026-11-14.
+- Asked whether to build the WhatsApp agent next or put the shop online
+  first, the owner chose: "put the shop online first".
+- The roadmap now has nine milestones. A new Milestone 6 (put the shop
+  online) takes the hosting, database, storage, domain, backup and
+  privacy-page work that was in the old Milestone 8. Old 6, 7 and 8 are now
+  7, 8 and 9. Decisions D1 to D40 use the old numbers.
+- Why this is sound: the WhatsApp agent and the Meta catalog both need a
+  public HTTPS address and cloud photo storage anyway, so this work was a
+  prerequisite for them, not a detour.
+- Open, for the owner to choose before any building: hosting (D9), database
+  and storage (D4, D6), domain. Prices and terms re-checked on 2026-11-14
+  from third-party summaries (the providers' own pricing pages could not be
+  opened here), to be confirmed on the providers' sites at sign-up:
+  - Vercel: the free Hobby plan is for non-commercial use only; Pro is
+    about US$20 per month and includes usage credit.
+  - Netlify: free plan reported to allow commercial use, on a monthly
+    credit allowance; Next.js 16 supported.
+  - Supabase free: about 500 MB database and 1 GB file storage; a project
+    with no database activity for 7 days is paused until resumed by hand;
+    Pro is about US$25 per month.

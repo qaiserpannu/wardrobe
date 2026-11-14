@@ -4,22 +4,10 @@ Update this file at the end of every working session.
 
 ## Current milestone
 
-**Milestone 5 — Admin portal: all five parts built and tested. Awaiting
-owner approval.** Do not start Milestone 6 until the owner approves.
-
-| Part | What | State |
-| --- | --- | --- |
-| 1 | Secure sign-in, setup command, dashboard, account page | Built and tested |
-| 2 | Items: add, edit, photos, status changes, holds with 72-hour expiry | Built and tested |
-| 3 | Categories and settings | Built and tested |
-| 4 | Inbox (conversations, requests, replies) and AI management | Built and tested |
-| 5 | Activity page, security review, full verification | Built and tested |
-
-Not built in Milestone 5, by decision (each is noted where it belongs):
-photo clean-up and photo-based pre-fill (waiting for real photos, D23);
-cloud image storage (waits for hosting, D6); a logo picture; alerts to the
-owner when a customer is waiting; replying to WhatsApp chats from the inbox
-(Milestone 6).
+**Milestone 6 — Put the shop online: not started. Waiting for the owner's
+choices on hosting, database/storage and domain (D41).**
+Milestone 5 was approved on 2026-11-14. The roadmap now has nine milestones;
+going live was brought forward (D41).
 
 ## Completed
 
@@ -302,7 +290,8 @@ Stack selection, Next.js scaffold, folder structure, project memory documents.
 
 ## Outstanding — waiting on the owner
 
-1. Approval of Milestone 5. A few real product photos, to trial photo clean-up (D23).
+1. Milestone 6 choices: hosting provider, database and photo storage,
+   domain name (D41). Then creating those accounts. A few real product photos, to trial photo clean-up (D23).
 2. Milestone 6: use +1 813 990 7900 for the AI agent, or a new dedicated
    number (D28, D31).
 3. Later: Meta accounts, domain, hosting choice (D9), proposed services
@@ -338,5 +327,4 @@ Stack selection, Next.js scaffold, folder structure, project memory documents.
 
 ## Next steps
 
-1. On Milestone 5 approval: Milestone 6 (AI agent on WhatsApp), which
-   needs the owner's Meta/WhatsApp Business setup (D28) before it can start.
+1. Milestone 6 (put the shop online), once the owner has chosen providers.

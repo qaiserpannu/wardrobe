@@ -14,8 +14,9 @@ WhatsApp; there is no online checkout.
 
 ## Working rules
 
-- **Roadmap has 8 milestones** (revised 2026-11-12); see
-  `docs/DEVELOPMENT_PLAN.md`.
+- **Roadmap has 9 milestones** (revised 2026-11-14, D41: going live is
+  Milestone 6; WhatsApp agent 7; Meta catalog 8; final testing 9). Documents
+  dated before that use the old numbers. See `docs/DEVELOPMENT_PLAN.md`.
 - **One milestone at a time.** Never start the next milestone without the
   owner's explicit approval. Do not build ahead.
 - **Tested means tested.** Do not report something as working unless it was
@@ -108,9 +109,10 @@ WhatsApp; there is no online checkout.
   `tests/integration/agent.test.ts` for every new guardrail.
 - `AI_PROVIDER=test` is a fixed-rule stand-in for browser tests only.
 - WhatsApp: official Cloud API only; never unofficial automation libraries.
-  Respect the 24-hour reply window and template rules (D28).
+  Respect the 24-hour reply window and template rules (D28). Built in
+  Milestone 7.
 
-## Integration rules (Milestone 7 onward)
+## Integration rules (Milestone 8 onward)
 
 - The website database is the master for inventory. Meta's catalog is a
   destination; never read inventory back from it.
