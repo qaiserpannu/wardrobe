@@ -783,6 +783,16 @@ model up (`AI_MODEL=claude-sonnet-5-5`) costs about 20 times more.
   language when relaying a tool's wording. Nothing unsafe happened (it
   escalated rather than guessed). Needs an eighth run to confirm.
 
+- **Eighth run (2026-11-14):** 131 of 133. The Roman Urdu returns question
+  is now answered correctly, in Roman Urdu, without escalating. Two misses:
+  (1) an over-strict check ("I've noted your name" matched "your name");
+  corrected. (2) A real, minor fault that had appeared before: "Walaikum
+  Assalam!" in reply to a message with no salam. This is now enforced in
+  code (`dropUnpromptedSalam` in `core.ts`) rather than left to the
+  instructions. One awkward phrase ("Returns question is answered in the
+  shop information: ...") came from the seventh-run fix; the instructions
+  now say never to mention where an answer comes from.
+
 ## D35 — The assistant's persona: Skyra (2026-11-13)
 
 **Status:** Decided by the owner, with one limit kept (below)

@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { eq, sql } from "drizzle-orm";
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
-import { handleMessage, loadHistory, SAFE_REPLIES } from "@/server/agent/core";
+import { dropUnpromptedSalam, handleMessage, loadHistory, SAFE_REPLIES } from "@/server/agent/core";
 import { buildSystemPrompt } from "@/server/agent/prompt";
 import { AGENT_TOOLS } from "@/server/agent/tools";
 import type { AgentModel, TurnRequest } from "@/server/agent/types";
@@ -409,5 +409,22 @@ describe("instructions given to the AI", () => {
     expect(prompt).not.toMatch(/postgres:|API_KEY|18139907900/);
     // Identical for every message, so it can be cached by the provider.
     expect(buildSystemPrompt(await getSettings(), await listActiveKnowledge(), "web")).toBe(prompt);
+  });
+});
+
+describe("greetings", () => {
+  it("removes a salam reply when the customer did not give a salam", async () => {
+    const reply = await handleMessage({ ...visitor(), text: "I'm looking for a kurti" }, says("Walaikum Assalam! Lovely, we have three kurtis."));
+    expect(reply.reply).toBe("Lovely, we have three kurtis.");
+    expect(dropUnpromptedSalam("Wa alaikum assalam, yes we do.", "do you have sarees")).toBe("Yes we do.");
+    expect(dropUnpromptedSalam("وعلیکم السلام! جی ہاں۔", "ساڑھی ہے؟")).toBe("جی ہاں۔");
+  });
+
+  it("keeps it when the customer did", async () => {
+    const text = "Walaikum Assalam! Yes, we have sarees.";
+    expect((await handleMessage({ ...visitor(), text: "Assalam o alaikum, sarees?" }, says(text))).reply).toBe(text);
+    expect(dropUnpromptedSalam("وعلیکم السلام! جی ہاں۔", "السلام علیکم")).toBe("وعلیکم السلام! جی ہاں۔");
+    expect(dropUnpromptedSalam("Salam alaikum sister", "hi")).toBe("Salam alaikum sister"); // only a reply-form salam is removed
+    expect(dropUnpromptedSalam("Walaikum Assalam!", "hi")).toBe("Walaikum Assalam!"); // never leaves an empty reply
   });
 });

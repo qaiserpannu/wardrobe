@@ -86,6 +86,20 @@ function toHistory(stored: StoredMessage[]): HistoryMessage[] {
   return history;
 }
 
+const SALAM = /sala+m|سلام/i;
+const SALAM_REPLY = /^\s*(wa ?[' ]?a?laikum(?: ?[- ]?(?:us|as|ass)?[- ]?sala+m)?|وعلیکم السلام)\s*[!.,،۔]*\s*/i;
+
+/**
+ * "Walaikum Assalam" answers a salam. If the customer did not give one, an
+ * opening salam reply is removed, so the assistant never answers a greeting
+ * that was not made.
+ */
+export function dropUnpromptedSalam(reply: string, customerText: string): string {
+  if (SALAM.test(customerText)) return reply;
+  const rest = reply.replace(SALAM_REPLY, "");
+  return rest === reply || rest.length === 0 ? reply : rest.charAt(0).toUpperCase() + rest.slice(1);
+}
+
 /**
  * Check every product ID in a reply against the inventory. A reply naming an
  * item that does not exist is never shown to the customer.
@@ -175,7 +189,7 @@ export async function handleMessage(incoming: IncomingMessage, model?: AgentMode
       limited = "error";
     } else {
       const checked = await verifyReply(result.text);
-      reply = checked.ok ? result.text : SAFE_REPLIES.unverified;
+      reply = checked.ok ? dropUnpromptedSalam(result.text, text) : SAFE_REPLIES.unverified;
       products = checked.products;
     }
   } catch (err) {

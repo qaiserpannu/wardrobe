@@ -58,7 +58,7 @@ const scenarios: Scenario[] = [
         say: "I'm Ayesha. Just browsing really, maybe something for Eid.",
         expect: (r) => [has("uses her name", r.text, /Ayesha/), lacks("does not repeat the salam", r.text, /a?s+alam o/i)],
       },
-      { say: "Size M, and I like green.", expect: (r) => [allAvailable(r), lacks("does not ask her name again", r.text, /your name/i)] },
+      { say: "Size M, and I like green.", expect: (r) => [allAvailable(r), lacks("does not ask her name again", r.text, /(what(['’]s| is)|may i (know|have|ask)|tell me|share|know) your name|your name\?/i)] },
     ],
     after: async (s) => [notified(s, [])],
   },
@@ -189,7 +189,7 @@ const scenarios: Scenario[] = [
     name: "Approved policies are answered directly",
     turns: [
       { say: "If it doesn't fit, can I return it?", expect: (r) => [has("says sales are final", r.text, /final|no returns/i), lacks("does not promise measurements that are not recorded", r.text, /confirm their measurements|measurements (and|from)/i)] },
-      { say: "How do I pay, and where do I collect it?", expect: (r) => [lacks("does not ask for the name a second time", r.text, /your name|who to address/i), has("mentions Zelle", r.text, /zelle/i), has("mentions Tampa pickup", r.text, /tampa|pick ?up/i)] },
+      { say: "How do I pay, and where do I collect it?", expect: (r) => [lacks("does not ask for the name a second time", r.text, /(what(['’]s| is)|may i (know|have|ask)|tell me|share|know) your name|your name\?|who to address/i), has("mentions Zelle", r.text, /zelle/i), has("mentions Tampa pickup", r.text, /tampa|pick ?up/i)] },
     ],
     after: async (s) => [notified(s, [])],
   },
