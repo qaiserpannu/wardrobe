@@ -292,10 +292,9 @@ Stack selection, Next.js scaffold, folder structure, project memory documents.
 
 1. Milestone 6 choices: hosting provider, database and photo storage,
    domain name (D41). Then creating those accounts. A few real product photos, to trial photo clean-up (D23).
-2. Milestone 6: use +1 813 990 7900 for the AI agent, or a new dedicated
+2. Milestone 7: use +1 813 990 7900 for the AI agent, or a new dedicated
    number (D28, D31).
-3. Later: Meta accounts, domain, hosting choice (D9), proposed services
-   (D4, D6, D7).
+3. Later: Meta accounts (D28, D29).
 
 ## Known issues and limitations
 
