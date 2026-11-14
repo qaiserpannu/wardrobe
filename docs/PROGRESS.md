@@ -10,9 +10,11 @@ chosen (D42). Milestone 5 was approved on 2026-11-14.
 
 | Step | State |
 | --- | --- |
-| 1 Choices and accounts | Choices made; owner creating the Supabase account |
-| 2 Cloud photo storage | Built; tested against a stand-in only |
-| 3 to 10 | Not started |
+| 1 Choices and accounts | Supabase project created by the owner; Netlify and domain still to do |
+| 2 Cloud photo storage | Built; confirmed against the owner's Supabase project |
+| 3 Production configuration | Encrypted database connections done; rest not started |
+| 4 Moving items and photos | Tools built and verified locally; owner to run them |
+| 5 to 10 | Not started |
 
 ## Completed
 
@@ -24,7 +26,9 @@ chosen (D42). Milestone 5 was approved on 2026-11-14.
 - `npm run storage:check` and `npm run storage:upload` added.
 - Tests: 162 logic tests (8 new, with the network replaced by a stand-in);
   all 233 browser runs still pass on local storage.
-- NOT tested: a real Supabase project. Needs the owner's account.
+- Confirmed by the owner against their real Supabase project on 2026-11-14.
+- Added `npm run data:copy` (D43) to move the database; verified between
+  two local databases only.
 
 ### Milestone 5, part 5 (2026-11-13) — Activity page and security review (see D40)
 
@@ -305,9 +309,9 @@ Stack selection, Next.js scaffold, folder structure, project memory documents.
 
 ## Outstanding — waiting on the owner
 
-1. Milestone 6: create the Supabase account and project, put its details
-   in `.env.local`, run `npm run storage:check` and report the result. Choose
-   a domain name. A few real product photos, to trial photo clean-up (D23).
+1. Milestone 6: run `npm run storage:upload`, then `npm run data:copy` with
+   the Supabase Session pooler address as `TARGET_DATABASE_URL`, and report
+   the output. Choose a domain name. A few real product photos, to trial photo clean-up (D23).
 2. Milestone 7: use +1 813 990 7900 for the AI agent, or a new dedicated
    number (D28, D31).
 3. Later: Meta accounts (D28, D29).

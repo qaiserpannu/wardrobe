@@ -260,13 +260,15 @@ Steps:
    (Decided 2026-11-14: Netlify free, Supabase free; domain still open.)
 2. [x] Cloud photo storage: the production implementation behind the existing
    storage interface (D6), with the same checks as local storage. (Built,
-   D42; to be confirmed against the owner's real Supabase project with
-   `npm run storage:check`.)
+   D42; confirmed by the owner against their real Supabase project on
+   2026-11-14.)
 3. Production configuration: environment variables, secure cookies over
    HTTPS, trusted network address for sign-in lockouts, image settings,
    database connection through the provider's pooler.
-4. Moving the owner's existing items and photos from their computer to the
-   live database and storage, without re-typing; verified by counts.
+4. [ ] Moving the owner's existing items and photos from their computer to the
+   live database and storage, without re-typing; verified by counts. (Tools
+   built and verified locally, D43: `npm run storage:upload`,
+   `npm run data:copy`. Waiting for the owner to run them.)
 5. First deployment to a private preview address; migrations; administrator
    created with the setup command against the live database.
 6. Pages a public shop needs: privacy notice, terms (final sale, pickup,

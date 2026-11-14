@@ -14,6 +14,7 @@
     "admin:create": "tsx --conditions=react-server --env-file-if-exists=.env.local scripts/create-admin.ts",
     "storage:check": "tsx --conditions=react-server --env-file-if-exists=.env.local scripts/storage.ts check",
     "storage:upload": "tsx --conditions=react-server --env-file-if-exists=.env.local scripts/storage.ts upload",
+    "data:copy": "tsx --conditions=react-server --env-file-if-exists=.env.local scripts/copy-data.ts",
     "test": "vitest run",
     "eval:agent": "tsx --conditions=react-server --env-file-if-exists=.env.local scripts/agent-eval.ts",
     "test:e2e": "playwright test"

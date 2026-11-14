@@ -1123,3 +1123,31 @@ stand-in, NOT yet against a real Supabase project.
   to the bucket, keeping the same keys, so database records need no change.
 - Domain: could not be checked from the development environment (registry
   look-ups are blocked there); the owner checks availability at a registrar.
+
+## D43 — Moving the shop's data to the live database (Milestone 6, 2026-11-14)
+
+**Status:** Built; verified between two local databases, NOT yet against
+Supabase.
+
+- 2026-11-14: the owner ran `npm run storage:check` against their real
+  Supabase project and it passed, so cloud photo storage (D42) is confirmed.
+- `npm run data:copy` copies every table from `DATABASE_URL` to
+  `TARGET_DATABASE_URL`: it creates the tables in the target, refuses if the
+  target already has items, categories or an administrator, copies in one
+  all-or-nothing transaction, carries the product-number sequence over, and
+  compares row counts. The source is only read.
+- Signed-in sessions and failed sign-in records are not copied. The
+  administrator account is, so the owner's existing email and password work
+  on the live shop.
+- Verified locally: every table identical row for row (including Urdu text,
+  quotes, backslashes, emoji and JSON columns); numbering continues; a second
+  run refuses; source equal to target refuses.
+- Connections to any database that is not on the local machine are now
+  always encrypted (`ssl: require`), and use at most 3 connections per
+  server process (`DATABASE_POOL_MAX` overrides) so a hosting provider's
+  pooler is not exhausted.
+- Which Supabase address to use: the **Session pooler** string for the copy
+  and for migrations (works on home networks without IPv6); the
+  **Transaction pooler** string for the hosted site (many short-lived
+  server processes). The client already avoids prepared statements, which
+  the transaction pooler does not support.

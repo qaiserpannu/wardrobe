@@ -73,6 +73,7 @@ Requires Node.js 20.19 or newer and a PostgreSQL 16 database.
 | `npm run admin:create` | Create the administrator account, or reset its password |
 | `npm run storage:check` | Check that photo storage works (save, read back, remove) |
 | `npm run storage:upload` | Copy local photos to cloud storage |
+| `npm run data:copy` | Copy the whole shop from `DATABASE_URL` to `TARGET_DATABASE_URL` (an empty database) |
 | `npm run db:generate` | Create a migration after editing the schema |
 | `npm run lint` / `npm run typecheck` | Code checks |
 | `npm run eval:agent` | Test conversations against the real AI (needs the key; small cost) |
