@@ -1,12 +1,19 @@
-import { readLocalFile } from "@/server/storage/local";
+import { getStorage } from "@/server/storage";
 
 /**
- * Serves images saved by the local storage driver (development and tests).
- * In production, images come straight from cloud storage instead.
+ * Serves stored photos, from the local folder in development or from cloud
+ * storage when the site is hosted. File names contain a fingerprint of their
+ * contents, so browsers and the hosting network may keep them indefinitely.
  */
 export async function GET(_request: Request, { params }: { params: Promise<{ path: string[] }> }) {
   const { path } = await params;
-  const file = await readLocalFile(path.join("/"));
+  let file;
+  try {
+    file = await getStorage().read(path.join("/"));
+  } catch (error) {
+    console.error("Could not read a stored photo", error);
+    return new Response("Temporarily unavailable", { status: 503, headers: { "Cache-Control": "no-store" } });
+  }
   if (!file) return new Response("Not found", { status: 404 });
   return new Response(new Uint8Array(file.data), {
     headers: {

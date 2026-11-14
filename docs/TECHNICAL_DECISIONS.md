@@ -50,7 +50,7 @@ admin).
 
 ## D4 — PostgreSQL, hosted on Supabase
 
-**Status:** Proposed
+**Status:** Chosen by the owner on 2026-11-14 (free plan); see D42
 
 - Why PostgreSQL: reliable, free, standard; has built-in full-text search,
   which covers catalog keyword search and AI product search without a separate
@@ -79,7 +79,7 @@ admin).
 
 ## D6 — Image storage behind a small interface
 
-**Status:** Proposed
+**Status:** Built; see D42
 
 One interface (`upload`, `delete`, `publicUrl`) with two implementations: local
 folder for development, Supabase Storage for production. The database stores a
@@ -138,7 +138,7 @@ provider can be added without touching the rest of the app.
 
 ## D9 — Hosting
 
-**Status:** Open — owner to choose before first deployment
+**Status:** Owner chose Netlify's free plan on 2026-11-14 ("fine for now"); see D42
 
 | Option | Cost | Notes |
 | --- | --- | --- |
@@ -1086,3 +1086,40 @@ Known limits, accepted for now:
   - Supabase free: about 500 MB database and 1 GB file storage; a project
     with no database activity for 7 days is paused until resumed by hand;
     Pro is about US$25 per month.
+
+## D42 — Hosting choices and cloud photo storage (Milestone 6, 2026-11-14)
+
+**Status:** Choices decided by owner; storage built and tested against a
+stand-in, NOT yet against a real Supabase project.
+
+- **Owner's choices:** Netlify free plan for hosting ("fine for now");
+  Supabase free plan for the database and photos; no domain yet.
+- **Risk accepted with Netlify:** the site uses recent Next.js features
+  (Cache Components, partial prefetching, the `proxy` file). These are
+  supported on Netlify in principle but untested with this project. The
+  first deployment is a trial; if something does not work there, the options
+  are to adjust the site or move to Vercel Pro (D9). The code stays
+  host-neutral.
+- **Photo storage:** a second implementation of the storage interface,
+  `src/server/storage/supabase.ts`, talks to Supabase Storage over its web
+  API with `fetch` (no new dependency). Chosen with
+  `STORAGE_DRIVER=supabase`.
+- **The bucket is private and browsers never see Supabase.** Photos are
+  still served from the site's own `/media/...` address; that route reads
+  the file from the bucket with the server's secret key and sends it with a
+  "keep for a year" header (file names contain a content fingerprint, D19),
+  so the hosting network and browsers cache it. Why: no storage address or
+  key reaches the browser; no image-host allow-list to maintain on the
+  hosting provider; stored keys and page addresses are identical locally and
+  live; changing provider later changes nothing customers see.
+  Trade-off: the first request for each photo passes through the site's
+  server. Acceptable at this shop's size; revisit if photo traffic grows.
+- The secret key is a server-only environment variable
+  (`SUPABASE_SECRET_KEY`; the older name `SUPABASE_SERVICE_ROLE_KEY` is also
+  accepted). It can bypass Supabase's access rules, so it must never be put
+  in a `NEXT_PUBLIC_` variable or shared.
+- `npm run storage:check` proves a configuration works (save, read back,
+  remove). `npm run storage:upload` copies the owner's existing local photos
+  to the bucket, keeping the same keys, so database records need no change.
+- Domain: could not be checked from the development environment (registry
+  look-ups are blocked there); the owner checks availability at a registrar.

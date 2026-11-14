@@ -4,12 +4,27 @@ Update this file at the end of every working session.
 
 ## Current milestone
 
-**Milestone 6 — Put the shop online: not started. Waiting for the owner's
-choices on hosting, database/storage and domain (D41).**
-Milestone 5 was approved on 2026-11-14. The roadmap now has nine milestones;
-going live was brought forward (D41).
+**Milestone 6 — Put the shop online: in progress.**
+Owner chose Netlify (free) and Supabase (free) on 2026-11-14; domain not yet
+chosen (D42). Milestone 5 was approved on 2026-11-14.
+
+| Step | State |
+| --- | --- |
+| 1 Choices and accounts | Choices made; owner creating the Supabase account |
+| 2 Cloud photo storage | Built; tested against a stand-in only |
+| 3 to 10 | Not started |
 
 ## Completed
+
+### Milestone 6, step 2 (2026-11-14) — cloud photo storage (see D42)
+
+- Photos can be kept in a private Supabase Storage bucket
+  (`STORAGE_DRIVER=supabase`). They are still served from the site's own
+  `/media` address, so nothing changes for customers or in the database.
+- `npm run storage:check` and `npm run storage:upload` added.
+- Tests: 162 logic tests (8 new, with the network replaced by a stand-in);
+  all 233 browser runs still pass on local storage.
+- NOT tested: a real Supabase project. Needs the owner's account.
 
 ### Milestone 5, part 5 (2026-11-13) — Activity page and security review (see D40)
 
@@ -290,8 +305,9 @@ Stack selection, Next.js scaffold, folder structure, project memory documents.
 
 ## Outstanding — waiting on the owner
 
-1. Milestone 6 choices: hosting provider, database and photo storage,
-   domain name (D41). Then creating those accounts. A few real product photos, to trial photo clean-up (D23).
+1. Milestone 6: create the Supabase account and project, put its details
+   in `.env.local`, run `npm run storage:check` and report the result. Choose
+   a domain name. A few real product photos, to trial photo clean-up (D23).
 2. Milestone 7: use +1 813 990 7900 for the AI agent, or a new dedicated
    number (D28, D31).
 3. Later: Meta accounts (D28, D29).

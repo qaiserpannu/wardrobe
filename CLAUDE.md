@@ -133,6 +133,9 @@ WhatsApp; there is no online checkout.
   `gold` for decoration only, never for text on light backgrounds) and the
   shared `Ornament`, `.pattern-jali` and `.edge-scallop` pieces. See D17.
 - Stored image names must include a content fingerprint (D19).
+- Photos are always served from `/media/...` through `getStorage().read`,
+  whatever the storage provider (D42). Never put a storage provider's
+  address or key in a page, and never use a `NEXT_PUBLIC_` variable for it.
 
 ## Commands
 

@@ -257,8 +257,11 @@ Steps:
 
 1. Owner decisions and accounts: hosting provider (D9), database and photo
    storage (D4, D6), domain name. Costs confirmed before anything is bought.
-2. Cloud photo storage: the production implementation behind the existing
-   storage interface (D6), with the same checks as local storage.
+   (Decided 2026-11-14: Netlify free, Supabase free; domain still open.)
+2. [x] Cloud photo storage: the production implementation behind the existing
+   storage interface (D6), with the same checks as local storage. (Built,
+   D42; to be confirmed against the owner's real Supabase project with
+   `npm run storage:check`.)
 3. Production configuration: environment variables, secure cookies over
    HTTPS, trusted network address for sign-in lockouts, image settings,
    database connection through the provider's pooler.
