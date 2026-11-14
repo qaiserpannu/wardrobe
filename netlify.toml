@@ -1,0 +1,8 @@
+# Hosting settings for Netlify (D41). Secrets are NOT kept here: they are
+# entered in Netlify under Project configuration > Environment variables.
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"

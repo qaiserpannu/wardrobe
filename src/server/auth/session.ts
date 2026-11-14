@@ -52,5 +52,9 @@ export async function requireAdmin(): Promise<AdminUser> {
 /** Best guess at the visitor's network address, for slowing down password guessing. */
 export async function clientAddress(): Promise<string> {
   const h = await headers();
+  // On Netlify this header is set by the host itself and cannot be faked by the
+  // visitor, unlike the first entry of "x-forwarded-for".
+  const trusted = h.get("x-nf-client-connection-ip")?.trim();
+  if (trusted) return trusted;
   return h.get("x-forwarded-for")?.split(",")[0]?.trim() || h.get("x-real-ip") || "unknown";
 }
