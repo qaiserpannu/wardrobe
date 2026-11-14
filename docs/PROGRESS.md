@@ -347,3 +347,5 @@ Stack selection, Next.js scaffold, folder structure, project memory documents.
 ## Next steps
 
 1. Milestone 6 (put the shop online), once the owner has chosen providers.
+
+- 2026-11-14: owner's first `data:copy` run failed with an unhelpful message; the live database address was cut short (most likely a symbol in the password). The tool now checks the address first, tests both connections, and explains failures in plain language (`databaseAddressProblem`). Waiting for the owner to fix the address and run it again.

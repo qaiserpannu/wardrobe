@@ -11,7 +11,7 @@
  * Photos themselves are copied separately with "npm run storage:upload".
  */
 import postgres from "postgres";
-import { connectionOptions, describeDatabase } from "@/server/db/connection";
+import { connectionOptions, databaseAddressProblem, describeDatabase } from "@/server/db/connection";
 
 /** In an order that satisfies the links between tables. Sessions and sign-in attempts are deliberately not copied. */
 const TABLES = [
@@ -39,6 +39,8 @@ async function main() {
   const targetUrl = process.env.TARGET_DATABASE_URL;
   if (!sourceUrl) throw new Error("DATABASE_URL (where to copy from) is not set in .env.local.");
   if (!targetUrl) throw new Error("TARGET_DATABASE_URL (where to copy to) is not set in .env.local.");
+  const problem = databaseAddressProblem(targetUrl);
+  if (problem) throw new Error(`TARGET_DATABASE_URL in .env.local is not right. ${problem}`);
   if (describeDatabase(sourceUrl) === describeDatabase(targetUrl)) throw new Error("The source and the target are the same database.");
 
   console.log(`From: ${describeDatabase(sourceUrl)}`);
@@ -47,6 +49,14 @@ async function main() {
   const source = postgres(sourceUrl, { max: 1, ...connectionOptions(sourceUrl) });
   const target = postgres(targetUrl, { max: 1, ...connectionOptions(targetUrl) });
   try {
+    // 0. Make sure we can reach both before starting.
+    await source`select 1`.catch((error) => {
+      throw new Error(`Could not connect to the database on this computer (${reason(error)}). Is it running?`);
+    });
+    await target`select 1`.catch((error) => {
+      throw new Error(`Could not connect to the live database (${reason(error)}).${hint(error)}`);
+    });
+
     // 1. Give the target the same tables.
     const { drizzle } = await import("drizzle-orm/postgres-js");
     const { migrate } = await import("drizzle-orm/postgres-js/migrator");
@@ -108,8 +118,30 @@ async function main() {
   }
 }
 
+/** The underlying reason for a failure, which the database library often wraps. Contains no password. */
+function reason(error: unknown): string {
+  const seen: string[] = [];
+  let current: unknown = error;
+  while (current instanceof Error && seen.length < 4) {
+    const code = (current as { code?: string }).code;
+    const text = [code, current.message].filter(Boolean).join(": ");
+    if (text && !seen.includes(text)) seen.push(text);
+    current = current.cause;
+  }
+  return seen.join(" <- ") || String(error);
+}
+
+function hint(error: unknown): string {
+  const text = reason(error);
+  if (/28P01|password authentication/i.test(text)) return " The password in TARGET_DATABASE_URL is wrong.";
+  if (/ENOTFOUND|EAI_AGAIN/i.test(text)) return ' The server name is wrong or cut short. Copy the "Session pooler" address again.';
+  if (/ETIMEDOUT|ECONNREFUSED|ENETUNREACH/i.test(text)) return ' Use the "Session pooler" address, not "Direct connection".';
+  if (/Tenant or user not found/i.test(text)) return ' The user name or region is wrong. Copy the "Session pooler" address again.';
+  return "";
+}
+
 main().catch((error) => {
-  const message = error instanceof Error ? error.message : String(error);
+  const message = error instanceof Error && error.cause ? `${error.message}\n  Reason: ${reason(error.cause)}` : error instanceof Error ? error.message : String(error);
   console.error(`\nCould not finish: ${message}`);
   if (/ENOTFOUND|ECONNREFUSED|ETIMEDOUT|EAI_AGAIN/.test(message)) {
     console.error('The database could not be reached. Check the address, and use the "Session pooler" connection string from Supabase.');

@@ -117,3 +117,18 @@ describe("cloud photo storage", () => {
     expect(bucket.has(key)).toBe(true);
   });
 });
+
+describe("database address check", () => {
+  it("accepts whole addresses and explains broken ones", async () => {
+    const { databaseAddressProblem } = await import("@/server/db/connection");
+    expect(databaseAddressProblem("postgres://wardrobe:wardrobe@localhost:5432/wardrobe")).toBeNull();
+    expect(databaseAddressProblem("postgresql://postgres.abcd:Secret123@aws-0-us-east-1.pooler.supabase.com:5432/postgres")).toBeNull();
+    // A password starting with "#" cuts the address off after the user name.
+    expect(databaseAddressProblem("postgresql://postgres.abcd:#Secret@aws-0-us-east-1.pooler.supabase.com:5432/postgres")).toMatch(/cut short/);
+    expect(databaseAddressProblem("postgresql://postgres.abcd:Se/cret@aws-0-us-east-1.pooler.supabase.com:5432/postgres")).not.toBeNull();
+    expect(databaseAddressProblem("postgresql://postgres.abcd:[YOUR-PASSWORD]@aws-0-us-east-1.pooler.supabase.com:5432/postgres")).toMatch(/placeholder/);
+    const message = databaseAddressProblem("postgresql://postgres.abcd:Sec#ret99@aws-0-us-east-1.pooler.supabase.com:5432/postgres") ?? "";
+    expect(message).not.toBe("");
+    expect(message).not.toContain("ret99");
+  });
+});
