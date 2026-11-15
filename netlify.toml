@@ -6,3 +6,11 @@
 
 [build.environment]
   NODE_VERSION = "22"
+
+# The shop's own address is preloved-wardrobe.com. Visitors (and search
+# engines) arriving at the original Netlify address are sent there.
+[[redirects]]
+  from = "https://preownerwardrobe.netlify.app/*"
+  to = "https://preloved-wardrobe.com/:splat"
+  status = 301
+  force = true

@@ -7,7 +7,7 @@ knowledge needed.
 
 | What | Where | Sign in with |
 | --- | --- | --- |
-| The shop customers see | https://preownerwardrobe.netlify.app (until you have your own domain) | nothing |
+| The shop customers see | https://preloved-wardrobe.com | nothing |
 | Your admin portal | the shop address followed by `/admin` | your admin email and password |
 | The website itself (hosting) | netlify.com, project `preownerwardrobe` | your GitHub login |
 | Items, conversations, photos | supabase.com, your project | your Supabase login |
