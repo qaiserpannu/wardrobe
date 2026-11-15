@@ -1195,3 +1195,15 @@ The reading/writing code is shared with `npm run data:copy`
 owner keeps them. The folder holds customer conversations and the scrambled
 admin password: it is in `.gitignore` and must stay private. Sign-in sessions
 are not backed up. An automatic nightly backup can be added later.
+
+## D46 — The shop's address (Milestone 6, 2026-11-15)
+
+The shop lives at **https://preloved-wardrobe.com**. The owner registered it
+at Cloudflare (cheaper renewals than buying through Netlify). Cloudflare
+holds two CNAME records (`@` and `www`) pointing at
+`preownerwardrobe.netlify.app`, both "DNS only": with Cloudflare's proxy
+(orange cloud) switched on, Netlify cannot issue its certificate. Netlify
+serves the site and renews the Let's Encrypt certificate by itself.
+`netlify.toml` forwards the original netlify.app address to the domain.
+`NEXT_PUBLIC_SITE_URL` on Netlify holds the address used in the sitemap,
+link previews and WhatsApp messages.

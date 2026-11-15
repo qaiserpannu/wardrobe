@@ -280,12 +280,14 @@ Steps:
 7. Safety nets: [x] database and photo backups with a practice restore
    (D45; owner ran both against the live shop on 2026-11-15: 46 items, 93
    photos, all matched). [x] "Is the site up" address `/api/health`.
-   [ ] AI spending cap confirmed by the owner in the Anthropic console.
+   [x] AI spending cap set by the owner in the Anthropic console (owner's report).
    [ ] Optional: a free outside monitor pointed at `/api/health`.
-8. [ ] Custom domain and HTTPS; the WhatsApp number and contact details
-   checked.
-9. [ ] Real-device checks on the live address (phone photo upload, chat,
-   admin).
+8. [x] Custom domain and HTTPS: https://preloved-wardrobe.com (registered
+   by the owner at Cloudflare, DNS only, pointing at Netlify; Let's Encrypt
+   certificate; `www` and the original netlify.app address forward to it).
+   WhatsApp number on the live site to be confirmed by the owner.
+9. [x] Real-device checks on the live address: owner confirmed phone photo
+   upload, chat and WhatsApp on 2026-11-15.
 10. [x] Owner's short guide: `docs/OWNER_GUIDE.md`.
 
 Completion criteria: the live site passes the browser tests that can run
