@@ -1,6 +1,8 @@
 // TEMPORARY: connection diagnostics for the first hosting trial. Reports timings
 // and error codes only. To be deleted as soon as the fault is found.
+import postgres from "postgres";
 import { getSql } from "@/server/db/client";
+import { connectionOptions } from "@/server/db/connection";
 import { getCatalogFacets, listProducts } from "@/server/services/products";
 
 async function step(name: string, run: () => Promise<unknown>) {
@@ -29,7 +31,25 @@ async function step(name: string, run: () => Promise<unknown>) {
 }
 
 export async function POST(request: Request) {
-  const only = new URL(request.url).searchParams.get("only");
+  const params = new URL(request.url).searchParams;
+  const only = params.get("only");
+  if (params.get("fresh")) {
+    const url = process.env.DATABASE_URL ?? "";
+    const n = Number(params.get("n") ?? 8);
+    const client = postgres(url, {
+      ...connectionOptions(url),
+      max: Number(params.get("max") ?? 3),
+      ...(params.get("types") === "0" ? { fetch_types: false } : {}),
+      ...(params.get("prepare") === "1" ? { prepare: true } : {}),
+    });
+    const numbers = Array.from({ length: n }, (_, i) => i);
+    const result = await step("fresh", () =>
+      Promise.all(numbers.map((i) => (params.get("plain") ? client.unsafe("select 1") : client`select ${i}::int`))),
+    );
+    const second = await step("fresh-again", () => Promise.all(numbers.map((i) => client`select ${i}::int`)));
+    client.end({ timeout: 1 }).catch(() => {});
+    return Response.json({ query: Object.fromEntries(params), result, second });
+  }
   const sql = getSql();
   let port = "?";
   try {
