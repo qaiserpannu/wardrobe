@@ -87,3 +87,11 @@ Requires Node.js 20.19 or newer and a PostgreSQL 16 database.
 - [Technical decisions](docs/TECHNICAL_DECISIONS.md)
 - [Database schema](docs/DATABASE_SCHEMA.md)
 - [Progress](docs/PROGRESS.md)
+
+## Backups
+
+- `npm run backup` saves the database and every photo into `./backups/`.
+- `npm run backup:check` proves the newest backup can be restored (uses a throwaway local database).
+- `npm run backup:restore` restores the newest backup into an empty database (`TARGET_DATABASE_URL`).
+
+Keep the `backups` folder private; it is not uploaded to GitHub.

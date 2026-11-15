@@ -1172,3 +1172,26 @@ The limit of 3 connections per running copy of the site stays.
 
 **Rule.** Do not remove `max_pipeline: 1` or `prepare: false` while the site
 uses a pooled database address.
+
+## D45 — Backups kept on the owner's computer (Milestone 6, 2026-11-15)
+
+**Why.** Supabase's free plan keeps no backups we can rely on, and the shop's
+only copy of its items, conversations and photos is now there.
+
+**Decision.** Our own tool, no new dependency and nothing to install:
+
+- `npm run backup` reads every table in one consistent snapshot and downloads
+  every photo into `./backups/<date>_<time>/` (`shop.json` plus `photos/`).
+- `npm run backup:check` restores the newest backup into a throwaway database
+  on the owner's computer, compares each table's row count and a fingerprint
+  of its contents, checks every photo file, and removes the database again.
+- `npm run backup:restore` puts the newest backup into an empty database
+  (`TARGET_DATABASE_URL`) and the configured photo storage.
+
+The reading/writing code is shared with `npm run data:copy`
+(`scripts/lib/shop-data.ts`). Restores only ever run into an empty database.
+
+**Limits.** Backups are taken by hand, not on a timer, and live only where the
+owner keeps them. The folder holds customer conversations and the scrambled
+admin password: it is in `.gitignore` and must stay private. Sign-in sessions
+are not backed up. An automatic nightly backup can be added later.

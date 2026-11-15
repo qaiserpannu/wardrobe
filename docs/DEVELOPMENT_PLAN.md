@@ -277,8 +277,9 @@ Steps:
 6. [x] Pages a public shop needs: "How buying works" (`/terms`), privacy
    notice (`/privacy`), and a sitemap for search engines (`/sitemap.xml`,
    available items only). Wording to be confirmed by the owner.
-7. Safety nets: database backups and one restore test; AI spending cap
-   confirmed; a simple "is the site up" check.
+7. Safety nets: [x] database and photo backups with a practice restore
+   (tools built and verified locally, D45; waiting for the owner's first
+   run). [ ] AI spending cap confirmed. [ ] A simple "is the site up" check.
 8. Custom domain and HTTPS; the WhatsApp number and contact details checked.
 9. Real-device checks on the live address (phone photo upload, chat, admin).
 10. Owner's short guide: how to update the site, where things live, what to

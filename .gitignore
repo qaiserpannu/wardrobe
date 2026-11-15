@@ -43,5 +43,6 @@ next-env.d.ts
 
 # local image storage and test output
 /storage/
+/backups/
 /test-results/
 /playwright-report/
