@@ -119,7 +119,21 @@ export async function Footer() {
       </Container>
       <div className="border-t border-gold/25">
         <Container className="py-5 text-xs text-[#f6ead6]/70">
-          © <CopyrightYear /> {branding.siteName}. All rights reserved.
+          <p>
+            © <CopyrightYear /> {branding.siteName}. All rights reserved.
+          </p>
+          <ul className="mt-2 flex flex-wrap gap-x-5 gap-y-1">
+            <li>
+              <Link href="/terms" className="underline-offset-4 hover:text-gold-light hover:underline">
+                How buying works
+              </Link>
+            </li>
+            <li>
+              <Link href="/privacy" className="underline-offset-4 hover:text-gold-light hover:underline">
+                Privacy
+              </Link>
+            </li>
+          </ul>
         </Container>
       </div>
     </footer>

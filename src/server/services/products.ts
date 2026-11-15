@@ -222,6 +222,19 @@ export async function getProductByCode(code: string): Promise<PublicProduct | nu
   return (await withImages(rows))[0] ?? null;
 }
 
+/** Addresses of the items that can be bought, for the sitemap search engines read. */
+export async function listSitemapProducts(): Promise<{ slug: string; updatedAt: Date }[]> {
+  await ensureHoldsCurrent();
+  return getDb()
+    .select({ slug: products.slug, updatedAt: products.updatedAt })
+    .from(products)
+    .innerJoin(categories, eq(products.categoryId, categories.id))
+    .leftJoin(parents, eq(categories.parentId, parents.id))
+    .where(and(isPublic, eq(products.status, "available")))
+    .orderBy(asc(products.code))
+    .limit(5000);
+}
+
 /** Featured items for the homepage. Only items that can actually be bought. */
 export async function getFeaturedProducts(limit = 4): Promise<PublicProduct[]> {
   await ensureHoldsCurrent();

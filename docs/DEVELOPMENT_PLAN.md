@@ -262,17 +262,21 @@ Steps:
    storage interface (D6), with the same checks as local storage. (Built,
    D42; confirmed by the owner against their real Supabase project on
    2026-11-14.)
-3. Production configuration: environment variables, secure cookies over
+3. [x] Production configuration: environment variables, secure cookies over
    HTTPS, trusted network address for sign-in lockouts, image settings,
-   database connection through the provider's pooler.
-4. [ ] Moving the owner's existing items and photos from their computer to the
-   live database and storage, without re-typing; verified by counts. (Tools
-   built and verified locally, D43: `npm run storage:upload`,
-   `npm run data:copy`. Waiting for the owner to run them.)
-5. First deployment to a private preview address; migrations; administrator
-   created with the setup command against the live database.
-6. Pages a public shop needs: privacy notice, terms (final sale, pickup,
-   payment), and a sitemap for search engines.
+   database connection through the provider's pooler. (Done 2026-11-15;
+   pooler fault found and fixed on the live site, D44.)
+4. [x] Moving the owner's existing items and photos from their computer to the
+   live database and storage, without re-typing; verified by counts. (Owner
+   ran `npm run storage:upload` and `npm run data:copy` on 2026-11-14; all 15
+   tables matched.)
+5. [x] First deployment to a trial address
+   (https://preownerwardrobe.netlify.app, branch `develop`, deploys on every
+   push). Checked in a real browser at desktop and phone sizes; owner
+   confirmed admin sign-in, dashboard and chat.
+6. [x] Pages a public shop needs: "How buying works" (`/terms`), privacy
+   notice (`/privacy`), and a sitemap for search engines (`/sitemap.xml`,
+   available items only). Wording to be confirmed by the owner.
 7. Safety nets: database backups and one restore test; AI spending cap
    confirmed; a simple "is the site up" check.
 8. Custom domain and HTTPS; the WhatsApp number and contact details checked.

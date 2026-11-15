@@ -483,3 +483,44 @@ test.describe("responsive layout", () => {
     }
   });
 });
+
+test.describe("information pages", () => {
+  test("the footer links to how buying works and privacy", async ({ page }) => {
+    await page.goto("/");
+    const footer = page.getByRole("contentinfo");
+    await footer.getByRole("link", { name: "How buying works" }).click();
+    await expect(page.getByRole("heading", { level: 1, name: "How buying works" })).toBeVisible();
+    await expect(page.getByText(/All sales are final/)).toBeVisible();
+    await expect(page.getByText(/Zelle, Cash App or cash/)).toBeVisible();
+    // The hold length comes from settings (72 hours in the sample data).
+    await expect(page.getByText(/kept for up to 3 days/)).toBeVisible();
+
+    await page.getByRole("contentinfo").getByRole("link", { name: "Privacy" }).click();
+    await expect(page.getByRole("heading", { level: 1, name: "Privacy" })).toBeVisible();
+    await expect(page.getByText(/automated AI assistant/)).toBeVisible();
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    expect(overflow).toBeLessThanOrEqual(0);
+  });
+
+  test("the sitemap lists only items that can be bought, and no private addresses", async ({ request }) => {
+    const response = await request.get("/sitemap.xml");
+    expect(response.status()).toBe(200);
+    const xml = await response.text();
+    expect(xml).toContain("/shop</loc>");
+    expect(xml).toContain("/terms</loc>");
+    expect(xml).not.toMatch(/\/admin|\/api\//);
+
+    const sql = postgres(process.env.TEST_DATABASE_URL!, { max: 1 });
+    try {
+      const rows = await sql<{ slug: string; status: string }[]>`select slug, status from products`;
+      for (const row of rows) {
+        const listed = xml.includes(`/shop/${row.slug}</loc>`);
+        if (row.status !== "available") expect(listed, `${row.slug} (${row.status})`).toBe(false);
+      }
+      expect(rows.filter((r) => r.status === "available" && xml.includes(`/shop/${r.slug}</loc>`)).length).toBeGreaterThan(5);
+    } finally {
+      await sql.end();
+    }
+    expect((await (await request.get("/robots.txt")).text())).toContain("/sitemap.xml");
+  });
+});
