@@ -41,6 +41,8 @@ export async function POST(request: Request) {
       max: Number(params.get("max") ?? 3),
       ...(params.get("types") === "0" ? { fetch_types: false } : {}),
       ...(params.get("prepare") === "1" ? { prepare: true } : {}),
+      // Not in the library's public types; it is a real option (see node_modules/postgres/src/index.js).
+      ...(params.get("pipeline") ? ({ max_pipeline: Number(params.get("pipeline")) } as object) : {}),
     });
     const numbers = Array.from({ length: n }, (_, i) => i);
     const result = await step("fresh", () =>
