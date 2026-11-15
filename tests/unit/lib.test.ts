@@ -108,3 +108,39 @@ describe("helpers", () => {
     expect(s.whatsapp.number).toBe("");
   });
 });
+
+describe("share listing", () => {
+  const base = {
+    code: "PLW-0007",
+    name: " Red Bridal Lehenga ",
+    description: "Worn once.",
+    priceCents: 32000,
+    condition: "like_new" as const,
+    url: "https://example.com/shop/red-bridal-lehenga-plw-0007",
+    currency: "USD",
+    locale: "en-US",
+  };
+
+  it("writes the listing only from what is saved", async () => {
+    const { buildShareListing } = await import("@/lib/share-listing");
+    const full = buildShareListing({ ...base, brand: "Maria B", size: "M", color: "Red", fabric: "Silk", pieces: 3, imperfections: "Small pull on the hem", location: "Tampa, FL" });
+    expect(full.title).toBe("Red Bridal Lehenga - $320");
+    expect(full.text.split("\n")[1]).toBe("Maria B · Size M · Like new · Red · Silk · 3 pieces");
+    expect(full.text).toContain("Please note: Small pull on the hem");
+    expect(full.text).toContain("Pickup in Tampa, FL.");
+    expect(full.text).toContain("https://example.com/shop/red-bridal-lehenga-plw-0007");
+    expect(full.text.trimEnd().endsWith("Item PLW-0007")).toBe(true);
+  });
+
+  it("leaves out details that are not filled in", async () => {
+    const { buildShareListing } = await import("@/lib/share-listing");
+    const bare = buildShareListing({ ...base, description: "", brand: "  ", size: null, pieces: null, location: "" });
+    expect(bare.text.split("\n")[1]).toBe("Like new");
+    expect(bare.text).not.toMatch(/Size|Please note|undefined|null/);
+    expect(bare.text).toContain("Pickup in person.");
+    for (const nothing of ["None noticed.", "none", "N/A", "No flaws"]) {
+      expect(buildShareListing({ ...base, imperfections: nothing }).text).not.toContain("Please note");
+    }
+    expect(buildShareListing({ ...base, imperfections: "Noticeable fading" }).text).toContain("Please note: Noticeable fading");
+  });
+});

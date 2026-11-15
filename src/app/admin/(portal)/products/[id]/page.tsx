@@ -4,10 +4,13 @@ import { Suspense } from "react";
 import { PageHeading } from "@/components/admin/PageHeading";
 import { PhotoManager } from "@/components/admin/PhotoManager";
 import { ProductForm } from "@/components/admin/ProductForm";
+import { SharePanel } from "@/components/admin/SharePanel";
 import { StatusPanel } from "@/components/admin/StatusPanel";
 import { StatusPill } from "@/components/admin/StatusPill";
 import { formatDateTime, timeUntil } from "@/lib/dates";
 import { STATUS_LABELS } from "@/lib/product-form";
+import { buildShareListing } from "@/lib/share-listing";
+import { siteUrl } from "@/lib/site-url";
 import { requireAdmin } from "@/server/auth/session";
 import { getAdminProduct, listCategoryOptions, listFieldSuggestions } from "@/server/services/admin-products";
 import { getSettings } from "@/server/services/settings";
@@ -44,6 +47,17 @@ async function EditProduct({ params, searchParams }: Props) {
   const { locale, timeZone } = settings.shop;
   const when = (date: Date) => formatDateTime(date, locale, timeZone);
   const onWebsite = product.status === "available" || product.status === "pending" || product.status === "sold";
+
+  const listing =
+    product.status === "available"
+      ? buildShareListing({
+          ...product,
+          url: `${siteUrl()}/shop/${product.slug}`,
+          currency: settings.shop.currency,
+          locale,
+          location: settings.contact.location,
+        })
+      : null;
 
   return (
     <>
@@ -128,6 +142,22 @@ async function EditProduct({ params, searchParams }: Props) {
               }
             />
           </section>
+
+          {listing && (
+            <section className={cardClass} aria-labelledby="share-heading">
+              <h2 id="share-heading" className="mb-3 font-display text-2xl font-medium">
+                Share
+              </h2>
+              <SharePanel key={listing.text} code={product.code} title={listing.title} text={listing.text} photos={product.images} />
+            </section>
+          )}
+          {(product.status === "sold" || product.status === "pending") && (
+            <p className="rounded-lg border border-gold/60 bg-sand p-4 text-sm" data-testid="listed-elsewhere-reminder">
+              {product.status === "sold"
+                ? "If you listed this item on Facebook Marketplace or Instagram, remember to mark it sold there too."
+                : "If you listed this item on Facebook Marketplace or Instagram, you may want to mark it pending there too."}
+            </p>
+          )}
 
           <section className={cardClass} aria-labelledby="history-heading" data-testid="status-history">
             <h2 id="history-heading" className="font-display text-2xl font-medium">

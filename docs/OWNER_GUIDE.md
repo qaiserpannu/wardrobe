@@ -21,6 +21,11 @@ knowledge needed.
   can be taken straight from your phone.
 - **Put an item on hold / mark it sold:** open the item and use the status
   panel. Holds end by themselves after the time set in Settings.
+- **List an item on Facebook Marketplace or Instagram:** open the item and
+  use the Share box. On a phone, "Share…" opens the share menu with the
+  photos and words; on a computer, use "Copy the words" and "Download
+  photos". You post it yourself in that app. When the item sells, mark it
+  sold there too.
 - **Answer a customer Skyra passed to you:** Inbox. The number on the menu
   shows how many are waiting.
 - **Change the WhatsApp number, contact details, homepage text, chat button

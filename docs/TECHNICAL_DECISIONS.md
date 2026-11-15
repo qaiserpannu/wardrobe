@@ -1207,3 +1207,34 @@ serves the site and renews the Let's Encrypt certificate by itself.
 `netlify.toml` forwards the original netlify.app address to the domain.
 `NEXT_PUBLIC_SITE_URL` on Netlify holds the address used in the sitemap,
 link previews and WhatsApp messages.
+
+## D47 — Sharing items to Facebook and Instagram by hand, not by API (2026-11-15)
+
+**Context.** The shop is a personal sale (the owner's wife selling her own
+clothes), not a business. The owner asked for a free way to get items onto
+Facebook Marketplace and Instagram. Milestones 7 (WhatsApp agent) and 8
+(Meta catalog) are on hold for the same reason: both need Meta business
+accounts, and WhatsApp charges per message.
+
+**Facts.** Facebook Marketplace has no posting API for individuals.
+Instagram's official publishing API needs a Business/Creator account, a
+Facebook Page and a Meta developer app (not verified whether review is
+needed). Tools that post by imitating a person break the platforms' rules
+and are never to be used.
+
+**Decision.** A "Share" box on each available item in the admin
+(`SharePanel`, words from `src/lib/share-listing.ts`):
+
+- The words are written only from the saved item (nothing invented) and can
+  be edited before sharing.
+- "Share…" opens the phone's share menu (Web Share) with the words and up to
+  ten photos; the words are also copied, because some apps drop them.
+- "Copy the words" and "Download photos" cover computers.
+- Photos are converted from WebP to JPEG in the browser, since Facebook and
+  Instagram often refuse WebP.
+- The owner posts in the other app herself. The site sends nothing to Meta,
+  stores nothing new, and needs no account, key or dependency.
+- Sold and on-hold items show a reminder to update the listing elsewhere.
+
+**Limit.** How much each app pre-fills depends on the app and the phone;
+Marketplace's own fields (category, location) are still chosen by hand.

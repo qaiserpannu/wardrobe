@@ -303,6 +303,9 @@ load testing (Milestone 9).
 
 ## Milestone 7 — AI sales agent on WhatsApp
 
+**On hold (2026-11-15, D47):** the shop is a personal sale; the owner does
+not want paid Meta services. Not approved to start.
+
 The same agent from M4, connected to the official WhatsApp Business Platform
 (Cloud API) directly, with no third-party agent service (D28).
 
@@ -334,6 +337,8 @@ specified; nothing is sent outside Meta's rules; owner approval.
 Needed from the owner: decisions and accounts listed in D28.
 
 ## Milestone 8 — Facebook and Instagram catalog sync
+
+**On hold (2026-11-15, D47):** replaced for now by the admin Share box.
 
 The website database stays the master. Products are pushed to one Meta
 catalog that feeds both Facebook and Instagram (D29).
