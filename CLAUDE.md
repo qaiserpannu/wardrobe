@@ -31,6 +31,12 @@ WhatsApp; there is no online checkout.
   Zelle, Cash App or cash. No online checkout. Facebook and Instagram
   messages are answered by the owner, not the AI agent (D31).
 - Develop on the `develop` branch. No pull requests unless asked.
+- **Never trigger a Netlify deploy** (owner's instruction, 2026-11-15: auto
+  deploys used up the free plan's credits). Netlify builds every push to
+  `develop`, so every commit message must contain `[skip netlify]` on its
+  subject line. Leave it out only when the owner has asked, in that
+  conversation, for a change to go live. Batch work into as few pushes as
+  possible. Never add temporary code that needs a deploy to try out.
 
 ## Architecture rules
 
