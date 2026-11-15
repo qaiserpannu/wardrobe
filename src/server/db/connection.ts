@@ -51,11 +51,21 @@ export function isLocalDatabase(url: string): boolean {
  * Connections to a database on the internet are always encrypted. A local
  * database (your own computer, or the test one) is not.
  */
+/**
+ * Send one query at a time down each connection. By default the library sends
+ * several at once ("pipelining") when all connections are busy; through
+ * Supabase's transaction pooler those queries never come back, so any page
+ * asking more questions at once than there are connections hung (D44).
+ * The option is real (node_modules/postgres/src/index.js) but missing from
+ * the library's published types, hence the cast.
+ */
+const ONE_AT_A_TIME = { max_pipeline: 1 } as object;
+
 export function connectionOptions(url: string) {
   return {
     // "prepare: false" keeps us compatible with pooled connections (e.g. Supabase).
     prepare: false,
     onnotice: () => {},
-    ...(isLocalDatabase(url) ? {} : { ssl: "require" as const }),
+    ...(isLocalDatabase(url) ? {} : { ssl: "require" as const, ...ONE_AT_A_TIME }),
   };
 }

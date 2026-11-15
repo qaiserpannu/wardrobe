@@ -1151,3 +1151,24 @@ Supabase.
   **Transaction pooler** string for the hosted site (many short-lived
   server processes). The client already avoids prepared statements, which
   the transaction pooler does not support.
+
+## D44 — One query at a time per connection on hosting (Milestone 6, 2026-11-15)
+
+**What happened.** On the first Netlify trial the shop page and the admin
+dashboard hung until Netlify cut them off after 30 seconds, while the home
+page and the chat worked.
+
+**Cause.** Measured on the live site with a temporary test address: whenever
+a page asked more questions at once than the connection limit (3), the
+database library sent the extra ones down an already busy connection
+("pipelining"). Through Supabase's transaction pooler (port 6543) those
+queries never returned. Three at once worked; eight at once hung; with
+pipelining switched off, thirty at once worked in about 0.2 seconds. It never
+showed locally or through the session pooler.
+
+**Decision.** For any non-local database, `connectionOptions` sets
+`max_pipeline: 1`, so extra queries wait their turn for a free connection.
+The limit of 3 connections per running copy of the site stays.
+
+**Rule.** Do not remove `max_pipeline: 1` or `prepare: false` while the site
+uses a pooled database address.
