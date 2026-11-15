@@ -97,7 +97,9 @@ export function ChatWidget({
     <div
       ref={root}
       data-testid="chat-widget"
-      className={`fixed bottom-[max(1rem,env(safe-area-inset-bottom))] z-20 flex flex-col gap-3 sm:bottom-6 ${side} print:hidden`}
+      // Sits a little above the corner so the hosting provider's badge (bottom of the
+      // screen on the free plan) never covers it.
+      className={`fixed bottom-[calc(max(1rem,env(safe-area-inset-bottom))+3.25rem)] z-20 flex flex-col gap-3 sm:bottom-[4.5rem] ${side} print:hidden`}
     >
       {open && (
         <section
@@ -107,7 +109,7 @@ export function ChatWidget({
           data-testid="chat-panel"
           data-mode={assistant ? "assistant" : "whatsapp"}
           className={`flex w-[min(23rem,calc(100vw-2rem))] flex-col overflow-hidden rounded-2xl border border-line bg-surface shadow-xl ${
-            assistant ? "h-[min(36rem,calc(100dvh-7.5rem))]" : ""
+            assistant ? "h-[min(36rem,calc(100dvh-10.75rem))]" : ""
           }`}
         >
           <header className="flex shrink-0 items-start justify-between gap-3 bg-accent px-5 py-4 text-white">
