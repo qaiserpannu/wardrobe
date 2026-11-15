@@ -144,3 +144,23 @@ describe("share listing", () => {
     expect(buildShareListing({ ...base, imperfections: "Noticeable fading" }).text).toContain("Please note: Noticeable fading");
   });
 });
+
+describe("shop description for search engines", () => {
+  it("uses only what the owner has filled in", async () => {
+    const { shopJsonLd } = await import("@/lib/shop-json-ld");
+    const empty = shopJsonLd(parseSettings({}), "https://example.com", null);
+    expect(empty).toMatchObject({ "@type": "Store", name: "Pre-Loved Wardrobe", url: "https://example.com/" });
+    expect(empty).not.toHaveProperty("areaServed");
+    expect(empty).not.toHaveProperty("image");
+    expect(empty).not.toHaveProperty("sameAs");
+
+    const filled = shopJsonLd(
+      parseSettings({ contact: { location: "Tampa, FL", email: "a@example.com" }, social: { instagram: "https://instagram.com/x", facebook: "javascript:alert(1)" } }),
+      "https://example.com",
+      "/media/site/hero.webp",
+    );
+    expect(filled.areaServed).toBe("Tampa, FL");
+    expect(filled.image).toBe("https://example.com/media/site/hero.webp");
+    expect(filled.sameAs).toEqual(["https://instagram.com/x"]);
+  });
+});

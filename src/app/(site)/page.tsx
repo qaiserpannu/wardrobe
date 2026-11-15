@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import { io } from "next/cache";
 import Link from "next/link";
@@ -10,6 +11,8 @@ import { ArrowRightIcon, WhatsAppIcon } from "@/components/ui/icons";
 import { Ornament } from "@/components/ui/Ornament";
 import { buildWhatsAppLink } from "@/integrations/whatsapp";
 import type { SiteSettings } from "@/lib/settings";
+import { shopJsonLd } from "@/lib/shop-json-ld";
+import { siteUrl } from "@/lib/site-url";
 import { getCachedCategories, getCachedSettings } from "@/server/services/cached";
 import { getFeaturedProducts, getRecentProducts } from "@/server/services/products";
 import { mediaUrl } from "@/server/services/settings";
@@ -60,6 +63,9 @@ async function RecentSection({ shop }: { shop: SiteSettings["shop"] }) {
   );
 }
 
+/** One official address for the home page, so search engines do not treat copies as separate pages. */
+export const metadata: Metadata = { alternates: { canonical: "/" } };
+
 function SectionFallback({ title, count }: { title: string; count: number }) {
   return (
     <div className="mt-20 sm:mt-28">
@@ -76,9 +82,12 @@ export default async function Home() {
   const { homepage, shop, whatsapp } = settings;
   const heroImage = mediaUrl(homepage.heroImageKey);
   const whatsappLink = buildWhatsAppLink(whatsapp.number, whatsapp.generalMessage);
+  const jsonLd = shopJsonLd(settings, siteUrl(), heroImage);
 
   return (
     <>
+      {/* Tells search engines what this shop is and where it serves, from the owner's settings. */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
       <section className="pattern-jali border-b border-gold/30 bg-sand">
         <Container className="grid items-center gap-10 py-10 sm:py-14 lg:grid-cols-[1.15fr_1fr] lg:gap-14 lg:py-16">
           <div className="max-w-xl">
