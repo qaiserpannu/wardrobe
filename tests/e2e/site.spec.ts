@@ -524,3 +524,10 @@ test.describe("information pages", () => {
     expect((await (await request.get("/robots.txt")).text())).toContain("/sitemap.xml");
   });
 });
+
+test("the is-it-up address answers and gives nothing away", async ({ request }) => {
+  const response = await request.get("/api/health");
+  expect(response.status()).toBe(200);
+  expect(await response.json()).toEqual({ ok: true });
+  expect(response.headers()["cache-control"]).toContain("no-store");
+});

@@ -278,12 +278,15 @@ Steps:
    notice (`/privacy`), and a sitemap for search engines (`/sitemap.xml`,
    available items only). Wording to be confirmed by the owner.
 7. Safety nets: [x] database and photo backups with a practice restore
-   (tools built and verified locally, D45; waiting for the owner's first
-   run). [ ] AI spending cap confirmed. [ ] A simple "is the site up" check.
-8. Custom domain and HTTPS; the WhatsApp number and contact details checked.
-9. Real-device checks on the live address (phone photo upload, chat, admin).
-10. Owner's short guide: how to update the site, where things live, what to
-    do if something breaks.
+   (D45; owner ran both against the live shop on 2026-11-15: 46 items, 93
+   photos, all matched). [x] "Is the site up" address `/api/health`.
+   [ ] AI spending cap confirmed by the owner in the Anthropic console.
+   [ ] Optional: a free outside monitor pointed at `/api/health`.
+8. [ ] Custom domain and HTTPS; the WhatsApp number and contact details
+   checked.
+9. [ ] Real-device checks on the live address (phone photo upload, chat,
+   admin).
+10. [x] Owner's short guide: `docs/OWNER_GUIDE.md`.
 
 Completion criteria: the live site passes the browser tests that can run
 against it; the owner's items and photos are all present; backups exist and
