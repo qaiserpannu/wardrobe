@@ -13,6 +13,7 @@ import { buildShareListing } from "@/lib/share-listing";
 import { siteUrl } from "@/lib/site-url";
 import { requireAdmin } from "@/server/auth/session";
 import { getAdminProduct, listCategoryOptions, listFieldSuggestions } from "@/server/services/admin-products";
+import { getProductVisitTotals } from "@/server/services/admin-visits";
 import { getSettings } from "@/server/services/settings";
 
 export const metadata: Metadata = { title: "Edit item" };
@@ -32,6 +33,7 @@ async function EditProduct({ params, searchParams }: Props) {
     listFieldSuggestions(),
     getSettings(),
   ]);
+  const visits = product ? await getProductVisitTotals(product.id, 30) : null;
   if (!product) {
     return (
       <div className={cardClass} data-testid="admin-not-found">
@@ -75,6 +77,16 @@ async function EditProduct({ params, searchParams }: Props) {
           )}
         </span>
       </PageHeading>
+
+      {visits && onWebsite && (
+        <p className="mb-6 text-sm text-muted" data-testid="item-visits">
+          Last 30 days: viewed {visits.views} {visits.views === 1 ? "time" : "times"} by {visits.visitors}{" "}
+          {visits.visitors === 1 ? "visitor" : "visitors"}, {visits.whatsapp} WhatsApp {visits.whatsapp === 1 ? "tap" : "taps"}.{" "}
+          <Link href="/admin/visitors" className={linkClass}>
+            All visitor counts
+          </Link>
+        </p>
+      )}
 
       {created && (
         <p className="mb-6 rounded-lg border border-gold/60 bg-sand p-4 text-sm" role="status" data-testid="created-notice">

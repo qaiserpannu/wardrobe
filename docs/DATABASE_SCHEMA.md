@@ -212,6 +212,25 @@ product IDs; cards are re-read from inventory whenever they are shown.
 Products need no change for Meta: name, description, price, condition, brand,
 photos, status and the unique product code already map to catalog fields.
 
+## site_visits — visitor counts (built 2026-11-16, D48)
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| id | uuid, primary key | |
+| kind | `view` or `whatsapp` | A page viewed, or a WhatsApp button tapped |
+| path | text | The page without its query string: `/`, `/shop`, `/shop/<slug>` |
+| product_id | → products, nullable | Set for item pages; becomes null if the item is ever deleted |
+| source | text, nullable | `facebook`, `instagram`, `google`, `search`, `whatsapp`, `other`, `direct`. Only on the first page of a visit |
+| referrer_host | text, nullable | The website the visitor came from, host name only |
+| country, region, city | text, nullable | Rough location from the host's header |
+| visitor_hash | text | A scrambled code, the same for one visitor for one day only. Not an address |
+| created_at | timestamp | Rows older than 400 days are removed |
+
+No cookie value, name or network address is stored. Not included in backups.
+
+All tables have row level security switched on with no rules (D48): only
+the site's own database connection can read or write them.
+
 ## Room for future features
 
 Not built now; noted so current design does not block them.

@@ -41,7 +41,7 @@ export async function seed() {
     }
   }
 
-  await db.execute(sql`truncate table notifications, escalations, leads, messages, conversations, customers, ai_knowledge, product_images, products, categories, site_settings restart identity cascade`);
+  await db.execute(sql`truncate table site_visits, notifications, escalations, leads, messages, conversations, customers, ai_knowledge, product_images, products, categories, site_settings restart identity cascade`);
   await db.execute(sql`alter sequence product_code_seq restart with 1`);
 
   await clearLocalFolder("seed");

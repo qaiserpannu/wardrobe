@@ -32,6 +32,11 @@ knowledge needed.
   corner:** Settings.
 - **Change what Skyra knows or says (FAQs, policies, greeting):** Assistant.
 - **See who changed what:** Activity.
+- **See how many people visit:** Visitors. It shows visitors, pages viewed
+  and WhatsApp taps for today and the last 7, 30 or 90 days, the most viewed
+  items, where visits came from (Facebook, Instagram, Google, or a shared
+  link) and roughly where visitors are. Your own visits while signed in are
+  not counted. Each item's page also shows its own count.
 
 Changes show on the shop straight away. You never need to "publish".
 

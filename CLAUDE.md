@@ -79,6 +79,11 @@ WhatsApp; there is no online checkout.
 - Settings are written only by `admin-settings.ts`. To put a setting on the
   Settings page, add it to `src/lib/settings-form.ts` (D38). Categories are
   hidden, never deleted; their slug never changes.
+- Visitor counts (D48): only `src/server/services/visits.ts` writes
+  `site_visits`, and it must never store a cookie value, name or network
+  address. Reports are read through `admin-visits.ts`. No third-party
+  analytics or tracking scripts.
+- New tables are declared with `.enableRLS()` in `schema.ts` (D48).
 - Every public product read starts with `ensureHoldsCurrent()` so expired
   holds are released first.
 

@@ -68,7 +68,7 @@ export const categories = pgTable("categories", {
   sortOrder: integer("sort_order").notNull().default(0),
   isActive: boolean("is_active").notNull().default(true),
   ...timestamps,
-});
+}).enableRLS();
 
 export const products = pgTable(
   "products",
@@ -113,7 +113,7 @@ export const products = pgTable(
     index("products_price_idx").on(t.priceCents),
     index("products_search_idx").using("gin", t.searchVector),
   ],
-);
+).enableRLS();
 
 export const productImages = pgTable(
   "product_images",
@@ -130,7 +130,7 @@ export const productImages = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("product_images_product_idx").on(t.productId, t.sortOrder)],
-);
+).enableRLS();
 
 export const siteSettings = pgTable("site_settings", {
   key: text("key").primaryKey(),
@@ -139,7 +139,7 @@ export const siteSettings = pgTable("site_settings", {
     .notNull()
     .defaultNow()
     .$onUpdate(() => new Date()),
-});
+}).enableRLS();
 
 /* ------------------------------------------------------------------ */
 /* AI sales agent: conversations, leads, escalations (Milestone 4)     */
@@ -164,7 +164,7 @@ export const customers = pgTable(
     ...timestamps,
   },
   (t) => [index("customers_identity_idx").on(t.channel, t.channelIdentity)],
-);
+).enableRLS();
 
 export const conversations = pgTable(
   "conversations",
@@ -179,7 +179,7 @@ export const conversations = pgTable(
     ...timestamps,
   },
   (t) => [index("conversations_customer_idx").on(t.customerId, t.lastMessageAt)],
-);
+).enableRLS();
 
 export const messages = pgTable(
   "messages",
@@ -197,7 +197,7 @@ export const messages = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("messages_conversation_idx").on(t.conversationId, t.createdAt)],
-);
+).enableRLS();
 
 export const leads = pgTable(
   "leads",
@@ -215,7 +215,7 @@ export const leads = pgTable(
     ...timestamps,
   },
   (t) => [index("leads_conversation_idx").on(t.conversationId)],
-);
+).enableRLS();
 
 export const escalations = pgTable(
   "escalations",
@@ -231,7 +231,7 @@ export const escalations = pgTable(
     ...timestamps,
   },
   (t) => [index("escalations_conversation_idx").on(t.conversationId)],
-);
+).enableRLS();
 
 /** What the owner was told, by which route, and whether it went out. Also prevents duplicates. */
 export const notifications = pgTable(
@@ -252,7 +252,7 @@ export const notifications = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("notifications_conversation_idx").on(t.conversationId)],
-);
+).enableRLS();
 
 /** Approved business information the agent may quote. Nothing outside this (and the inventory) is ever stated. */
 export const aiKnowledge = pgTable("ai_knowledge", {
@@ -263,7 +263,7 @@ export const aiKnowledge = pgTable("ai_knowledge", {
   isActive: boolean("is_active").notNull().default(true),
   sortOrder: integer("sort_order").notNull().default(0),
   ...timestamps,
-});
+}).enableRLS();
 
 /* ------------------------------------------------------------------ */
 /* Admin portal: login, sessions, audit log (Milestone 5)              */
@@ -279,7 +279,7 @@ export const adminUsers = pgTable("admin_users", {
   passwordHash: text("password_hash").notNull(),
   lastLoginAt: timestamp("last_login_at", { withTimezone: true }),
   ...timestamps,
-});
+}).enableRLS();
 
 /** One signed-in browser. Only a fingerprint of the cookie value is stored. */
 export const adminSessions = pgTable(
@@ -296,7 +296,7 @@ export const adminSessions = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("admin_sessions_user_idx").on(t.userId)],
-);
+).enableRLS();
 
 /** Failed sign-in attempts, kept briefly to slow down password guessing. */
 export const loginAttempts = pgTable(
@@ -308,7 +308,7 @@ export const loginAttempts = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("login_attempts_subject_idx").on(t.subject, t.createdAt)],
-);
+).enableRLS();
 
 /** Who changed what, and when. Rows are only ever added. */
 export const auditLog = pgTable(
@@ -327,7 +327,7 @@ export const auditLog = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("audit_log_created_idx").on(t.createdAt), index("audit_log_entity_idx").on(t.entityType, t.entityId)],
-);
+).enableRLS();
 
 /* ------------------------------------------------------------------ */
 /* Admin portal: holds and status history (Milestone 5, part 2)        */
@@ -362,7 +362,7 @@ export const productHolds = pgTable(
     index("product_holds_product_idx").on(t.productId),
     uniqueIndex("product_holds_one_active_idx").on(t.productId).where(sql`${t.endedAt} is null`),
   ],
-);
+).enableRLS();
 
 /** Every status change, kept for good. */
 export const productStatusEvents = pgTable(
@@ -380,4 +380,35 @@ export const productStatusEvents = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("product_status_events_product_idx").on(t.productId, t.createdAt)],
-);
+).enableRLS();
+
+export const visitKind = pgEnum("visit_kind", ["view", "whatsapp"]);
+
+/**
+ * Visitor counts for the admin "Visitors" page (D48). One row per page viewed
+ * or WhatsApp button tapped. Holds no cookie value, name or network address.
+ */
+export const siteVisits = pgTable(
+  "site_visits",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    kind: visitKind("kind").notNull().default("view"),
+    /** The page, without its query string: "/", "/shop", "/shop/red-lehenga". */
+    path: text("path").notNull(),
+    productId: uuid("product_id").references(() => products.id, { onDelete: "set null" }),
+    /** Where the visit began (facebook, google, direct...). Null for later pages of the same visit. */
+    source: text("source"),
+    referrerHost: text("referrer_host"),
+    country: text("country"),
+    region: text("region"),
+    city: text("city"),
+    /** A scrambled code that is the same for one visitor for one day only; cannot be turned back into an address. */
+    visitorHash: text("visitor_hash").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("site_visits_created_idx").on(t.createdAt),
+    index("site_visits_product_idx").on(t.productId),
+    index("site_visits_visitor_idx").on(t.visitorHash, t.createdAt),
+  ],
+).enableRLS();

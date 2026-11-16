@@ -1,4 +1,5 @@
-import type { ReactNode } from "react";
+import { type ReactNode, Suspense } from "react";
+import { VisitBeacon } from "@/components/analytics/VisitBeacon";
 import { ChatWidgetLoader } from "@/components/chat/ChatWidgetLoader";
 import { Footer } from "./Footer";
 import { Header } from "./Header";
@@ -19,6 +20,9 @@ export function SiteChrome({ children }: { children: ReactNode }) {
       </main>
       <Footer />
       <ChatWidgetLoader />
+      <Suspense fallback={null}>
+        <VisitBeacon />
+      </Suspense>
     </>
   );
 }

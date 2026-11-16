@@ -3,6 +3,7 @@ import { catalogHref, countActiveFilters, parseCatalogParams } from "@/lib/catal
 import { formatPrice } from "@/lib/money";
 import { parseSettings } from "@/lib/settings";
 import { slugify } from "@/lib/slug";
+import { classifySource, countablePath, isAutomatedVisitor, parsePlace } from "@/lib/visit-source";
 
 describe("catalog URL parameters", () => {
   it("uses safe defaults for an empty URL", () => {
@@ -162,5 +163,71 @@ describe("shop description for search engines", () => {
     expect(filled.areaServed).toBe("Tampa, FL");
     expect(filled.image).toBe("https://example.com/media/site/hero.webp");
     expect(filled.sameAs).toEqual(["https://instagram.com/x"]);
+  });
+});
+
+describe("where a visit came from", () => {
+  const own = "preloved-wardrobe.com";
+  const from = (referrer: string | undefined, search = "") => classifySource(referrer, search, own)?.source ?? null;
+
+  it("recognises the places the shop is shared", () => {
+    expect(from("https://l.facebook.com/l.php?u=x")).toBe("facebook");
+    expect(from("https://m.facebook.com/")).toBe("facebook");
+    expect(from("https://l.instagram.com/")).toBe("instagram");
+    expect(from("https://www.google.com/")).toBe("google");
+    expect(from("https://www.google.co.uk/search?q=x")).toBe("google");
+    expect(from("android-app://com.google.android.googlequicksearchbox/")).toBe("google");
+    expect(from("https://www.bing.com/search?q=x")).toBe("search");
+    expect(from("https://web.whatsapp.com/")).toBe("whatsapp");
+    expect(from("https://nextdoor.com/post/1")).toBe("other");
+    expect(from(undefined)).toBe("direct");
+    expect(from("not a web address")).toBe("direct");
+  });
+
+  it("uses labels on the link when the app hides where it was tapped", () => {
+    expect(from(undefined, "?fbclid=abc")).toBe("facebook");
+    expect(from(undefined, "?igshid=abc")).toBe("instagram");
+    expect(from(undefined, "?utm_source=WhatsApp")).toBe("whatsapp");
+    expect(from(undefined, "?utm_source=something-else")).toBe("direct");
+  });
+
+  it("does not treat moving around our own site as a new visit", () => {
+    expect(classifySource("https://preloved-wardrobe.com/shop", "", own)).toBeNull();
+    expect(classifySource("https://www.preloved-wardrobe.com/", "", own)).toBeNull();
+    expect(classifySource("http://localhost:3100/", "", "localhost:3100")).toBeNull();
+    // A look-alike address is somebody else's site.
+    expect(from("https://preloved-wardrobe.com.evil.example/")).toBe("other");
+    expect(from("https://notgoogle.com.evil.example/")).toBe("other");
+  });
+
+  it("leaves out search engines and other automated visitors", () => {
+    expect(isAutomatedVisitor("Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)")).toBe(true);
+    expect(isAutomatedVisitor("facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)")).toBe(true);
+    expect(isAutomatedVisitor("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/130.0.0.0 Safari/537.36")).toBe(true);
+    expect(isAutomatedVisitor("curl/8.5.0")).toBe(true);
+    expect(isAutomatedVisitor("")).toBe(true);
+    expect(isAutomatedVisitor(null)).toBe(true);
+    expect(isAutomatedVisitor("Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Mobile/15E148 Safari/604.1")).toBe(false);
+    // Opened inside the Instagram app: a real person.
+    expect(isAutomatedVisitor("Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 350.0.0.0")).toBe(false);
+  });
+
+  it("counts only the shop's real pages", () => {
+    expect(countablePath("/")).toEqual({ path: "/", slug: null });
+    expect(countablePath("/shop/")).toEqual({ path: "/shop", slug: null });
+    expect(countablePath("/shop/red-lehenga-2")).toEqual({ path: "/shop/red-lehenga-2", slug: "red-lehenga-2" });
+    expect(countablePath("/admin")).toBeNull();
+    expect(countablePath("/shop/../admin")).toBeNull();
+    expect(countablePath("/shop/a/b")).toBeNull();
+  });
+
+  it("reads the visitor's rough location, and shrugs at anything unexpected", () => {
+    const geo = { city: "Tampa", country: { code: "US", name: "United States" }, subdivision: { code: "FL", name: "Florida" } };
+    const expected = { city: "Tampa", region: "Florida", country: "United States" };
+    expect(parsePlace(JSON.stringify(geo))).toEqual(expected);
+    expect(parsePlace(Buffer.from(JSON.stringify(geo)).toString("base64"))).toEqual(expected);
+    expect(parsePlace(null)).toEqual({ city: null, region: null, country: null });
+    expect(parsePlace("garbage", "US")).toEqual({ city: null, region: null, country: "US" });
+    expect(parsePlace(JSON.stringify({ city: "<script>alert(1)</script>" })).city).toBe("scriptalert(1)script");
   });
 });

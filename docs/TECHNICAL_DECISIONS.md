@@ -1238,3 +1238,52 @@ and are never to be used.
 
 **Limit.** How much each app pre-fills depends on the app and the phone;
 Marketplace's own fields (category, location) are still chosen by hand.
+
+## D48 — Visitor counts kept in our own database (2026-11-16)
+
+**Context.** The owner asked to see how many people visit, which items get
+the most views and where visitors come from, for free.
+
+**Options.** Cloudflare Web Analytics (free, but shows addresses rather than
+items, is often blocked, and the numbers live on another site); Google
+Analytics (sets tracking cookies, which the privacy page says we do not
+use); or counting visits ourselves. The owner chose our own counts.
+
+**Decision.**
+
+- A `site_visits` table: one row per public page viewed or WhatsApp button
+  tapped. Written only by `src/server/services/visits.ts`; read only by
+  `admin-visits.ts` for the admin "Visitors" page and the line of counts on
+  an item's admin page.
+- Public pages report through `VisitBeacon` (in `SiteChrome`) to
+  `POST /api/visit`, which always answers 204 with no body.
+- **No cookie, no name, no network address is stored.** The address and
+  browser type are mixed with a secret and the date into a code that is the
+  same for one visitor for one day only. So "visitors" means people per day;
+  someone who comes on two days counts twice.
+- Not counted: search engines and other automated visitors (by browser
+  name), anyone holding an admin sign-in cookie, pages outside the shop's
+  own (`/`, `/shop`, an item that is on the website, `/terms`, `/privacy`),
+  and the same page again within 30 minutes.
+- "Where from" is the previous website, or a label on the link (`fbclid`,
+  `igshid`, `utm_source`), recorded only for the first page of a visit.
+  Links opened from WhatsApp or text messages usually arrive with neither
+  and show as "Direct or a shared link".
+- City and country come from Netlify's `x-nf-geo` header. Not available on
+  a developer's computer (shows "Unknown"); **the header's exact shape was
+  not verified against the live site** when this was written.
+- Rows older than 400 days are removed now and then. The table is not part
+  of `npm run backup` / `data:copy`: losing counts in a restore is acceptable.
+- If the table does not exist yet (update not run), the site carries on:
+  nothing is counted and the Visitors page explains what to run.
+
+**Cost.** Each counted page adds one small request to Netlify and one row to
+the database. No new dependency or service.
+
+**Also in this change: tables protected on Supabase.** Supabase offers a
+ready-made web API to every table in the `public` schema unless "row level
+security" is switched on for it. The site never uses that API (it connects
+as the database owner, which is not affected), so every table now has it
+switched on with no rules, which closes that door. Migration
+`0008_protect_tables`.
+

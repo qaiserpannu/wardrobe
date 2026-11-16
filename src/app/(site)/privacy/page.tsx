@@ -30,6 +30,11 @@ export default async function PrivacyPage() {
             on the same device. It is not used to follow you around other sites.
           </li>
           <li>
+            <strong>Visit counts.</strong> We count how many people look at each page, which website sent them here
+            and roughly where they are (city). This uses no cookie, and we do not keep your name or network address:
+            only a scrambled code that changes every day, so the same person is not counted twice.
+          </li>
+          <li>
             <strong>WhatsApp, email and phone.</strong> If you contact us that way, we see what those services show
             us, such as your number or address and your message.
           </li>

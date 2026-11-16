@@ -50,6 +50,20 @@
       "when": 1794590083396,
       "tag": "0006_holds_status_history",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1794791517623,
+      "tag": "0007_site_visits",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1794791540512,
+      "tag": "0008_protect_tables",
+      "breakpoints": true
     }
   ]
 }
