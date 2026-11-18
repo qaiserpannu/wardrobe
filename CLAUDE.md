@@ -31,12 +31,14 @@ WhatsApp; there is no online checkout.
   Zelle, Cash App or cash. No online checkout. Facebook and Instagram
   messages are answered by the owner, not the AI agent (D31).
 - Develop on the `develop` branch. No pull requests unless asked.
-- **Never trigger a Netlify deploy** (owner's instruction, 2026-11-15: auto
-  deploys used up the free plan's credits). Netlify builds every push to
-  `develop`, so every commit message must contain `[skip netlify]` on its
-  subject line. Leave it out only when the owner has asked, in that
-  conversation, for a change to go live. Batch work into as few pushes as
-  possible. Never add temporary code that needs a deploy to try out.
+- **Hosting is Vercel Hobby (free, D49), moved from Netlify on 2026-11-18**
+  after Netlify's credits ran out and paused the site. Vercel builds every
+  push to `develop` and publishes it, so a push is a deploy: test first and
+  batch work into few pushes. The owner's earlier rule against Netlify deploys
+  (auto builds used up its credits) no longer applies, so `[skip netlify]` is
+  unnecessary. Vercel Hobby is personal use only and is paused if its free
+  limits (100 deploys a day, bandwidth, function time) are exceeded.
+  Never add temporary code that needs a deploy to try out.
 
 ## Architecture rules
 

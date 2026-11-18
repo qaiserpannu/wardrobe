@@ -9,7 +9,7 @@ knowledge needed.
 | --- | --- | --- |
 | The shop customers see | https://preloved-wardrobe.com | nothing |
 | Your admin portal | the shop address followed by `/admin` | your admin email and password |
-| The website itself (hosting) | netlify.com, project `preownerwardrobe` until the move to vercel.com is done (`docs/MOVE_TO_VERCEL.md`) | your GitHub login |
+| The website itself (hosting) | vercel.com, project `wardrobe` (moved from Netlify on 2026-11-18, D49) | your GitHub login |
 | Items, conversations, photos | supabase.com, your project | your Supabase login |
 | The AI assistant's account and bill | console.anthropic.com | your Anthropic login |
 | The website's code | github.com, repository `wardrobe`, branch `develop` | your GitHub login |
@@ -54,7 +54,8 @@ Also back up after any day you add a lot of items.
 
 ## Things that cost money, and how they are capped
 
-- **Netlify and Supabase:** free plans. If a limit is reached they pause or
+- **Vercel and Supabase:** free plans. Vercel's free plan is for personal,
+  non-commercial use. If a limit is reached they pause or
   slow the site; they do not charge you unless you choose to upgrade.
 - **The AI assistant:** pay-as-you-go. Two caps protect you:
   1. In the Anthropic console, a monthly spending limit (set by you).
@@ -66,15 +67,14 @@ Also back up after any day you add a lot of items.
 - **Supabase pauses a free project that nobody has used for about a week.**
   Visits to the shop count as use. If the shop ever shows errors after a
   quiet spell, sign in to Supabase and press "Restore project".
-- **Netlify shows a small "Powered by Netlify" badge** on the free plan. The
-  chat button sits above it on purpose.
+- Vercel shows no badge on the site, so nothing covers the chat button.
 
 ## If something goes wrong
 
 | What you see | What to do |
 | --- | --- |
 | The shop shows "We hit a snag" | Open the shop address followed by `/api/health`. If it says `"ok":false`, the database is unreachable: check Supabase (is the project paused?). |
-| The whole site does not open | Check netlify.com: is the latest deploy "Published"? If the latest one says "Failed", the previous version stays online; tell your developer. |
+| The whole site does not open | Check vercel.com, project `wardrobe`, **Deployments**: is the top one "Ready"? If the latest one says "Error", the previous version stays online; tell your developer. If it says the usage limit is reached, the free plan has paused the site until the next month. |
 | Photos are missing | Check Supabase: Storage, bucket `media`. Tell your developer; photos can be restored from a backup. |
 | You forgot the admin password | On your computer run `npm run admin:create` and follow the prompts; it resets the password. |
 | "Too many attempts" at sign-in | Wait 15 minutes, or run `npm run admin:create`, which also clears the lock. |
@@ -92,5 +92,5 @@ run `git pull` in the project folder.
 
 Your admin password, the Supabase database password and secret key, and the
 Anthropic key. Nobody, including your developer or the AI assistant, needs
-you to paste them into a chat or an email. They live only in Netlify's
+you to paste them into a chat or an email. They live only in Vercel's
 settings and in the `.env.local` file on your computer.

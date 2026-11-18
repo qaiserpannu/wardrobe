@@ -1328,3 +1328,10 @@ real values; the function region (Vercel's default is Washington, D.C.; if the
 Supabase project is far from there, pages may be slower and a region should be
 set); whether Vercel's Hobby terms accept this use (the owner should read them).
 
+**Outcome (2026-11-18).** The move is done and the domain is on Vercel. Two
+things found on the way: the project must have a Next.js preset (added
+`vercel.json`, because the project was first created while only a README
+existed on `main`), and `DATABASE_URL` must be the Transaction pooler
+(port 6543); the Session pooler allows only 15 clients and failed with
+`EMAXCONNSESSION` (this repeats D44). The old Netlify project is no longer used.
+
