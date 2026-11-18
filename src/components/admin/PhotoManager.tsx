@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition } from "react";
 import { removePhotoAction, reorderPhotosAction } from "@/app/admin/(portal)/products/actions";
 import { MAX_PHOTO_BYTES, MAX_PHOTOS } from "@/lib/product-form";
+import { shrinkForUpload } from "@/lib/shrink-image";
 
 type Photo = { id: string; url: string; width: number; height: number };
 
@@ -31,7 +32,7 @@ export function PhotoManager({ productId, productName, photos }: { productId: st
         continue;
       }
       const body = new FormData();
-      body.set("file", file);
+      body.set("file", await shrinkForUpload(file));
       try {
         const response = await fetch(`/api/admin/products/${productId}/photos`, { method: "POST", body });
         if (!response.ok) {

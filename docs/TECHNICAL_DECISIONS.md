@@ -1287,3 +1287,44 @@ as the database owner, which is not affected), so every table now has it
 switched on with no rules, which closes that door. Migration
 `0008_protect_tables`.
 
+## D49 — Hosting moved from Netlify to Vercel Hobby (2026-11-18)
+
+**Context.** Netlify's free plan gives 300 credits a month and a production
+deploy costs 15. About 23 automatic builds used them all; Netlify then paused
+every project on the account ("Usage exceeded", HTTP 503) until next month.
+Free plans cannot buy more credits. The owner needs a free fix; the shop is
+the owner's wife selling her own clothes, not a business.
+
+**Options.** Wait for the reset (free, but the shop stays down and it can
+happen again); Vercel Hobby (free, built for Next.js); Cloudflare Pages
+(free, but Next.js 16 needs an adapter and several features here are untested
+on it). Chosen by the owner: Vercel.
+
+**Decision.** Run on Vercel Hobby. Supabase (database, photos), Cloudflare
+(domain) and GitHub stay. Steps for the owner are in `docs/MOVE_TO_VERCEL.md`.
+
+**Facts checked** (from Vercel's published documentation, not by running on
+Vercel): Hobby is for personal, non-commercial use and is paused when its
+free usage is exceeded; a function's request body is limited to 4.5 MB;
+Vercel sets `x-vercel-forwarded-for`, `x-real-ip` and `x-vercel-ip-city`
+(percent-encoded), `-country` and `-country-region`.
+
+**Code changes.**
+
+- Photo uploads were allowed up to 15 MB, but Vercel refuses requests over
+  4.5 MB. The browser now shrinks any photo over 3.5 MB (longest side 2400 px,
+  JPEG) before sending (`src/lib/shrink-image.ts`); the server still checks and
+  re-encodes everything. Tested with a 6 MB photo: the upload was under 4.5 MB.
+- The visitor's address for sign-in lockouts is read from the header of the
+  host the site runs on, chosen by `process.env.VERCEL`, never by which header
+  is present, because a header from the other host could be made up by a
+  visitor (`src/lib/client-address.ts`).
+- Visitor place now also reads Vercel's location headers (`placeFromHeaders`).
+- `maxDuration = 60` on the chat and upload routes.
+- `netlify.toml` is left in place but is unused.
+
+**Not verified.** That the site runs on Vercel at all; the location headers'
+real values; the function region (Vercel's default is Washington, D.C.; if the
+Supabase project is far from there, pages may be slower and a region should be
+set); whether Vercel's Hobby terms accept this use (the owner should read them).
+

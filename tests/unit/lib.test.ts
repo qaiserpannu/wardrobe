@@ -3,7 +3,8 @@ import { catalogHref, countActiveFilters, parseCatalogParams } from "@/lib/catal
 import { formatPrice } from "@/lib/money";
 import { parseSettings } from "@/lib/settings";
 import { slugify } from "@/lib/slug";
-import { classifySource, countablePath, isAutomatedVisitor, parsePlace } from "@/lib/visit-source";
+import { pickClientAddress } from "@/lib/client-address";
+import { classifySource, countablePath, isAutomatedVisitor, parsePlace, placeFromHeaders } from "@/lib/visit-source";
 
 describe("catalog URL parameters", () => {
   it("uses safe defaults for an empty URL", () => {
@@ -231,3 +232,37 @@ describe("where a visit came from", () => {
     expect(parsePlace(JSON.stringify({ city: "<script>alert(1)</script>" })).city).toBe("scriptalert(1)script");
   });
 });
+
+describe("which host headers are trusted (D49)", () => {
+  const from = (headers: Record<string, string>) => (name: string) => headers[name] ?? null;
+
+  it("on Vercel, uses Vercel's header and ignores a made-up Netlify one", () => {
+    const h = from({ "x-vercel-forwarded-for": "203.0.113.9", "x-nf-client-connection-ip": "6.6.6.6", "x-forwarded-for": "7.7.7.7, 203.0.113.9" });
+    expect(pickClientAddress(h, { VERCEL: "1" })).toBe("203.0.113.9");
+    expect(pickClientAddress(from({ "x-real-ip": "198.51.100.4" }), { VERCEL: "1" })).toBe("198.51.100.4");
+  });
+
+  it("on Netlify, uses Netlify's header and ignores a made-up Vercel one", () => {
+    const h = from({ "x-nf-client-connection-ip": "203.0.113.9", "x-vercel-forwarded-for": "6.6.6.6", "x-forwarded-for": "7.7.7.7" });
+    expect(pickClientAddress(h, {})).toBe("203.0.113.9");
+  });
+
+  it("elsewhere (a developer's computer), falls back to the usual headers", () => {
+    expect(pickClientAddress(from({ "x-forwarded-for": "198.51.100.1, 10.0.0.1" }), {})).toBe("198.51.100.1");
+    expect(pickClientAddress(from({}), {})).toBe("unknown");
+  });
+
+  it("reads the visitor's place from Vercel's headers, with the city percent-encoded", () => {
+    const h = from({ "x-vercel-ip-city": "Tampa", "x-vercel-ip-country-region": "FL", "x-vercel-ip-country": "US" });
+    expect(placeFromHeaders(h)).toEqual({ city: "Tampa", region: "FL", country: "United States" });
+    expect(placeFromHeaders(from({ "x-vercel-ip-city": "S%C3%A3o%20Paulo", "x-vercel-ip-country": "BR" })).city).toBe("São Paulo");
+    expect(placeFromHeaders(from({ "x-vercel-ip-city": "%E0%A4%A" })).city).toBe("E0A4A");
+    expect(placeFromHeaders(from({}))).toEqual({ city: null, region: null, country: null });
+  });
+
+  it("still reads Netlify's location header", () => {
+    const geo = JSON.stringify({ city: "Tampa", country: { code: "US", name: "United States" }, subdivision: { code: "FL", name: "Florida" } });
+    expect(placeFromHeaders(from({ "x-nf-geo": geo }))).toEqual({ city: "Tampa", region: "Florida", country: "United States" });
+  });
+});
+

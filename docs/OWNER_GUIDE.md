@@ -9,7 +9,7 @@ knowledge needed.
 | --- | --- | --- |
 | The shop customers see | https://preloved-wardrobe.com | nothing |
 | Your admin portal | the shop address followed by `/admin` | your admin email and password |
-| The website itself (hosting) | netlify.com, project `preownerwardrobe` | your GitHub login |
+| The website itself (hosting) | netlify.com, project `preownerwardrobe` until the move to vercel.com is done (`docs/MOVE_TO_VERCEL.md`) | your GitHub login |
 | Items, conversations, photos | supabase.com, your project | your Supabase login |
 | The AI assistant's account and bill | console.anthropic.com | your Anthropic login |
 | The website's code | github.com, repository `wardrobe`, branch `develop` | your GitHub login |

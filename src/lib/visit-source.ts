@@ -134,3 +134,32 @@ function safeBase64(value: string): string | null {
     return null;
   }
 }
+
+/** Country code ("US") to a readable name ("United States"). Unknown codes stay as they are. */
+function countryName(code: string | null): string | null {
+  if (!code) return null;
+  try {
+    return new Intl.DisplayNames("en", { type: "region" }).of(code.toUpperCase()) ?? code;
+  } catch {
+    return code;
+  }
+}
+
+/**
+ * The visitor's rough place from whichever host the site runs on: Netlify's
+ * "x-nf-geo", or Vercel's separate "x-vercel-ip-*" headers (the city arrives
+ * percent-encoded) (D49). Anything missing or odd gives "unknown".
+ */
+export function placeFromHeaders(header: (name: string) => string | null): VisitPlace {
+  const netlify = parsePlace(header("x-nf-geo"), header("x-country"));
+  if (netlify.city || netlify.region || netlify.country) return netlify;
+  let city = header("x-vercel-ip-city");
+  try {
+    if (city) city = decodeURIComponent(city);
+  } catch {
+    // leave it as sent; clean() below removes anything odd
+  }
+  const code = clean(header("x-vercel-ip-country"));
+  return { country: countryName(code), region: clean(header("x-vercel-ip-country-region")), city: clean(city) };
+}
+

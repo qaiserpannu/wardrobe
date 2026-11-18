@@ -193,3 +193,33 @@ test("an item goes from draft to published, on hold, sold, back, and archived", 
   await expect(page.locator('[data-testid="admin-product"]:visible')).toContainText(name);
   await visitor.context().close();
 });
+
+test("a photo over the host's 4.5 MB request limit is shrunk in the browser before upload (D49)", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop", "once is enough");
+  // Random noise does not compress, so this stands in for a large phone photo.
+  const noise = Buffer.alloc(2200 * 3000 * 3);
+  for (let i = 0; i < noise.length; i += 4) noise.writeUInt32LE((Math.random() * 0xffffffff) >>> 0, i);
+  const big = await sharp(noise, { raw: { width: 2200, height: 3000, channels: 3 } }).jpeg({ quality: 95 }).toBuffer();
+  expect(big.length).toBeGreaterThan(5 * 1024 * 1024);
+  expect(big.length).toBeLessThan(15 * 1024 * 1024);
+
+  await signIn(page);
+  const db = postgres(process.env.TEST_DATABASE_URL!, { max: 1 });
+  const [{ id }] = await db<{ id: string }[]>`select id from products where status = 'available' order by code limit 1`;
+  await db.end();
+  await page.goto(`/admin/products/${id}`);
+  await expect(page.locator('[data-testid="photo"]:visible').first()).toBeVisible();
+  const before = await page.locator('[data-testid="photo"]:visible').count();
+  const sent: number[] = [];
+  page.on("request", (r) => {
+    if (r.url().includes("/photos") && r.method() === "POST") sent.push(r.postDataBuffer()?.length ?? 0);
+  });
+  await page.locator('[data-testid="photo-input"]:visible').setInputFiles({ name: "big.jpg", mimeType: "image/jpeg", buffer: big });
+  await expect(page.locator('[data-testid="photo"]:visible')).toHaveCount(before + 1, { timeout: 60_000 });
+  // Take the extra photo out again so other tests see the item as it was seeded.
+  const cleanup = postgres(process.env.TEST_DATABASE_URL!, { max: 1 });
+  await cleanup`delete from product_images where id = (select id from product_images where product_id = ${id} order by created_at desc limit 1)`;
+  await cleanup.end();
+  expect(sent).toHaveLength(1);
+  expect(sent[0]).toBeLessThan(4.5 * 1024 * 1024);
+});

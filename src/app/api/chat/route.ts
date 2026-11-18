@@ -17,6 +17,9 @@ import type { PublicProduct } from "@/server/services/types";
  * cookie), what they said, and how product cards are shaped for the widget.
  */
 
+/** Longest a request may run on the host (seconds); within the free plan's limit. */
+export const maxDuration = 60;
+
 const VISITOR_COOKIE = "plw_chat";
 const ID_PATTERN = /^[0-9a-f-]{36}$/;
 

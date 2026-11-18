@@ -10,6 +10,9 @@ import { AdminActionError, addProductPhoto } from "@/server/services/admin-produ
  * service; its name and claimed type are ignored.
  */
 
+/** Longest a request may run on the host (seconds); within the free plan's limit. */
+export const maxDuration = 60;
+
 const json = (error: string, status: number) =>
   NextResponse.json({ error }, { status, headers: { "Cache-Control": "no-store" } });
 

@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import type { NextRequest } from "next/server";
 import { z } from "zod";
-import { parsePlace } from "@/lib/visit-source";
+import { placeFromHeaders } from "@/lib/visit-source";
 import { ADMIN_COOKIE, clientAddress } from "@/server/auth/session";
 import { recordVisit } from "@/server/services/visits";
 
@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
     address,
     userAgent: request.headers.get("user-agent"),
     ownHost: host,
-    place: parsePlace(request.headers.get("x-nf-geo"), request.headers.get("x-country")),
+    place: placeFromHeaders((name) => request.headers.get(name)),
   });
   return done();
 }

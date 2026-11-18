@@ -10,6 +10,9 @@ import { CACHE_TAGS } from "@/server/services/cached";
 
 const json = (body: Record<string, unknown>, status: number) => NextResponse.json(body, { status, headers: { "Cache-Control": "no-store" } });
 
+/** Longest a request may run on the host (seconds); within the free plan's limit. */
+export const maxDuration = 60;
+
 export async function POST(request: NextRequest) {
   const admin = await getAdmin();
   if (!admin) return json({ error: "Please sign in again." }, 401);

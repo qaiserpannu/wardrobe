@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
+import { shrinkForUpload } from "@/lib/shrink-image";
 
 /** Shows the large homepage picture and lets the owner replace it. */
 export function HeroImageUploader({ currentUrl }: { currentUrl: string | null }) {
@@ -16,7 +17,7 @@ export function HeroImageUploader({ currentUrl }: { currentUrl: string | null })
     setBusy(true);
     setMessage(null);
     const body = new FormData();
-    body.set("file", file);
+    body.set("file", await shrinkForUpload(file));
     try {
       const response = await fetch("/api/admin/settings/hero-image", { method: "POST", body });
       const data = (await response.json().catch(() => null)) as { error?: string } | null;
